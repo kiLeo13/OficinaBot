@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.databases.DBManager;
 import ofc.bot.content.annotations.commands.DiscordCommand;
 import ofc.bot.content.annotations.commands.Option;
+import ofc.bot.databases.entities.tables.Economy;
 import ofc.bot.handlers.commands.contexts.CommandContext;
 import ofc.bot.handlers.commands.responses.results.CommandResult;
 import ofc.bot.handlers.commands.responses.results.Status;
@@ -25,7 +26,8 @@ import static org.jooq.impl.DSL.*;
 
 @DiscordCommand(name = "balance", description = "Verifica o saldo de um usuário.")
 public class GetBalance extends SlashCommand {
-    private static final BalanceData EMPTY_BALANCE_DATA = new BalanceData(0, 0, 0 ,0 ,0, 0, false);
+    private static final BalanceData EMPTY_BALANCE_DATA = new BalanceData(0, 0, 0, 0, 0, 0, false);
+    private static final String RANK_SYMBOL = "⬆️";
 
     @Option
     private static final OptionData USER = new OptionData(OptionType.USER, "user", "O usuário a verificar o saldo.");
@@ -61,8 +63,8 @@ public class GetBalance extends SlashCommand {
         builder.setAuthor(name, null, avatar)
                 .setDescription("Use `/leaderboard` para ver o ranking global.")
                 .setColor(color)
-                .addField("Saldo", balance, true)
-                .addField("Rank", rank, true);
+                .addField(Economy.SYMBOL + " Saldo", balance, true)
+                .addField(RANK_SYMBOL + " Rank", rank, true);
 
         if (fullBody && data.found())
             applyExtraFields(data, builder);
