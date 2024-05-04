@@ -1,4 +1,4 @@
-<img align="left" src="https://cdn.discordapp.com/avatars/1006730264204021880/714d40448f66c7c21ecb0082b26ec339.png" height="70" width="70">
+<img align="right" src="https://cdn.discordapp.com/avatars/1006730264204021880/714d40448f66c7c21ecb0082b26ec339.png" height="70" width="70">
 
 # Oficina Bot
 
