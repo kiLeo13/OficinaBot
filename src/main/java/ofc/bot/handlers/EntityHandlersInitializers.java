@@ -65,9 +65,9 @@ public class EntityHandlersInitializers {
                 ButtonClickHandler.registerButton(identity, listener);
 
             } catch (InstantiationException e) {
-                LOGGER.error("Could not instantiate button listener at " + handler.getName(), e);
+                LOGGER.error("Could not instantiate button listener at {}", handler.getName(), e);
             } catch (ReflectiveOperationException e) {
-                LOGGER.error("Could not access button listener at " + handler.getName(), e);
+                LOGGER.error("Could not access button listener at {}", handler.getName(), e);
             }
         }
     }
@@ -92,9 +92,9 @@ public class EntityHandlersInitializers {
                 api.addEventListener(listener);
 
             } catch (InstantiationException e) {
-                LOGGER.error("Could not instantiate event listener at " + handler.getName(), e);
+                LOGGER.error("Could not instantiate event listener at {}", handler.getName(), e);
             } catch (ReflectiveOperationException e) {
-                LOGGER.error("Could not access event listener at " + handler.getName(), e);
+                LOGGER.error("Could not access event listener at {}", handler.getName(), e);
             }
         }
     }
