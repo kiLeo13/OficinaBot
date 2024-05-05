@@ -13,7 +13,7 @@ import java.util.Map;
  * like {@link #save()}, {@link #update()} and {@link #delete()}.
  *
  * @param <K> The primary key data type.
- * @param <R> The record type (the inheritor of this {@link Repository}).
+ * @param <R> The record type (the child class of this {@link Repository}).
  */
 public abstract class Repository<K, R extends TableRecord<R>> extends TableRecordImpl<R> {
 
