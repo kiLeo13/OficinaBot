@@ -26,9 +26,8 @@ public class VoiceChatMoneyHandler implements Job {
 
     private static final long SALADA_VOICE_CHANNEL_ID = 693627612454453250L;
     private static final long GUILD_ID = 582430782577049600L;
-
-    private static final int MIN_EXP = 20;
-    private static final int MAX_EXP = 40;
+    private static final int MIN_VALUE = 20;
+    private static final int MAX_VALUE = 40;
 
     private static final Predicate<Member> CONDITION = (m) -> m.getVoiceState() != null
             && !m.getVoiceState().isMuted()
@@ -62,7 +61,7 @@ public class VoiceChatMoneyHandler implements Job {
 
         for (Member member : membersToPay) {
 
-            int randomValue = random.nextInt(MIN_EXP, MAX_EXP + 1);
+            int randomValue = random.nextInt(MIN_VALUE, MAX_VALUE + 1);
             long userId = member.getIdLong();
             long currentVoiceChannelId = member.getVoiceState().getChannel().getIdLong();
             boolean isSalada = currentVoiceChannelId == SALADA_VOICE_CHANNEL_ID;
@@ -74,7 +73,7 @@ public class VoiceChatMoneyHandler implements Job {
                 final long CASH_DEFAULT = 0;
                 final long BANK_DEFAULT = 0;
 
-                // Members in the "Eletrozika Salad" voice channel
+                // Members in the "Salada" voice channel
                 // will earn 2x more and be credited in their bank, instead of cash for normal voice channels
                 long cash = isSalada ? CASH_DEFAULT : amount;
                 long bank = isSalada ? amount : BANK_DEFAULT;
