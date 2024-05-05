@@ -107,6 +107,11 @@ public class EntityHandlersInitializers {
 
         for (Class<?> cmdClass : eventHandlers) {
 
+            // Since Subcommands also use the same @DiscordCommand annotation,
+            // we do not throw an exception here.
+            // Instead, we assume that classes annotated with @DiscordCommand but not extending SlashCommand
+            // are instances of SlashSubcommand, which are handled by the SlashCommand instance
+            // through its superclass constructor.
             if (!SlashCommand.class.isAssignableFrom(cmdClass))
                 continue;
 
