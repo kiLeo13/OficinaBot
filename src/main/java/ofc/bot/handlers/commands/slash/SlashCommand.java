@@ -42,7 +42,7 @@ public abstract class SlashCommand extends AbstractCommandData implements Subcom
     // and will be ignored if Subcommands and Subcommand Groups are declared
     @Override
     public CommandResult onCommand(CommandContext ctx) {
-        throw new UnsupportedOperationException("Command '" + ctx.toString() + "' must implement 'onCommand(CommandContext)' method");
+        throw new UnsupportedOperationException("Command at class '" + this.getClass().getName() + "' must implement 'onCommand(CommandContext)' method");
     }
 
     @Override
