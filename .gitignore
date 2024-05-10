@@ -38,8 +38,6 @@ database.db
 
 # Confidential directories/files
 target/
-resources/
-src/main/java/ofc/bot/jobs/FormsReminder.java
 
 # Some util stuff
 src/main/java/ofc/bot/util/content/Channels.java
