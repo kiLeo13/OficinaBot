@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 @CommandPermission(Permission.ADMINISTRATOR)
 public class RefreshStaff extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RefreshStaff.class);
-    protected static final File FILE = new File(BotFiles.DIR, "staffconfig.json");
+    protected static final File FILE = new File(BotFiles.DIR_CONTENT, "staffconfig.json");
     private static final Gson GSON = new Gson();
     private static final int COOLDOWN = 120000;
     private static boolean isUpdating = false;

@@ -20,8 +20,8 @@ import java.io.UncheckedIOException;
 @CommandPermission(Permission.MESSAGE_MANAGE)
 public class MovieInstructions extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(MovieInstructions.class);
-    private static final File IMAGE_MOBILE = new File(BotFiles.DIR_CONTENT, "movie_instructions_mobile.png");
-    private static final File IMAGE_PC = new File(BotFiles.DIR_CONTENT, "movie_instructions_pc.png");
+    private static final File IMAGE_MOBILE = new File(BotFiles.DIR_ASSETS, "movie_instructions_mobile.png");
+    private static final File IMAGE_PC = new File(BotFiles.DIR_ASSETS, "movie_instructions_pc.png");
 
     @Override
     public CommandResult onCommand(CommandContext ctx) {
