@@ -1,4 +1,4 @@
-package ofc.bot.content.annotations.commands;
+package ofc.bot.util.content.annotations.commands;
 
 import net.dv8tion.jda.api.Permission;
 

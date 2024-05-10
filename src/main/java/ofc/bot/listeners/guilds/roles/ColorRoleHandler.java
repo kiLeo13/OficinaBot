@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import ofc.bot.content.annotations.listeners.EventHandler;
+import ofc.bot.util.content.annotations.listeners.EventHandler;
 import ofc.bot.databases.entities.records.ColorRoleRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

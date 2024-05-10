@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import ofc.bot.Main;
-import ofc.bot.content.annotations.jobs.CronJob;
+import ofc.bot.util.content.annotations.jobs.CronJob;
 import ofc.bot.handlers.TemporalTaskExecutor;
 import ofc.bot.handlers.economy.Balance;
 import ofc.bot.handlers.economy.UEconomyManager;

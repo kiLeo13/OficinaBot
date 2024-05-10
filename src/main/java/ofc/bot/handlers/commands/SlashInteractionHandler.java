@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
-import ofc.bot.content.annotations.listeners.EventHandler;
+import ofc.bot.util.content.annotations.listeners.EventHandler;
 import ofc.bot.handlers.commands.contexts.CommandContext;
 import ofc.bot.handlers.commands.contexts.SlashCommandContext;
 import ofc.bot.handlers.commands.responses.results.CommandResult;

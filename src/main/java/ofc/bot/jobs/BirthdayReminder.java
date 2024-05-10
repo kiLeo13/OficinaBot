@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.Main;
-import ofc.bot.content.annotations.jobs.CronJob;
+import ofc.bot.util.content.annotations.jobs.CronJob;
 import ofc.bot.databases.entities.records.BirthdayRecord;
 import ofc.bot.databases.DBManager;
 import ofc.bot.util.content.Channels;

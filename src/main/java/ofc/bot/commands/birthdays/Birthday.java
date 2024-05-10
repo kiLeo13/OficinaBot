@@ -3,8 +3,8 @@ package ofc.bot.commands.birthdays;
 import net.dv8tion.jda.api.Permission;
 import ofc.bot.commands.birthdays.subcommands.BirthdayAdd;
 import ofc.bot.commands.birthdays.subcommands.BirthdayRemove;
-import ofc.bot.content.annotations.commands.DiscordCommand;
-import ofc.bot.content.annotations.commands.CommandPermission;
+import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.content.annotations.commands.CommandPermission;
 import ofc.bot.handlers.commands.slash.SlashCommand;
 
 import java.time.format.DateTimeFormatter;

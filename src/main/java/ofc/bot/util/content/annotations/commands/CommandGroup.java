@@ -1,4 +1,4 @@
-package ofc.bot.content.annotations.commands;
+package ofc.bot.util.content.annotations.commands;
 
 import ofc.bot.handlers.commands.slash.innercommands.SlashSubcommandGroup;
 

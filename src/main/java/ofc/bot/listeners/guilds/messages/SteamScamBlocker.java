@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import ofc.bot.content.annotations.listeners.EventHandler;
+import ofc.bot.util.content.annotations.listeners.EventHandler;
 
 import javax.annotation.Nonnull;
 

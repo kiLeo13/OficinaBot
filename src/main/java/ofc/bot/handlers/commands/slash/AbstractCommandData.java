@@ -1,6 +1,6 @@
 package ofc.bot.handlers.commands.slash;
 
-import ofc.bot.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.handlers.commands.exceptions.CommandCreationException;
 import ofc.bot.handlers.commands.slash.containers.CommandOptionsContainer;
 import ofc.bot.util.Bot;

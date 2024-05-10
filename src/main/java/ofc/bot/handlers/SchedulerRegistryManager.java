@@ -1,6 +1,6 @@
 package ofc.bot.handlers;
 
-import ofc.bot.content.annotations.jobs.CronJob;
+import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.reflections.Reflections;

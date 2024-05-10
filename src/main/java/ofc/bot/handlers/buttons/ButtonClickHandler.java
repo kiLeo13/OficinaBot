@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import ofc.bot.content.annotations.listeners.EventHandler;
+import ofc.bot.util.content.annotations.listeners.EventHandler;
 
 import java.util.HashMap;
 import java.util.Map;

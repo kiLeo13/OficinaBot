@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.sticker.StickerItem;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.Main;
-import ofc.bot.content.annotations.listeners.EventHandler;
+import ofc.bot.util.content.annotations.listeners.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

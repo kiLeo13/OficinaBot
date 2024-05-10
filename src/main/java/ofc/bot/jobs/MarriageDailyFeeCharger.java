@@ -1,7 +1,7 @@
 package ofc.bot.jobs;
 
 import ofc.bot.commands.marriages.Marry;
-import ofc.bot.content.annotations.jobs.CronJob;
+import ofc.bot.util.content.annotations.jobs.CronJob;
 import ofc.bot.databases.DBManager;
 import ofc.bot.databases.entities.records.MarriageRecord;
 import ofc.bot.databases.services.TransactionalService;

@@ -1,7 +1,7 @@
 package ofc.bot.handlers.commands.slash.containers;
 
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import ofc.bot.content.annotations.commands.Option;
+import ofc.bot.util.content.annotations.commands.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

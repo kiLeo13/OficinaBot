@@ -1,7 +1,7 @@
 package ofc.bot.commands.userinfo.custom.subcommands;
 
 import net.dv8tion.jda.api.entities.User;
-import ofc.bot.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.databases.DBManager;
 import ofc.bot.databases.entities.tables.CustomUserinfo;
 import ofc.bot.handlers.commands.contexts.CommandContext;

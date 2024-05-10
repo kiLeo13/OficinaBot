@@ -1,4 +1,4 @@
-package ofc.bot.content.annotations.jobs;
+package ofc.bot.util.content.annotations.jobs;
 
 import ofc.bot.handlers.SchedulerRegistryManager;
 import org.quartz.JobDetail;

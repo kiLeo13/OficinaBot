@@ -3,7 +3,7 @@ package ofc.bot.commands.economy.income;
 import net.dv8tion.jda.api.entities.Member;
 import ofc.bot.databases.DBManager;
 import ofc.bot.databases.users.MembersDAO;
-import ofc.bot.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.handlers.commands.contexts.CommandContext;
 import ofc.bot.handlers.commands.responses.results.CommandResult;
 import ofc.bot.handlers.commands.responses.results.Status;

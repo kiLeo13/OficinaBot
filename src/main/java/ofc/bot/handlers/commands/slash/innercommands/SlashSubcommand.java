@@ -1,6 +1,6 @@
 package ofc.bot.handlers.commands.slash.innercommands;
 
-import ofc.bot.content.annotations.commands.CommandGroup;
+import ofc.bot.util.content.annotations.commands.CommandGroup;
 import ofc.bot.handlers.commands.slash.AbstractCommandData;
 
 public abstract class SlashSubcommand extends AbstractCommandData {

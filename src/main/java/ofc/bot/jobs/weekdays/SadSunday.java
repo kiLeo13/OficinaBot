@@ -2,7 +2,7 @@ package ofc.bot.jobs.weekdays;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
-import ofc.bot.content.annotations.jobs.CronJob;
+import ofc.bot.util.content.annotations.jobs.CronJob;
 import ofc.bot.util.content.Channels;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

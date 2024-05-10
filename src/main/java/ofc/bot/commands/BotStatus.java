@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import ofc.bot.Main;
-import ofc.bot.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.handlers.commands.contexts.CommandContext;
 import ofc.bot.handlers.commands.responses.results.CommandResult;
 import ofc.bot.handlers.commands.responses.results.Status;

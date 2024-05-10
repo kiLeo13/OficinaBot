@@ -1,4 +1,4 @@
-package ofc.bot.content.annotations.listeners;
+package ofc.bot.util.content.annotations.listeners;
 
 import ofc.bot.handlers.EntityHandlersInitializers;
 

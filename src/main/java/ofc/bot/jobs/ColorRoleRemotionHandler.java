@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.Main;
-import ofc.bot.content.annotations.jobs.CronJob;
+import ofc.bot.util.content.annotations.jobs.CronJob;
 import ofc.bot.databases.entities.records.ColorRoleRecord;
 import ofc.bot.databases.DBManager;
 import org.jooq.DSLContext;

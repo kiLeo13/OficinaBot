@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
-import ofc.bot.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import ofc.bot.handlers.buttons.BotButtonListener;
 import ofc.bot.handlers.buttons.ButtonData;
 import ofc.bot.util.Bot;
