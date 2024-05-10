@@ -26,6 +26,7 @@ import java.util.concurrent.ForkJoinPool;
 @EventHandler
 public class SlashInteractionHandler extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(SlashInteractionHandler.class);
+    private static final CommandsRegistryManager CMDS_MNGR = CommandsRegistryManager.getManager();
     private static final ExecutorService EXECUTOR = ForkJoinPool.commonPool();
 
     private static final long TARGET_GUILD_ID = 582430782577049600L;
@@ -42,7 +43,7 @@ public class SlashInteractionHandler extends ListenerAdapter {
             return;
 
         String fullName = event.getFullCommandName();
-        AbstractCommandData cmd = CommandsRegistryManager.resolveCommand(fullName);
+        AbstractCommandData cmd = CMDS_MNGR.resolveCommand(fullName);
         CommandContext ctx = new SlashCommandContext(event);
         Member member = ctx.getIssuer();
         User user = ctx.getUser();

@@ -16,10 +16,18 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class CommandsRegistryManager {
+    private static CommandsRegistryManager instance;
     private static final Logger logger = LoggerFactory.getLogger(CommandsRegistryManager.class);
     private static final Map<String, SlashCommand> commands = new HashMap<>(100);
 
-    public static SlashCommand getCommand(String name) {
+    private CommandsRegistryManager() {}
+
+    public static CommandsRegistryManager getManager() {
+        if (instance == null) instance = new CommandsRegistryManager();
+        return instance;
+    }
+
+    public SlashCommand getCommand(String name) {
         return commands.get(name);
     }
 
@@ -40,7 +48,7 @@ public class CommandsRegistryManager {
      * @param fullName The full command name, found at {@link Command#getFullCommandName()}.
      * @return The command instance found, {@code null} otherwise.
      */
-    public static AbstractCommandData resolveCommand(String fullName) {
+    public AbstractCommandData resolveCommand(String fullName) {
 
         if (fullName == null || fullName.isBlank())
             throw new IllegalArgumentException("Cannot search for null or empty command name");
@@ -61,13 +69,13 @@ public class CommandsRegistryManager {
         return new Builder();
     }
 
-    private static void registerCommands(Map<String, SlashCommand> commands) {
+    private void registerCommands(Map<String, SlashCommand> commands) {
         CommandsRegistryManager.commands.putAll(commands);
 
         upsertCommands();
     }
 
-    private static void upsertCommands() {
+    private void upsertCommands() {
 
         JDA api = Main.getApi();
         Collection<SlashCommand> slashCommands = commands.values();
@@ -173,7 +181,7 @@ public class CommandsRegistryManager {
         }
 
         public void commit() {
-            registerCommands(this.mappedCommands);
+            getManager().registerCommands(this.mappedCommands);
         }
     }
 }
