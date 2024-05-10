@@ -16,7 +16,6 @@ import ofc.bot.handlers.commands.responses.results.CommandResult;
 import ofc.bot.handlers.commands.responses.results.Status;
 import ofc.bot.handlers.commands.slash.AbstractCommandData;
 import ofc.bot.handlers.commands.slash.CommandExecutor;
-import ofc.bot.handlers.commands.slash.SlashCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +42,7 @@ public class SlashInteractionHandler extends ListenerAdapter {
             return;
 
         String fullName = event.getFullCommandName();
-        AbstractCommandData cmd = resolveCommand(fullName);
+        AbstractCommandData cmd = CommandsRegistryManager.resolveCommand(fullName);
         CommandContext ctx = new SlashCommandContext(event);
         Member member = ctx.getIssuer();
         User user = ctx.getUser();
@@ -86,20 +85,6 @@ public class SlashInteractionHandler extends ListenerAdapter {
         return cooldown == 0
                 ? 0
                 : cooldown - period;
-    }
-
-    private AbstractCommandData resolveCommand(String fullName) {
-
-        String[] names = fullName.split(" ");
-
-        SlashCommand cmd = CommandsRegistryManager.getCommand(names[0]);
-
-        if (cmd == null || names.length == 1)
-            return cmd;
-
-        return names.length == 2
-                ? cmd.getSubcommand(names[1])
-                : cmd.getSubcommand(names[1], names[2]);
     }
 
     private void handleCommand(CommandContext ctx, CommandExecutor cmd) {

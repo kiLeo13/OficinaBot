@@ -1,10 +1,12 @@
 package ofc.bot.handlers.commands;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.Main;
+import ofc.bot.handlers.commands.slash.AbstractCommandData;
 import ofc.bot.handlers.commands.slash.SlashCommand;
 import ofc.bot.handlers.commands.slash.innercommands.SlashSubcommand;
 import ofc.bot.handlers.commands.slash.innercommands.SlashSubcommandGroup;
@@ -19,6 +21,40 @@ public class CommandsRegistryManager {
 
     public static SlashCommand getCommand(String name) {
         return commands.get(name);
+    }
+
+    /**
+     * This method returns the {@link AbstractCommandData} instance of a command
+     * by it's full name, for example, you can provide the following String:
+     * {@code permissions member add} and if the command exists in the map, an instance of it
+     * will be returned.
+     * <p>
+     * <b><u>Never</u></b> pass command names with any other characters other than the name,
+     * or provide multiple spaces between two arguments.
+     * Ex:
+     * <p>
+     * Wrong: {@code /voice mute}.
+     * <p>
+     * Correct: {@code voice mute}.
+     *
+     * @param fullName The full command name, found at {@link Command#getFullCommandName()}.
+     * @return The command instance found, {@code null} otherwise.
+     */
+    public static AbstractCommandData resolveCommand(String fullName) {
+
+        if (fullName == null || fullName.isBlank())
+            throw new IllegalArgumentException("Cannot search for null or empty command name");
+
+        String[] names = fullName.split(" ");
+
+        SlashCommand cmd = getCommand(names[0]);
+
+        if (cmd == null || names.length == 1)
+            return cmd;
+
+        return names.length == 2
+                ? cmd.getSubcommand(names[1])
+                : cmd.getSubcommand(names[1], names[2]);
     }
 
     public static Builder newBuilder() {
