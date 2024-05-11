@@ -8,6 +8,8 @@ import ofc.bot.commands.marriages.Marry;
 import ofc.bot.databases.DBManager;
 import ofc.bot.databases.entities.records.MarriageRecord;
 import ofc.bot.util.content.Roles;
+import ofc.bot.util.exclusions.ExclusionType;
+import ofc.bot.util.exclusions.ExclusionUtil;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
@@ -66,7 +68,7 @@ public class MarriageUtil {
             return false;
 
         boolean privileged = isPrivileged(member);
-        int marriageCount = MarriageUtil.getMarriageCount(member.getIdLong());
+        int marriageCount = getMarriageCount(member.getIdLong());
 
         return privileged
                 ? marriageCount >= Marry.MAX_PRIVILEGED_MARRIAGES
@@ -90,6 +92,29 @@ public class MarriageUtil {
 
     public static String format(List<MarriageRecord> marriages) {
         return Bot.format(marriages, (mr) -> String.format(USERINFO_FORMAT, mr.getSelectedUserEffectiveName(), mr.getCreated()));
+    }
+
+    /**
+     * This method is practically the same as {@link #getMarriageCount(long)} except that
+     * it excludes users that are not affected by the daily relationships tax.
+     * <p>
+     * The value returned by this method can be used to check how much the
+     * given user will be charged daily by doing {@code getAffectedMarriageCount(long) * Marry.DAILY_COST}.
+     *
+     * @param userId The id of the user to run the count on.
+     * @return The amount of user's relationships affected by the daily tax.
+     * @see #getMarriageCount(long)
+     */
+    public static int getAffectedMarriageCount(long userId) {
+
+        List<Long> excluded = ExclusionUtil.fetchExcluded(ExclusionType.MARRIAGE_FEE);
+
+        return CTX.fetchCount(
+                MARRIAGES,
+                MARRIAGES.REQUESTER_ID.notIn(excluded)
+                        .and(MARRIAGES.TARGET_ID.notIn(excluded))
+                        .and(MARRIAGES.TARGET_ID.eq(userId).or(MARRIAGES.REQUESTER_ID.eq(userId)))
+        );
     }
 
     private static boolean isPrivileged(Member member) {
