@@ -7,16 +7,25 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
+import net.dv8tion.jda.api.utils.TimeUtil;
 import ofc.bot.handlers.commands.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
 public interface CommandContext extends IAcknowledgeable<SlashCommandInteraction> {
+
+    /**
+     * The id of the {@link SlashCommandInteraction}.
+     *
+     * @return The id of the interaction.
+     */
+    long getId();
 
     @NotNull
     MessageChannelUnion getChannel();
@@ -34,6 +43,11 @@ public interface CommandContext extends IAcknowledgeable<SlashCommandInteraction
 
     @NotNull
     Guild getGuild();
+
+    @NotNull
+    default OffsetDateTime getTimeCreated() {
+        return TimeUtil.getTimeCreated(this::getId);
+    }
 
     default boolean hasOption(String name) {
         return getInteraction().getOption(name) != null;

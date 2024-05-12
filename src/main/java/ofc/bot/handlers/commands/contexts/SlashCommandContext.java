@@ -64,6 +64,11 @@ public class SlashCommandContext implements CommandContext {
             this.interaction.deferReply(ephemeral).queue();
     }
 
+    @Override
+    public long getId() {
+        return this.interaction.getIdLong();
+    }
+
     @NotNull
     @Override
     public MessageChannelUnion getChannel() {
