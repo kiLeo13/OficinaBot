@@ -80,7 +80,7 @@ public class SlashInteractionHandler extends ListenerAdapter {
      */
     private long resolveCooldown(AbstractCommandData cmd, long userId) {
 
-        int cooldown = cmd.getCooldown(); // 30
+        int cooldown = cmd.getCooldown();
         long period = cmd.getUserCooldown(userId);
 
         return cooldown == 0
