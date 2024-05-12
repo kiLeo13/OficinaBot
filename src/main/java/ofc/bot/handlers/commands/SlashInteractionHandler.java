@@ -91,9 +91,12 @@ public class SlashInteractionHandler extends ListenerAdapter {
     private void handleCommand(CommandContext ctx, CommandExecutor cmd) {
 
         SlashCommandInteraction interaction = ctx.getInteraction();
-        User user = ctx.getUser();
-        String cmdName = interaction.getFullCommandName();
         List<OptionMapping> options = interaction.getOptions();
+        User user = ctx.getUser();
+        String userId = user.getId();
+        String userName = user.getName();
+        String cmdName = interaction.getFullCommandName();
+        String out = getFullCommand(cmdName, options);
 
         EXECUTOR.execute(() -> {
 
@@ -103,30 +106,27 @@ public class SlashInteractionHandler extends ListenerAdapter {
                 long start = System.currentTimeMillis();
                 CommandResult status = cmd.onCommand(ctx);
                 long end = System.currentTimeMillis();
+                long duration = end - start;
 
-                output(user.getName(), cmdName, status, options, (int) (end - start));
+                String statName = status == null ? "Unknown" : status.getStatus().name();
+
+                LOGGER.info("@{} issued \"/{}\" with status {}, took {}ms", userName, out, statName, duration);
 
                 if (status != null && status.getContent() != null)
                     ctx.reply(status.getContent(), status.isEphemeral());
 
             } catch (Exception e) {
-                LOGGER.error("Could not execute command \"/{}\"", cmdName, e);
+
+                LOGGER.error("Command execution triggered by @{} [{}], as \"/{}\", at \"{}\" failed",
+                        userName, userId, out, ctx.getTimeCreated(), e
+                );
                 ctx.reply("Ocorreu um erro :/", true);
             }
         });
     }
 
-    private void output(String userName, String cmdName, CommandResult result, List<OptionMapping> options, int millis) {
-
-        String status = result == null ? "Unknown" : result.getStatus().name();
-
-        LOGGER.info("{} issued \"/{}{}\" with status {}, took {}ms",
-                userName,
-                cmdName,
-                formatOptions(options),
-                status,
-                millis
-        );
+    private String getFullCommand(String cmdName, List<OptionMapping> options) {
+        return cmdName + formatOptions(options);
     }
 
     private String formatOptions(List<OptionMapping> options) {
