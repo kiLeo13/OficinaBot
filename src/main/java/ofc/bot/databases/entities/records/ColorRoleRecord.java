@@ -1,11 +1,12 @@
 package ofc.bot.databases.entities.records;
 
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.ColorRoles;
 import ofc.bot.util.Bot;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
-public class ColorRoleRecord extends Repository<Integer, ColorRoleRecord> {
+public class ColorRoleRecord extends RecordEntity<Integer, ColorRoleRecord> {
 
     public static final ColorRoles COLOR_ROLES = ColorRoles.COLOR_ROLES;
 
@@ -24,6 +25,7 @@ public class ColorRoleRecord extends Repository<Integer, ColorRoleRecord> {
         set(COLOR_ROLES.UPDATED_AT, timestamp);
     }
 
+    @NotNull
     @Override
     public Field<Integer> getIdField() {
         return COLOR_ROLES.ID;

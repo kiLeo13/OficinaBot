@@ -1,11 +1,12 @@
 package ofc.bot.databases.entities.records;
 
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.Users;
 import ofc.bot.util.Bot;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
-public class UserRecord extends Repository<Long, UserRecord> {
+public class UserRecord extends RecordEntity<Long, UserRecord> {
 
     public static final Users USERS = Users.USERS;
 
@@ -24,11 +25,6 @@ public class UserRecord extends Repository<Long, UserRecord> {
         set(USERS.UPDATED_AT, timestamp);
     }
 
-    @Override
-    public Field<Long> getIdField() {
-        return USERS.ID;
-    }
-
     public String getName() {
         return get(USERS.NAME);
     }
@@ -45,5 +41,11 @@ public class UserRecord extends Repository<Long, UserRecord> {
     public long getLastUpdated() {
         Long updated = get(USERS.UPDATED_AT);
         return updated == null ? 0 : updated;
+    }
+
+    @NotNull
+    @Override
+    public Field<Long> getIdField() {
+        return USERS.ID;
     }
 }

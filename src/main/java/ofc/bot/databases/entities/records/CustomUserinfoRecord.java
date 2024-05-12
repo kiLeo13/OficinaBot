@@ -4,16 +4,17 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.CustomUserinfo;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.MemberEmoji;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
 import java.awt.*;
 import java.util.List;
 
-public class CustomUserinfoRecord extends Repository<Long, CustomUserinfoRecord> {
+public class CustomUserinfoRecord extends RecordEntity<Long, CustomUserinfoRecord> {
     private static final String DEFAULT_TITLE_FORMAT = "👥 %s";
 
     public static final CustomUserinfo CUSTOM_USERINFO = CustomUserinfo.CUSTOM_USERINFO;
@@ -38,6 +39,7 @@ public class CustomUserinfoRecord extends Repository<Long, CustomUserinfoRecord>
         set(CUSTOM_USERINFO.UPDATED_AT, timestamp);
     }
 
+    @NotNull
     @Override
     public Field<Long> getIdField() {
         return CUSTOM_USERINFO.USER_ID;

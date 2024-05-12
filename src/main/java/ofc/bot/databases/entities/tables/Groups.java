@@ -27,10 +27,10 @@ public class Groups extends TableImpl<GroupRecord> {
      * <p>
      * This field represents a boolean property, where 0 = {@code false} and 1 = {@code true}.
      */
-    public final Field<Integer> PRIVILEGED = createField(name("privileged"), SQLDataType.INTEGER.notNull());
+    public final Field<Integer> PRIVILEGED    = createField(name("privileged"),       SQLDataType.INTEGER.notNull());
 
-    public final Field<Long> CREATED_AT = createField(name("created_at"), SQLDataType.BIGINT.notNull());
-    public final Field<Long> UPDATED_AT = createField(name("updated_at"), SQLDataType.BIGINT.notNull());
+    public final Field<Long> CREATED_AT       = createField(name("created_at"),       SQLDataType.BIGINT.notNull());
+    public final Field<Long> UPDATED_AT       = createField(name("updated_at"),       SQLDataType.BIGINT.notNull());
 
     public Groups() {
         super(name("groups"));

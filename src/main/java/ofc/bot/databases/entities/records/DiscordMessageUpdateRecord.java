@@ -1,10 +1,11 @@
 package ofc.bot.databases.entities.records;
 
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.DiscordMessageUpdates;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
-public class DiscordMessageUpdateRecord extends Repository<Integer, DiscordMessageUpdateRecord> {
+public class DiscordMessageUpdateRecord extends RecordEntity<Integer, DiscordMessageUpdateRecord> {
 
     public static final DiscordMessageUpdates DISCORD_MESSAGE_UPDATES = DiscordMessageUpdates.DISCORD_MESSAGE_UPDATES;
 
@@ -12,6 +13,7 @@ public class DiscordMessageUpdateRecord extends Repository<Integer, DiscordMessa
         super(DISCORD_MESSAGE_UPDATES);
     }
 
+    @NotNull
     public Field<Integer> getIdField() {
         return DISCORD_MESSAGE_UPDATES.ID;
     }

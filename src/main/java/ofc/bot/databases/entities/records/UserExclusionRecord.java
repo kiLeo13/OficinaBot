@@ -1,12 +1,13 @@
 package ofc.bot.databases.entities.records;
 
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.UsersExclusions;
 import ofc.bot.util.Bot;
 import ofc.bot.util.exclusions.ExclusionType;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
-public class UserExclusionRecord extends Repository<Integer, UserExclusionRecord> {
+public class UserExclusionRecord extends RecordEntity<Integer, UserExclusionRecord> {
 
     public static final UsersExclusions USERS_EXCLUSIONS = UsersExclusions.USERS_EXCLUSIONS;
 
@@ -23,6 +24,7 @@ public class UserExclusionRecord extends Repository<Integer, UserExclusionRecord
         set(USERS_EXCLUSIONS.CREATED_AT, timestamp);
     }
 
+    @NotNull
     @Override
     public Field<Integer> getIdField() {
         return USERS_EXCLUSIONS.ID;

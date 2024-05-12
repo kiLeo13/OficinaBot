@@ -16,7 +16,6 @@ public class Economy extends TableImpl<EconomyRecord> {
 
     public static final Economy ECONOMY = new Economy();
 
-    public final TableField<EconomyRecord, String> USER_GLOBAL_NAME = createField(name("global_name"), SQLDataType.CHAR);
     public final TableField<EconomyRecord, String> USER_NAME = createField(name("name"), SQLDataType.CHAR);
 
     public final Field<Long> USER_ID       = createField(name("user_id"),       SQLDataType.BIGINT.notNull().identity(true));

@@ -1,12 +1,13 @@
 package ofc.bot.databases.entities.records;
 
 import ofc.bot.commands.administration.name_history.NameChangeContext;
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.INameChangeLog;
 import ofc.bot.databases.entities.tables.Nicknames;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
-public class NicknameUpdateRecord extends Repository<Integer, NicknameUpdateRecord> implements INameChangeLog {
+public class NicknameUpdateRecord extends RecordEntity<Integer, NicknameUpdateRecord> implements INameChangeLog {
 
     public static final Nicknames NICKNAMES = Nicknames.NICKNAMES;
 
@@ -25,6 +26,7 @@ public class NicknameUpdateRecord extends Repository<Integer, NicknameUpdateReco
         set(NICKNAMES.CREATED_AT, timestamp);
     }
 
+    @NotNull
     @Override
     public Field<Integer> getIdField() {
         return NICKNAMES.ID;

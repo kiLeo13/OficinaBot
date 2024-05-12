@@ -1,13 +1,14 @@
 package ofc.bot.databases.entities.records;
 
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.Birthdays;
 import ofc.bot.util.Bot;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
 import java.time.LocalDate;
 
-public class BirthdayRecord extends Repository<Long, BirthdayRecord> {
+public class BirthdayRecord extends RecordEntity<Long, BirthdayRecord> {
 
     public static final Birthdays BIRTHDAYS = Birthdays.BIRTHDAYS;
 
@@ -26,6 +27,7 @@ public class BirthdayRecord extends Repository<Long, BirthdayRecord> {
         set(BIRTHDAYS.UPDATED_AT, timestamp);
     }
 
+    @NotNull
     public Field<Long> getIdField() {
         return BIRTHDAYS.USER_ID;
     }
@@ -62,5 +64,10 @@ public class BirthdayRecord extends Repository<Long, BirthdayRecord> {
         return updated == null
                 ? 0
                 : updated;
+    }
+
+    public BirthdayRecord setUserId(long userId) {
+        set(BIRTHDAYS.USER_ID, userId);
+        return this;
     }
 }

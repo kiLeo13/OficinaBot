@@ -1,11 +1,12 @@
 package ofc.bot.databases.entities.records;
 
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.DiscordMessages;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 
-public class DiscordMessageRecord extends Repository<Long, DiscordMessageRecord> {
+public class DiscordMessageRecord extends RecordEntity<Long, DiscordMessageRecord> {
 
     public static final DiscordMessages DISCORD_MESSAGES = DiscordMessages.DISCORD_MESSAGES;
 
@@ -13,6 +14,7 @@ public class DiscordMessageRecord extends Repository<Long, DiscordMessageRecord>
         super(DISCORD_MESSAGES);
     }
 
+    @NotNull
     @Override
     public Field<Long> getIdField() {
         return DISCORD_MESSAGES.ID;

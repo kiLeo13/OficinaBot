@@ -1,14 +1,15 @@
 package ofc.bot.databases.entities.records;
 
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.Marriages;
 import ofc.bot.databases.services.TransactionalService;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 import org.jooq.Query;
 
 import static org.jooq.impl.DSL.deleteFrom;
 
-public class MarriageRecord extends Repository<Integer, MarriageRecord> {
+public class MarriageRecord extends RecordEntity<Integer, MarriageRecord> {
 
     // This value keeps track whether the divorce() method
     // was called on this instance
@@ -20,6 +21,7 @@ public class MarriageRecord extends Repository<Integer, MarriageRecord> {
         super(MARRIAGES);
     }
 
+    @NotNull
     @Override
     public Field<Integer> getIdField() {
         return MARRIAGES.ID;

@@ -4,16 +4,15 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import ofc.bot.Main;
-import ofc.bot.databases.DBManager;
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.Groups;
 import ofc.bot.util.Bot;
-import org.jooq.DSLContext;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
 import java.awt.*;
 
-public class GroupRecord extends Repository<Integer, GroupRecord> {
+public class GroupRecord extends RecordEntity<Integer, GroupRecord> {
 
     public static final Groups GROUPS = Groups.GROUPS;
 
@@ -35,6 +34,7 @@ public class GroupRecord extends Repository<Integer, GroupRecord> {
         set(GROUPS.UPDATED_AT, timestamp);
     }
 
+    @NotNull
     @Override
     public Field<Integer> getIdField() {
         return GROUPS.ID;

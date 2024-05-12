@@ -1,12 +1,13 @@
 package ofc.bot.databases.entities.records;
 
 import net.dv8tion.jda.api.interactions.DiscordLocale;
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.UsersPreferences;
 import ofc.bot.util.Bot;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
-public class UserPreferencesRecord extends Repository<Long, UserPreferencesRecord> {
+public class UserPreferencesRecord extends RecordEntity<Long, UserPreferencesRecord> {
 
     public static final UsersPreferences USERS_PREFERENCES = UsersPreferences.USERS_PREFERENCES;
 
@@ -24,6 +25,7 @@ public class UserPreferencesRecord extends Repository<Long, UserPreferencesRecor
         set(USERS_PREFERENCES.UPDATED_AT, timestamp);
     }
 
+    @NotNull
     @Override
     public Field<Long> getIdField() {
         return USERS_PREFERENCES.USER_ID;

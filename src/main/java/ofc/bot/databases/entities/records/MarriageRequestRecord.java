@@ -1,14 +1,15 @@
 package ofc.bot.databases.entities.records;
 
 import ofc.bot.databases.DBManager;
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.MarriageRequests;
 import ofc.bot.databases.entities.tables.Marriages;
 import ofc.bot.util.Bot;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 
-public class MarriageRequestRecord extends Repository<Integer, MarriageRequestRecord> {
+public class MarriageRequestRecord extends RecordEntity<Integer, MarriageRequestRecord> {
 
     public static final MarriageRequests MARRIAGE_REQUESTS = MarriageRequests.MARRIAGE_REQUESTS;
 
@@ -16,6 +17,7 @@ public class MarriageRequestRecord extends Repository<Integer, MarriageRequestRe
         super(MARRIAGE_REQUESTS);
     }
 
+    @NotNull
     @Override
     public Field<Integer> getIdField() {
         return MARRIAGE_REQUESTS.ID;

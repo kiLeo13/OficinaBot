@@ -1,10 +1,11 @@
 package ofc.bot.databases.entities.records;
 
-import ofc.bot.databases.Repository;
+import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.Economy;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Field;
 
-public class EconomyRecord extends Repository<Long, EconomyRecord> {
+public class EconomyRecord extends RecordEntity<Long, EconomyRecord> {
 
     public static final Economy ECONOMY = Economy.ECONOMY;
 
@@ -12,6 +13,7 @@ public class EconomyRecord extends Repository<Long, EconomyRecord> {
         super(ECONOMY);
     }
 
+    @NotNull
     @Override
     public Field<Long> getIdField() {
         return ECONOMY.USER_ID;
