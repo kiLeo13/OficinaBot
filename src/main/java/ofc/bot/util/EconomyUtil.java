@@ -6,11 +6,11 @@ import org.jooq.DSLContext;
 import static ofc.bot.databases.entities.tables.Economy.ECONOMY;
 
 public class EconomyUtil {
-    private static final DSLContext context = DBManager.getContext();
+    private static final DSLContext CTX = DBManager.getContext();
     
     public static long fetchBalance(long userId) {
 
-        return context.select(ECONOMY.BALANCE)
+        return CTX.select(ECONOMY.BALANCE)
                 .from(ECONOMY)
                 .where(ECONOMY.USER_ID.eq(userId))
                 .fetchOptionalInto(long.class)
@@ -21,13 +21,13 @@ public class EconomyUtil {
 
         long timestamp = Bot.unixNow();
 
-        context.insertInto(ECONOMY)
+        CTX.insertInto(ECONOMY)
                 .set(ECONOMY.USER_ID, userId)
                 .set(ECONOMY.BALANCE, amount)
                 .set(ECONOMY.LAST_DAILY_AT, 0L)
                 .set(ECONOMY.CREATED_AT, timestamp)
+                .set(ECONOMY.UPDATED_AT, timestamp)
                 .onDuplicateKeyUpdate()
-                .set(ECONOMY.USER_ID, userId)
                 .set(ECONOMY.BALANCE, amount)
                 .set(ECONOMY.UPDATED_AT, timestamp)
                 .execute();
