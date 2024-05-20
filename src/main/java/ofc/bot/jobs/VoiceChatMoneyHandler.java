@@ -54,10 +54,8 @@ public class VoiceChatMoneyHandler implements Job {
         long guildId = oficina.getIdLong();
         int totalGiven = 0;
 
-        if (membersToPay.isEmpty()) {
-            LOGGER.info("No members found.");
+        if (membersToPay.isEmpty())
             return;
-        }
 
         for (Member member : membersToPay) {
 
