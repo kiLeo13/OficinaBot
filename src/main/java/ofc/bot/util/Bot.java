@@ -102,6 +102,9 @@ public final class Bot {
 
     public static String strfNumber(long value) {
 
+        if (value > -10 && value < 10)
+            return String.format("%02d", value);
+
         NumberFormat currency = NumberFormat.getNumberInstance(LOCALE);
 
         return currency.format(value);
