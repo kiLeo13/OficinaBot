@@ -37,6 +37,8 @@ public enum Status implements CommandResult {
     POLL_CLOSED(                                State.SUCCESS, "Enquete `%s` foi fechada com sucesso."),
     POLL_REOPENED(                              State.SUCCESS, "Enquete `%s` foi reaberta com sucesso."),
 
+    MESSAGES_SUCCESSFULLY_DELETED(              State.SUCCESS, "`%02d` mensagens foram apagadas com sucesso em `%s`."),
+
     GROUP_SUCCESSFULLY_DELETED(                 State.SUCCESS, "Grupo %s foi apagado com sucesso."),
     GROUP_CHANNEL_SUCCESSFULLY_DELETED(         State.SUCCESS, "Canal de grupo de tipo `%s` foi deletado com sucesso."),
 
