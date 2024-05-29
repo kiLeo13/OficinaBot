@@ -22,25 +22,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class SlashCommandContext implements CommandContext {
-    private static final Consumer<Throwable> DEFAULT_ERROR_HANDLER = (e) -> new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE);
+    private static final Consumer<Throwable> DEFAULT_ERROR_HANDLER = (e) -> new ErrorHandler().ignore(ErrorResponse.UNKNOWN_INTERACTION);
     private final SlashCommandInteraction interaction;
     private final MessageChannelUnion channel;
     private final Guild guild;
     private final Member issuer;
 
-    public SlashCommandContext(SlashCommandInteraction interaction) {
+    public SlashCommandContext(SlashCommandInteraction itr) {
 
-        Checks.notNull(interaction, "Context Interaction");
+        Checks.notNull(itr, "Context Interaction");
 
-        MessageChannelUnion channel = interaction.getChannel();
-        Guild guild = interaction.getGuild();
-        Member issuer = interaction.getMember();
+        MessageChannelUnion channel = itr.getChannel();
+        Guild guild = itr.getGuild();
+        Member issuer = itr.getMember();
 
         Checks.notNull(channel, "SlashCommand channel");
         Checks.notNull(guild, "Guild");
         Checks.notNull(issuer, "SlashCommand issuer");
 
-        this.interaction = interaction;
+        this.interaction = itr;
         this.channel = channel;
         this.guild = guild;
         this.issuer = issuer;
