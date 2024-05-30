@@ -78,7 +78,7 @@ public class Help extends SlashSubcommand {
                 
                 - Pedro se casou com Maria.
                 - Pedro se casou com Arthur.
-                - Pedro se casou com Maria.
+                - Pedro se casou com Carlos.
                 - Pedro se casou com Rita.
                 
                 Imagine que Maria não tem dinheiro para sustentar seu casamento com Pedro; \
