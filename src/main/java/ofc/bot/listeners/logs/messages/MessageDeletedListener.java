@@ -36,8 +36,8 @@ public class MessageDeletedListener extends ListenerAdapter {
             long issuerId = entry.getUserIdLong();
             boolean isConsistent = ensureConsistency(messageId, targetId);
 
-            // 0 either means it was not deleted by a moderator or could not be fetched
-            DiscordMessages.softDelete(messageId, isConsistent ? issuerId : 0);
+            // null either means it was not deleted by a moderator or could not be resolved
+            DiscordMessages.softDelete(messageId, isConsistent ? issuerId : null);
         });
     }
 

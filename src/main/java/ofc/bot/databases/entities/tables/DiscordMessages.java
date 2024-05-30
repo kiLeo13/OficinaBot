@@ -73,7 +73,7 @@ public class DiscordMessages extends TableImpl<DiscordMessageRecord> {
                 .executeAsync();
     }
 
-    public static void softDelete(long messageId, long deletionAuthorId) {
+    public static void softDelete(long messageId, Long deletionAuthorId) {
 
         DSLContext ctx = DBManager.getContext();
         long timestamp = Bot.unixNow();
