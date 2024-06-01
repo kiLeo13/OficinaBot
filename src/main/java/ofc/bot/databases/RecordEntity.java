@@ -137,6 +137,10 @@ public abstract class RecordEntity<K, R extends TableRecord<R>> extends TableRec
 
         for (Field<?> f : fields) {
 
+            // Skip fields that are auto-increment (identity) and have a null value
+            if (f.getDataType().identity() && f.getValue(this) == null)
+                continue;
+
             if (!f.getName().equals("created_at"))
                 mappedValues.put(f, f.get(this));
         }
