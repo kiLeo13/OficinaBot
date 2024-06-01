@@ -3,7 +3,6 @@ package ofc.bot.databases.entities.records;
 import ofc.bot.databases.RecordEntity;
 import ofc.bot.databases.entities.tables.DiscordMessages;
 import org.jetbrains.annotations.NotNull;
-import org.jooq.DSLContext;
 import org.jooq.Field;
 
 public class DiscordMessageRecord extends RecordEntity<Long, DiscordMessageRecord> {
@@ -41,18 +40,6 @@ public class DiscordMessageRecord extends RecordEntity<Long, DiscordMessageRecor
 
     public Integer getDeleted() {
         return get(DISCORD_MESSAGES.DELETED);
-    }
-
-    public DiscordMessageRecord retrieveReferencedMessage(DSLContext ctx) {
-
-        long referenceId = this.getMessageReferenceId();
-
-        if (referenceId == 0)
-            return null;
-
-        return ctx.selectFrom(DISCORD_MESSAGES)
-                .where(DISCORD_MESSAGES.MESSAGE_REFERENCE_ID.eq(referenceId))
-                .fetchOne();
     }
 
     public long getMessageReferenceId() {
