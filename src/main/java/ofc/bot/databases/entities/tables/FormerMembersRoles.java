@@ -12,11 +12,12 @@ public class FormerMembersRoles extends TableImpl<FormerMemberRoleRecord> {
 
     public static final FormerMembersRoles FORMER_MEMBERS_ROLES = new FormerMembersRoles();
 
-    public final Field<Integer> ID      = createField(name("id"),         SQLDataType.INTEGER.notNull().identity(true));
-    public final Field<Long> USER       = createField(name("user_id"),    SQLDataType.BIGINT.notNull());
-    public final Field<Long> GUILD      = createField(name("guild"),      SQLDataType.BIGINT.notNull());
-    public final Field<Long> ROLE       = createField(name("role"),       SQLDataType.BIGINT.notNull());
-    public final Field<Long> CREATED_AT = createField(name("created_at"), SQLDataType.BIGINT.notNull());
+    public final Field<Integer> ID         = createField(name("id"),         SQLDataType.INTEGER.notNull().identity(true));
+    public final Field<Integer> PRIVILEGED = createField(name("privileged"), SQLDataType.INTEGER.notNull()); // boolean
+    public final Field<Long> USER          = createField(name("user_id"),    SQLDataType.BIGINT.notNull());
+    public final Field<Long> GUILD         = createField(name("guild"),      SQLDataType.BIGINT.notNull());
+    public final Field<Long> ROLE          = createField(name("role"),       SQLDataType.BIGINT.notNull());
+    public final Field<Long> CREATED_AT    = createField(name("created_at"), SQLDataType.BIGINT.notNull());
 
     public FormerMembersRoles() {
         super(name("former_members_roles"));

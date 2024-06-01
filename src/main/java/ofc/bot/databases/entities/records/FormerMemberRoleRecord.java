@@ -14,9 +14,10 @@ public class FormerMemberRoleRecord extends RecordEntity<Integer, FormerMemberRo
         super(FORMER_MEMBER_ROLES);
     }
 
-    public FormerMemberRoleRecord(long userId, long guildId, long roleId) {
+    public FormerMemberRoleRecord(long userId, long guildId, long roleId, boolean privileged) {
         this();
         set(FORMER_MEMBER_ROLES.USER, userId);
+        set(FORMER_MEMBER_ROLES.PRIVILEGED, privileged ? 1 : 0);
         set(FORMER_MEMBER_ROLES.GUILD, guildId);
         set(FORMER_MEMBER_ROLES.ROLE, roleId);
         set(FORMER_MEMBER_ROLES.CREATED_AT, Bot.unixNow());
@@ -40,6 +41,11 @@ public class FormerMemberRoleRecord extends RecordEntity<Integer, FormerMemberRo
     public long getRoleId() {
         Long role = get(FORMER_MEMBER_ROLES.ROLE);
         return role == null ? 0 : role;
+    }
+
+    public boolean isPrivileged() {
+        Integer val = get(FORMER_MEMBER_ROLES.PRIVILEGED);
+        return val != null && val != 0;
     }
 
     public long getCreated() {
