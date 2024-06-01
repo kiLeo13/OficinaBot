@@ -1,6 +1,6 @@
 package ofc.bot.util.content;
 
-import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
 import java.util.List;
@@ -41,8 +41,13 @@ public enum Staff {
         return this.field;
     }
 
-    public Role toRole(Guild guild) {
-        return guild.getRoleById(this.id);
+    public static boolean isStaff(Member member) {
+        return isStaff(member.getRoles());
+    }
+
+    public static boolean isStaff(List<Role> roles) {
+        return roles.stream()
+                .anyMatch(r -> r.getId().equals(GENERAL.id));
     }
 
     public static List<Staff> getByArea(Field field) {
@@ -62,6 +67,6 @@ public enum Staff {
     public enum Field {
         SUPPORT,
         MOV_CALL,
-        NONE;
+        NONE
     }
 }
