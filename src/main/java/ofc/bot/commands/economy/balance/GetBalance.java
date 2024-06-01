@@ -19,6 +19,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record6;
 
 import java.awt.*;
+import java.util.Objects;
 
 import static ofc.bot.databases.entities.tables.Economy.ECONOMY;
 import static ofc.bot.databases.entities.tables.Users.USERS;
@@ -82,7 +83,7 @@ public class GetBalance extends SlashCommand {
     private BalanceData retrieveBalance(long userId) {
 
         DSLContext ctx = DBManager.getContext();
-        Record6<Integer, Long, Long, Long, Long, Long> balanceData = ctx.with("ranked_economy")
+        Record6<Integer, Long, Long, Long, Long, Long> result = ctx.with("ranked_economy")
                 .as(
                         select(
                                 ECONOMY.USER_ID,
@@ -106,16 +107,20 @@ public class GetBalance extends SlashCommand {
                 .where(field(name("ranked_economy", "user_id")).eq(userId))
                 .fetchOne();
 
-        if (balanceData == null)
+        if (result == null)
             return EMPTY_BALANCE_DATA;
 
-        int rank = balanceData.value1();
-        long balance = balanceData.value2();
-        long created = balanceData.value3();
-        long updated = balanceData.value4();
-        long lastWork = balanceData.value5();
-        long lastDaily = balanceData.value6();
+        int rank = result.value1();
+        long balance = getNullSafe(result.value2());
+        long lastWork = getNullSafe(result.value5());
+        long lastDaily = getNullSafe(result.value6());
+        long created = result.value3();
+        long updated = result.value4();
 
         return new BalanceData(rank, balance, created, updated, lastWork, lastDaily, true);
+    }
+
+    private long getNullSafe(Long val) {
+        return Objects.requireNonNullElse(val, 0L);
     }
 }
