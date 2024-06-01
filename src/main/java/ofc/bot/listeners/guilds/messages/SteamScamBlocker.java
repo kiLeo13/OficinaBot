@@ -1,12 +1,12 @@
 package ofc.bot.listeners.guilds.messages;
 
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.util.content.annotations.listeners.EventHandler;
-
-import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,45 +16,47 @@ import java.util.concurrent.TimeUnit;
 @EventHandler
 public class SteamScamBlocker extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(SteamScamBlocker.class);
-    private static final long SAFE_ROLE = 1185468707116417134L;
 
     @Override
-    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
+    public void onMessageReceived(MessageReceivedEvent event) {
 
         if (!event.isFromGuild())
             return;
 
         Member member = event.getMember();
+        Guild guild = event.getGuild();
+        Member self = guild.getSelfMember();
 
-        if (member == null)
+        // If the member could not be resolved or the bot is unable to interact with the member,
+        // then there is not much we can do (we cannot do anything lol).
+        if (member == null || !self.canInteract(member))
             return;
 
         Message message = event.getMessage();
         User user = member.getUser();
-        Channel channel = event.getChannel();
-        Guild guild = message.getGuild();
+        MessageChannel channel = event.getChannel();
         String content = message.getContentRaw().toLowerCase();
-        Role safeRole = guild.getRoleById(SAFE_ROLE);
-        int pos = safeRole == null ? 0 : safeRole.getPosition();
-
-        if (isTrustworthy(member, pos) || user.isBot())
-            return;
 
         if (!content.contains("https://") && !content.contains("http://"))
             return;
 
         if ((content.contains("50$") || content.contains("$50")) && content.contains("steam")) {
-            LOGGER.info("Banned member @{} for suspicious message content at #{}: {}", user.getName(), channel.getName(), content);
+            LOGGER.info("Attempting to ban member @{} for suspicious message content at #{}: {}", user.getName(), channel.getName(), content);
             member.ban(1, TimeUnit.DAYS)
                     .reason("50$ from steam")
-                    .queue();
+                    .queue(s -> tempSecurityMessageWarning(channel, user));
         }
     }
 
-    private boolean isTrustworthy(Member member, int minPos) {
+    private void tempSecurityMessageWarning(MessageChannel channel, User user) {
 
-        return member.getRoles()
-                .stream()
-                .anyMatch(r -> r.getPosition() >= minPos);
+        LOGGER.info("Successfully banned member @{}", user.getName());
+
+        channel.sendMessageFormat("Membro %s foi banido por medidas segurança! Não cliquem em nenhum link desconhecido enviado pelo mesmo.", user.getAsMention())
+                .delay(20, TimeUnit.SECONDS)
+                .flatMap(Message::delete)
+                .queue(null, new ErrorHandler()
+                        .ignore(ErrorResponse.UNKNOWN_MESSAGE)
+                );
     }
 }
