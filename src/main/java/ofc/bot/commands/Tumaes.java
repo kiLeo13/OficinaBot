@@ -3,10 +3,6 @@ package ofc.bot.commands;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import ofc.bot.internal.data.BotFiles;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.content.annotations.commands.CommandPermission;
@@ -15,7 +11,6 @@ import ofc.bot.handlers.commands.responses.results.CommandResult;
 import ofc.bot.handlers.commands.responses.results.Status;
 import ofc.bot.handlers.commands.slash.SlashCommand;
 import ofc.bot.util.Bot;
-import ofc.bot.util.content.Channels;
 
 import java.io.File;
 import java.util.List;
@@ -32,14 +27,7 @@ public class Tumaes extends SlashCommand {
     @Override
     public CommandResult onCommand(CommandContext ctx) {
 
-        Guild guild = ctx.getGuild();
-        Member member = ctx.getIssuer();
-        MessageChannel channel = ctx.getChannel();
-        TextChannel allowed = guild.getTextChannelById(Channels.H.id());
         String gif = getGif();
-
-        if (allowed == null || (channel.getIdLong() != allowed.getIdLong() && !member.hasPermission(Permission.MANAGE_SERVER)))
-            return Status.INCORRECT_CHANNEL_OF_USAGE;
 
         if (gif == null)
             return Status.NO_GIF_WAS_FOUND;
