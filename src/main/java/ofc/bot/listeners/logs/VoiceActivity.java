@@ -21,7 +21,6 @@ import java.util.List;
 public class VoiceActivity extends ListenerAdapter {
     private static final int MAX_RETRIES = 5;
     private static final Logger LOGGER = LoggerFactory.getLogger(VoiceActivity.class);
-    private static final long CHANNEL = Channels.A.id();
     private static final List<String> REQUIRED_ROLES = Staff.getIdsByArea(Staff.Field.MOV_CALL);
     
     @Override
@@ -54,22 +53,23 @@ public class VoiceActivity extends ListenerAdapter {
         Member member = event.getMember();
         User user = member.getUser();
         Guild guild = event.getGuild();
-        TextChannel log = guild.getTextChannelById(CHANNEL);
+        TextChannel log = Channels.A.textChannel();
         int joinAmount = join == null ? 0 : join.getMembers().size();
         int leaveAmount = leave == null ? 0 : leave.getMembers().size();
 
         if (log == null) {
-            LOGGER.warn("Could not find log channel for id {}", CHANNEL);
+            LOGGER.warn("Could not find log channel for id {}", Channels.A.id());
             return;
         }
 
-        switch (action)     {
+        builder.setFooter(guild.getName(), guild.getIconUrl());
+
+        switch (action) {
             case JOIN -> builder
                     .setAuthor(user.getEffectiveName() + " entrou em " + join.getName(), null, user.getEffectiveAvatarUrl())
                     .addField("👥 Conectados", "`" + (joinAmount < 10 ? "0" + joinAmount : joinAmount) + "`", true)
                     .addField("👑 Staff", "`" + member.getId() + "`", true)
                     .addField("🔊 Canal", "`" + join.getId() + "`", true)
-                    .setFooter(guild.getName(), guild.getIconUrl())
                     .setColor(Color.GREEN);
 
             case LEAVE -> builder
@@ -77,7 +77,6 @@ public class VoiceActivity extends ListenerAdapter {
                     .addField("👥 Conectados", "`" + (leaveAmount < 10 ? "0" + leaveAmount : leaveAmount) + "`", true)
                     .addField("👑 Staff", "`" + member.getId() + "`", true)
                     .addField("🔊 Canal", "`" + leave.getId() +  "`", true)
-                    .setFooter(guild.getName(), guild.getIconUrl())
                     .setColor(Color.RED);
 
             // User moved from one voice channel to another
@@ -87,7 +86,6 @@ public class VoiceActivity extends ListenerAdapter {
                     .addField("👥 Conectados", "Anterior: `" + (leaveAmount < 10 ? "0" + leaveAmount : leaveAmount) + "`\nAtual: `" + (joinAmount < 10 ? "0" + joinAmount : joinAmount) + "`", true)
                     .addField("👑 Staff", "`" + member.getId() + "`", true)
                     .addField("🔊 Canais", "`" + join.getId() + " -> " + leave.getId() + "`", true)
-                    .setFooter(guild.getName(), guild.getIconUrl())
                     .setColor(Color.YELLOW);
         }
 
