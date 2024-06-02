@@ -27,15 +27,16 @@ public final class Main {
 
         try {
             api = JDABuilder.createDefault(BotData.loadProperties().token(),
-                            GatewayIntent.GUILD_MESSAGES,
                             GatewayIntent.MESSAGE_CONTENT,
+                            GatewayIntent.GUILD_MESSAGES,
                             GatewayIntent.GUILD_VOICE_STATES,
                             GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                             GatewayIntent.GUILD_MODERATION,
-                            GatewayIntent.SCHEDULED_EVENTS,
                             GatewayIntent.GUILD_PRESENCES,
                             GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                            GatewayIntent.AUTO_MODERATION_EXECUTION,
+                            GatewayIntent.SCHEDULED_EVENTS,
                             GatewayIntent.DIRECT_MESSAGES
                     )
                     .setBulkDeleteSplittingEnabled(false)
