@@ -28,7 +28,7 @@ public class ExpiredBackupsRemover implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        LOGGER.info("Removing expired backups (older than {} days)...", EXPIRY_DAYS);
+        LOGGER.info("Removing expired backups (older than {} days)...", TimeUnit.SECONDS.toDays(EXPIRY_DAYS));
 
         try {
             int deleted = deleteExpiredBackups();
