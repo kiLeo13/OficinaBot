@@ -10,13 +10,13 @@ import ofc.bot.handlers.*;
 import ofc.bot.databases.DatabaseInitializer;
 import ofc.bot.internal.data.BotData;
 import ofc.bot.internal.data.BotFiles;
+import ofc.bot.util.Bot;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.time.Instant;
 
 public final class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
@@ -26,7 +26,7 @@ public final class Main {
     public static void main(String[] args) {
 
         try {
-            api = JDABuilder.createDefault(BotData.loadProperties().token(),
+            api = JDABuilder.createDefault(BotData.get("app.token"),
                             GatewayIntent.MESSAGE_CONTENT,
                             GatewayIntent.GUILD_MESSAGES,
                             GatewayIntent.GUILD_VOICE_STATES,
@@ -47,7 +47,7 @@ public final class Main {
                     .build()
                     .awaitReady();
 
-            initTime = Instant.now().toEpochMilli();
+            initTime = Bot.unixNow();
 
             ConsoleQueryHandler.init();
             EntityHandlersInitializers.initializeCronJobs();

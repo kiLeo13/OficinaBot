@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class UEconomyManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UEconomyManager.class);
-    private static final String TOKEN = BotData.loadProperties().unbelievaboatToken();
+    private static final String TOKEN = BotData.get("unbelievaboat.token");
     private static final String MEDIA_TYPE = "application/json";
     private static final String EMPTY_JSON = "{}";
     private static final Gson GSON = new Gson();
