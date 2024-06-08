@@ -76,7 +76,7 @@ public class AutoModLogger extends ListenerAdapter {
                 .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
                 .setDescription("### Mensagem:\n" + message)
                 .setColor(RED_LOG)
-                .addField("🔑 Palavra-chave", keyword, true)
+                .addField("🔑 Palavra-chave", keyword == null ? "" : keyword, true)
                 .addField("📃 Tipo", type.name(), true)
                 .addField("🎓 Medida Tomada", respType.name(), true)
                 .setFooter(guild.getName(), guild.getIconUrl());
