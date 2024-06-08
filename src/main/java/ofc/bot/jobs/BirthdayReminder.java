@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import ofc.bot.Main;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import ofc.bot.databases.entities.records.BirthdayRecord;
 import ofc.bot.databases.DBManager;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static ofc.bot.databases.entities.tables.Birthdays.BIRTHDAYS;
 import static org.jooq.impl.DSL.*;
@@ -41,7 +39,7 @@ public class BirthdayReminder implements Job {
     public void execute(JobExecutionContext context) {
         
         List<BirthdayRecord> birthdays = retrieveBirthdays();
-        TextChannel channel = Main.getApi().getTextChannelById(Channels.E.id());
+        TextChannel channel = Channels.E.textChannel();
 
         if (channel == null) {
             LOGGER.warn("Could not find text channel! Ignoring birthday reminder");
@@ -59,6 +57,9 @@ public class BirthdayReminder implements Job {
             int turnAge = resolveAge(birthday.getBirthday());
 
             guild.retrieveMemberById(userId).queue(m -> {
+
+                if (!m.hasAccess(channel))
+                    return;
 
                 String message = getMessage(m, name, turnAge);
 
@@ -99,11 +100,11 @@ public class BirthdayReminder implements Job {
             return;
         }
 
-        guild.modifyMemberRoles(member, List.of(adultRole), List.of(underageRole)).queueAfter(5, TimeUnit.SECONDS, (v) -> {
+        guild.modifyMemberRoles(member, List.of(adultRole), List.of(underageRole)).queue((v) -> {
 
             channel.sendMessageFormat("%s seu cargo foi atualizado para maior de idade! 🤨", member.getAsMention()).queue();
         }, (err) -> {
-            LOGGER.error("Could not update roles of member '" + member.getId() + "'", err);
+            LOGGER.error("Could not update roles of member '{}'", member.getId(), err);
         });
     }
 
