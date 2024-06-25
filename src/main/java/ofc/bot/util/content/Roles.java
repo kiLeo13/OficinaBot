@@ -5,7 +5,8 @@ import net.dv8tion.jda.api.entities.Role;
 
 public enum Roles {
     AMONG_US("596784802150088704"),
-    SALADA("693973471989858714");
+    SALADA(  "693973471989858714"),
+    STUDY(   "1249474433278677022");
 
     final String id;
 
