@@ -53,17 +53,22 @@ public class Avatar extends SlashCommand {
                 return Status.MEMBER_NOT_IN_GUILD;
 
             ImageProxy avatar = target.getAvatar();
+            String avatarId = target.getAvatarId();
+            String fileName = String.format("%s.%s", avatarId, isAnimated(avatarId) ? "gif" : "png");
 
             if (avatar == null)
                 return Status.NO_GUILD_AVATAR_PRESENT;
 
-            upload = FileUpload.fromData(downloadAvatar(avatar), target.getId() + ".png");
+            upload = FileUpload.fromData(downloadAvatar(avatar), fileName);
 
             embed = embed(upload, guild, target.getUser());
         } else {
             User target = ctx.getOption("user", user, OptionMapping::getAsUser);
             ImageProxy avatar = target.getEffectiveAvatar();
-            upload = FileUpload.fromData(downloadAvatar(avatar), target.getId() + ".png");
+            String avatarId = target.getAvatarId();
+            String fileName = String.format("%s.%s", avatarId, isAnimated(avatarId) ? "gif" : "png");
+
+            upload = FileUpload.fromData(downloadAvatar(avatar), fileName);
 
             embed = embed(upload, guild, target);
         }
@@ -76,6 +81,10 @@ public class Avatar extends SlashCommand {
                 .send();
 
         return Status.PASSED;
+    }
+
+    private boolean isAnimated(String url) {
+        return url != null && url.startsWith("a_");
     }
 
     private InputStream downloadAvatar(ImageProxy img) {
