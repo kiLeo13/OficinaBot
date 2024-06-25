@@ -71,7 +71,7 @@ public enum Status implements CommandResult {
     PAGE_DOES_NOT_EXIST(                        State.FAILURE, "A página fornecida não existe! Max: `%d`."),
     MEMBER_NOT_IN_GUILD(                        State.FAILURE, "O membro fornecido não está no servidor."),
     DAILY_ALREADY_COLLECTED(                    State.FAILURE, "Você já pegou o daily hoje! Aguarde meia noite para usar novamente."),
-    WAIT_BEFORE_WORK_AGAIN(                     State.FAILURE, "Você poderá trabalhar de novo às <t:%s>."),
+    WAIT_BEFORE_WORK_AGAIN(                     State.FAILURE, "Você poderá trabalhar de novo <t:%s:R>."),
     CANNOT_TRANSFER_TO_YOURSELF(                State.FAILURE, "Você não pode transferir dinheiro para você mesmo."),
     CANNOT_TRANSFER_TO_BOTS(                    State.FAILURE, "Você não pode transferir dinheiro para outros bots."),
     USER_CANNOT_RECEIVE_GIVEN_AMOUNT(           State.FAILURE, "Este usuário não pode receber esta quantia! Possivelmente ultrapassaria o limite de saldo."),
