@@ -12,8 +12,6 @@ import ofc.bot.handlers.commands.responses.results.Status;
 import ofc.bot.handlers.commands.slash.SlashCommand;
 import ofc.bot.util.Bot;
 
-import java.time.Instant;
-
 @DiscordCommand(name = "status", description = "Veja os status do bot :)")
 public class BotStatus extends SlashCommand {
 
@@ -33,7 +31,7 @@ public class BotStatus extends SlashCommand {
             long freeMemory = runtime.freeMemory();
             long usedMemory = totalMemory - freeMemory;
             long gatewayPing = api.getGatewayPing();
-            long initTime = Instant.ofEpochMilli(Main.getInitTime()).getEpochSecond();
+            long initTime = Main.getInitTime();
             int activeThreads = Thread.activeCount();
 
             MessageEmbed embed = embed(
