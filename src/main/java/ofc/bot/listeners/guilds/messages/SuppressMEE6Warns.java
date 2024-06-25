@@ -6,14 +6,13 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.util.content.annotations.listeners.EventHandler;
-import ofc.bot.util.content.Channels;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @EventHandler
 public class SuppressMEE6Warns extends ListenerAdapter {
     private static final long MEE6_ID = 758102786293497896L;
-    private static final long TARGET_CHANNEL = Channels.I.id();
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -24,10 +23,9 @@ public class SuppressMEE6Warns extends ListenerAdapter {
         Message message = event.getMessage();
         User author = message.getAuthor();
         List<MessageEmbed> embeds = message.getEmbeds();
-        long channelId = event.getChannel().getIdLong();
         long authorId = author.getIdLong();
 
-        if (authorId != MEE6_ID || channelId != TARGET_CHANNEL)
+        if (authorId != MEE6_ID)
             return;
 
         for (MessageEmbed embed : embeds) {
@@ -40,7 +38,7 @@ public class SuppressMEE6Warns extends ListenerAdapter {
             String authorName = embedAuthor.getName();
 
             if (authorName == null || authorName.contains("advertido")) {
-                message.delete().queue();
+                message.delete().queueAfter(10, TimeUnit.SECONDS);
                 break;
             }
         }
