@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.handlers.commands.contexts.IAcknowledgeable;
+import ofc.bot.handlers.commands.responses.results.CommandResult;
+import ofc.bot.handlers.commands.responses.results.Status;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -84,8 +86,9 @@ public class SlashCommandResponseBuilder implements InteractionResponseData {
     }
 
     @Override
-    public void send() {
+    public CommandResult send(Status status, Object... args) {
         acknowledgeable.reply(this);
+        return status.args(args);
     }
 
     @Override

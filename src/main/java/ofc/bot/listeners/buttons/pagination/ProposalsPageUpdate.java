@@ -1,4 +1,4 @@
-package ofc.bot.commands.marriages.pagination.proposals;
+package ofc.bot.listeners.buttons.pagination;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -6,12 +6,14 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
 import ofc.bot.Main;
+import ofc.bot.commands.marriages.pagination.proposals.BaseProposals;
+import ofc.bot.commands.marriages.pagination.proposals.ProposalsData;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import ofc.bot.handlers.buttons.BotButtonListener;
 import ofc.bot.handlers.buttons.ButtonData;
 
 @ButtonHandler(identity = "proposals")
-public class ProposalsPagination implements BotButtonListener {
+public class ProposalsPageUpdate implements BotButtonListener {
 
     @Override
     public void onClick(ButtonInteraction event, ButtonData data) {

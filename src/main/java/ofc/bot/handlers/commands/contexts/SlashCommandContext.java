@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.handlers.commands.responses.InteractionResponseData;
 import ofc.bot.handlers.commands.responses.results.CommandResult;
+import ofc.bot.handlers.commands.responses.results.Status;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 
@@ -164,7 +165,7 @@ public class SlashCommandContext implements CommandContext {
     }
 
     @Override
-    public void reply(InteractionResponseData data) {
+    public CommandResult reply(InteractionResponseData data) {
         if (isAcknowledged())
             interaction.getHook()
                     .editOriginal(data.toEditData())
@@ -173,5 +174,7 @@ public class SlashCommandContext implements CommandContext {
             interaction.reply(data.toCreateData())
                     .setEphemeral(data.isEphemeral())
                     .queue();
+
+        return Status.PASSED;
     }
 }

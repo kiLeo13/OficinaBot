@@ -1,4 +1,4 @@
-package ofc.bot.commands.marriages.pagination.marriages;
+package ofc.bot.listeners.buttons.pagination;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
 import ofc.bot.Main;
+import ofc.bot.commands.marriages.pagination.marriages.MarriageListSubcommand;
+import ofc.bot.commands.marriages.pagination.marriages.MarriagesData;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import ofc.bot.handlers.buttons.BotButtonListener;
 import ofc.bot.handlers.buttons.ButtonData;

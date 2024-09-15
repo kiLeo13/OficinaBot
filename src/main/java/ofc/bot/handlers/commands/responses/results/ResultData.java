@@ -21,7 +21,12 @@ public class ResultData implements CommandResult {
     @Override
     public String getContent() {
         String format = data.getContent();
-        return String.format(format, args);
+        return format == null ? null : String.format(format, args);
+    }
+
+    @Override
+    public Object[] getArgs() {
+        return this.args;
     }
 
     @Override

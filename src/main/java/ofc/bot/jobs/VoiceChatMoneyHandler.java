@@ -24,7 +24,7 @@ public class VoiceChatMoneyHandler implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(VoiceChatMoneyHandler.class);
     private static final Random random = new Random();
 
-    private static final long SALADA_VOICE_CHANNEL_ID = 693627612454453250L;
+    private static final List<Long> SPECIAL_CHANNEL_IDS = List.of(1065077982588305538L, 693627612454453250L);
     private static final long GUILD_ID = 582430782577049600L;
     private static final int MIN_VALUE = 20;
     private static final int MAX_VALUE = 40;
@@ -62,19 +62,20 @@ public class VoiceChatMoneyHandler implements Job {
             int randomValue = random.nextInt(MIN_VALUE, MAX_VALUE + 1);
             long userId = member.getIdLong();
             long currentVoiceChannelId = member.getVoiceState().getChannel().getIdLong();
-            boolean isSalada = currentVoiceChannelId == SALADA_VOICE_CHANNEL_ID;
+            boolean isSpecial = SPECIAL_CHANNEL_IDS.contains(currentVoiceChannelId);
 
-            int amount = isSalada ? randomValue * 2 : randomValue;
+            int amount = isSpecial ? randomValue * 2 : randomValue;
 
             executor.addTask(() -> {
 
                 final long CASH_DEFAULT = 0;
                 final long BANK_DEFAULT = 0;
 
-                // Members in the "Salada" voice channel
-                // will earn 2x more and be credited in their bank, instead of cash for normal voice channels
-                long cash = isSalada ? CASH_DEFAULT : amount;
-                long bank = isSalada ? amount : BANK_DEFAULT;
+                // "Special" cases are members in the Salada voice channel, which
+                // earn 2x the amount of money and get credited in their bank,
+                // instead of cash for normal voice channels
+                long cash = isSpecial ? CASH_DEFAULT : amount;
+                long bank = isSpecial ? amount : BANK_DEFAULT;
 
                 Balance balance = UEconomyManager.updateBalance(guildId, userId, cash, bank, "VoiceChat money");
 

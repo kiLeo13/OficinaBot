@@ -1,6 +1,8 @@
 package ofc.bot.commands.economy.income;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.databases.DBManager;
 import ofc.bot.databases.users.MembersDAO;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
@@ -22,7 +24,7 @@ import static ofc.bot.databases.entities.tables.Economy.ECONOMY;
 public class Work extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(Work.class);
     private static final Random random = new Random();
-    private static final long COOLDOWN = 2700; // Seconds
+    public static final long COOLDOWN = 2700; // Seconds
 
     private static final double BOOSTER_EXTRA_PERCENTAGE = 1.2;
     private static final int MIN = 50;
@@ -36,8 +38,12 @@ public class Work extends SlashCommand {
         long nextWorkAt = getNextWork(userId);
         long now = Bot.unixNow();
 
-        if (nextWorkAt > now)
-            return Status.WAIT_BEFORE_WORK_AGAIN.args(nextWorkAt);
+        if (nextWorkAt > now) {
+            return ctx.reply(true)
+                    .setContentFormat("Você poderá trabalhar de novo <t:%s:R>.", nextWorkAt)
+                    .setActionRow(getReminderButton())
+                    .send(Status.WAIT_BEFORE_WORK_AGAIN);
+        }
 
         try {
             boolean boosting = sender.isBoosting();
@@ -66,6 +72,11 @@ public class Work extends SlashCommand {
 
         DSLContext ctx = DBManager.getContext();
         updateBalanceWithWork(ctx, userId, value);
+    }
+
+    private Button getReminderButton() {
+        return Button.secondary("WORK_REMINDER", "Lembrar-me")
+                .withEmoji(Emoji.fromUnicode("🔔"));
     }
 
     private void updateBalanceWithWork(DSLContext ctx, long userId, long amount) {

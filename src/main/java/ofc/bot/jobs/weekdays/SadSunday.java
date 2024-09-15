@@ -15,12 +15,12 @@ import java.io.File;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-@CronJob(expression = "0 30 19 ? * SUN *") // Every Sunday at 7:30 PM
+@CronJob(expression = "0 0 18 ? * SUN *") // Every Sunday at 6:00 PM
 public class SadSunday implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(SadSunday.class);
     private static final File SAD_SUNDAY_IMAGE = new File(BotFiles.DIR_ASSETS, "sunday.jpg");
     private static final Random RANDOM = new Random();
-    private static final int MAX_SEND_AFTER = (60 * 2) + 30; // Up to 2.5 hours after 7:30 PM
+    private static final int MAX_SEND_AFTER = (60 * 2) + 30; // Up to 2.5 hours (in minutes)
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {

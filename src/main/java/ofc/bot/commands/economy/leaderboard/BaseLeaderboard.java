@@ -61,7 +61,7 @@ public class BaseLeaderboard extends SlashCommand {
         return Status.PASSED;
     }
 
-    protected static Button[] generateButtons(int page, boolean hasNext) {
+    public static Button[] generateButtons(int page, boolean hasNext) {
 
         int previousPage = page - 1;
         int nextPage = page + 1;
@@ -87,7 +87,7 @@ public class BaseLeaderboard extends SlashCommand {
         return new Button[]{ previous, next };
     }
 
-    protected static MessageEmbed embed(Guild guild, LeaderboardData leaderboard) {
+    public static MessageEmbed embed(Guild guild, LeaderboardData leaderboard) {
 
         EmbedBuilder builder = new EmbedBuilder();
 
@@ -124,7 +124,7 @@ public class BaseLeaderboard extends SlashCommand {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    protected static LeaderboardData retrieveLeaderboard(int inputPage) {
+    public static LeaderboardData retrieveLeaderboard(int inputPage) {
 
         // 'inputPage' is a user-provided page which is always equivalent to (index + 1)
         int pageIndex = inputPage - 1;

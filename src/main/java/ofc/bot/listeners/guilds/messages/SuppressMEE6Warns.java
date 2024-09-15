@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 @EventHandler
 public class SuppressMEE6Warns extends ListenerAdapter {
-    private static final long MEE6_ID = 758102786293497896L;
+    // MEE6 alt and main IDs
+    private static final List<Long> BOTS_IDS = List.of(1257509850116657253L, 159985870458322944L);
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -25,11 +26,16 @@ public class SuppressMEE6Warns extends ListenerAdapter {
         List<MessageEmbed> embeds = message.getEmbeds();
         long authorId = author.getIdLong();
 
-        if (authorId != MEE6_ID)
+        if (!BOTS_IDS.contains(authorId))
             return;
 
-        for (MessageEmbed embed : embeds) {
+        if (shouldDelete(embeds))
+            message.delete().queueAfter(10, TimeUnit.SECONDS);
+    }
 
+    private boolean shouldDelete(List<MessageEmbed> embeds) {
+
+        for (MessageEmbed embed : embeds) {
             MessageEmbed.AuthorInfo embedAuthor = embed.getAuthor();
 
             if (embedAuthor == null)
@@ -37,10 +43,10 @@ public class SuppressMEE6Warns extends ListenerAdapter {
 
             String authorName = embedAuthor.getName();
 
-            if (authorName == null || authorName.contains("advertido")) {
-                message.delete().queueAfter(10, TimeUnit.SECONDS);
-                break;
-            }
+            if (authorName == null || authorName.contains("advertido"))
+                return true;
         }
+
+        return false;
     }
 }

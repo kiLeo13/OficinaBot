@@ -60,7 +60,7 @@ public class BaseProposals extends SlashCommand {
         return Status.PASSED;
     }
 
-    protected static Button[] generateButtons(int page, long userId, boolean hasNext, String type) {
+    public static Button[] generateButtons(int page, long userId, boolean hasNext, String type) {
 
         int previousPage = page - 1;
         int nextPage = page + 1;
@@ -90,7 +90,7 @@ public class BaseProposals extends SlashCommand {
         return new Button[]{ previous, next };
     }
 
-    protected static MessageEmbed embed(Guild guild, User user, ProposalsData proposals) {
+    public static MessageEmbed embed(Guild guild, User user, ProposalsData proposals) {
 
         EmbedBuilder builder = new EmbedBuilder();
         String type = proposals.type();
@@ -132,7 +132,7 @@ public class BaseProposals extends SlashCommand {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    protected static ProposalsData retrieveProposals(String type, long userId, int inputPage) {
+    public static ProposalsData retrieveProposals(String type, long userId, int inputPage) {
 
         // 'inputPage' starts at 1
         int pageIndex = inputPage - 1;

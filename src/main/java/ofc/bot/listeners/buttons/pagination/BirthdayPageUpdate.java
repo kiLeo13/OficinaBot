@@ -1,4 +1,4 @@
-package ofc.bot.commands.birthdays.list;
+package ofc.bot.listeners.buttons.pagination;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
+import ofc.bot.commands.birthdays.BaseBirthdays;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import ofc.bot.databases.entities.records.BirthdayRecord;
 import ofc.bot.handlers.buttons.BotButtonListener;

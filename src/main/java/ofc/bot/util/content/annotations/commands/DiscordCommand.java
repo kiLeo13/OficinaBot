@@ -10,8 +10,6 @@ import java.lang.annotation.Target;
 public @interface DiscordCommand {
     String name();
     String description();
-    boolean autoDefer() default false;
-    boolean deferEphemeral() default false;
 
     /**
      * The amount of seconds that EACH user must wait before

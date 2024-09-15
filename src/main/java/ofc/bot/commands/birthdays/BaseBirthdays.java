@@ -1,4 +1,4 @@
-package ofc.bot.commands.birthdays.list;
+package ofc.bot.commands.birthdays;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -71,7 +71,7 @@ public class BaseBirthdays extends SlashCommand {
         return Status.PASSED;
     }
 
-    protected static Button[] generateButtons(int currentMonth) {
+    public static Button[] generateButtons(int currentMonth) {
 
         int previousMonth = currentMonth - 1;
         int nextMonth = currentMonth + 1;
@@ -98,7 +98,7 @@ public class BaseBirthdays extends SlashCommand {
         return new Button[]{ previous, next };
     }
 
-    protected static MessageEmbed embed(List<BirthdayRecord> birthdays, Guild guild, int monthIndex) {
+    public static MessageEmbed embed(List<BirthdayRecord> birthdays, Guild guild, int monthIndex) {
 
         EmbedBuilder builder = new EmbedBuilder();
         String month = MONTHS[monthIndex];
@@ -117,7 +117,7 @@ public class BaseBirthdays extends SlashCommand {
         return builder.build();
     }
 
-    protected static List<BirthdayRecord> retrieveBirthdays(int month) {
+    public static List<BirthdayRecord> retrieveBirthdays(int month) {
 
         DSLContext ctx = DBManager.getContext();
 

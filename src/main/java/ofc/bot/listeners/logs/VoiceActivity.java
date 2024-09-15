@@ -19,7 +19,6 @@ import java.util.List;
 
 @EventHandler
 public class VoiceActivity extends ListenerAdapter {
-    private static final int MAX_RETRIES = 5;
     private static final Logger LOGGER = LoggerFactory.getLogger(VoiceActivity.class);
     private static final List<String> REQUIRED_ROLES = Staff.getIdsByArea(Staff.Field.MOV_CALL);
     
@@ -66,66 +65,49 @@ public class VoiceActivity extends ListenerAdapter {
 
         switch (action) {
             case JOIN -> builder
-                    .setAuthor(user.getEffectiveName() + " entrou em " + join.getName(), null, user.getEffectiveAvatarUrl())
-                    .addField("👥 Conectados", "`" + (joinAmount < 10 ? "0" + joinAmount : joinAmount) + "`", true)
-                    .addField("👑 Staff", "`" + member.getId() + "`", true)
-                    .addField("🔊 Canal", "`" + join.getId() + "`", true)
+                    .setAuthor(user.getName() + " entrou em " + join.getName(), null, user.getEffectiveAvatarUrl())
+                    .addField("👑 Staff",      member.getAsMention(),             true)
+                    .addField("👥 Conectados", String.format("%02d", joinAmount), true)
+                    .addField("🔊 Canal",      join.getAsMention(),               true)
                     .setColor(Color.GREEN);
 
             case LEAVE -> builder
-                    .setAuthor(user.getEffectiveName() + " saiu de " + leave.getName(), null, user.getEffectiveAvatarUrl())
-                    .addField("👥 Conectados", "`" + (leaveAmount < 10 ? "0" + leaveAmount : leaveAmount) + "`", true)
-                    .addField("👑 Staff", "`" + member.getId() + "`", true)
-                    .addField("🔊 Canal", "`" + leave.getId() +  "`", true)
+                    .setAuthor(user.getName() + " saiu de " + leave.getName(), null, user.getEffectiveAvatarUrl())
+                    .addField("👑 Staff",      member.getAsMention(),              true)
+                    .addField("👥 Conectados", String.format("%02d", leaveAmount), true)
+                    .addField("🔊 Canal",      leave.getAsMention(),               true)
                     .setColor(Color.RED);
 
-            // User moved from one voice channel to another
-            default -> builder
-                    .setAuthor(user.getEffectiveName() + " se mudou para " + join.getName(), null, user.getEffectiveAvatarUrl())
-                    .addField("🔈 Saiu de", "`" + leave.getName() + "`\n`" + leave.getId() + "`", true)
-                    .addField("👥 Conectados", "Anterior: `" + (leaveAmount < 10 ? "0" + leaveAmount : leaveAmount) + "`\nAtual: `" + (joinAmount < 10 ? "0" + joinAmount : joinAmount) + "`", true)
-                    .addField("👑 Staff", "`" + member.getId() + "`", true)
-                    .addField("🔊 Canais", "`" + join.getId() + " -> " + leave.getId() + "`", true)
+            case MOVE -> builder
+                    .setAuthor(user.getName() + " se moveu para " + join.getName(), null, user.getEffectiveAvatarUrl())
+                    .addField("🔈 Saiu de",     leave.getAsMention(),                                                  true)
+                    .addField("👑 Staff",      member.getAsMention(),                                                 true)
+                    .addField("👥 Conectados", String.format("Anterior: %02d\nAtual: %02d", leaveAmount, joinAmount), true)
+                    .addField("🔊 Canais",     String.format("%s -> %s", join.getAsMention(), leave.getAsMention()),  true)
                     .setColor(Color.YELLOW);
         }
 
-        send(log, join, leave, member, builder.build(), 0);
+        send(log, join, leave, member, builder.build());
     }
     
-    private void send(TextChannel log, AudioChannel join, AudioChannel leave, Member target, MessageEmbed embed, int retries) {
-        int nextRetry = retries + 1;
+    private void send(TextChannel log, AudioChannel join, AudioChannel leave, Member target, MessageEmbed embed) {
 
-        log.sendMessageEmbeds(embed).queue((msg) -> {
+        log.sendMessageEmbeds(embed).queue(null, (err) -> {
 
-            if (retries != 0)
-                LOGGER.info("Retry successfully sent the message!");
-                
-        }, (error) -> {
-            
-            LOGGER.error("Could not log activity of member '{}' from '{}' to '{}' because {}",
+            LOGGER.error("Could not log activity of member @{} [{}] from \"{}\" to \"{}\"",
+                    target.getUser().getName(),
                     target.getId(),
                     leave == null ? "unknown" : leave.getId(),
-                    join == null ? "unknown" : join.getId(),
-                    error.getMessage()
+                    join == null  ? "unknown" : join.getId(),
+                    err
             );
-
-            if (nextRetry > MAX_RETRIES) {
-                LOGGER.error("Retries failed more than {} times??? WHAT? Okay, aborting it.", MAX_RETRIES);
-                return;
-            }
-
-            LOGGER.warn("Retrying...");
-            LOGGER.warn("Going to #{} retry", nextRetry);
-
-            send(log, join, leave, target, embed, nextRetry);
         });
     }
 
     private boolean shouldLog(Member member) {
-        for (Role role : member.getRoles())
-            if (REQUIRED_ROLES.contains(role.getId()))
-                return true;
-        return false;
+        return member.getRoles()
+                .stream()
+                .anyMatch(r -> REQUIRED_ROLES.contains(r.getId()));
     }
 
     private enum VoiceAction {

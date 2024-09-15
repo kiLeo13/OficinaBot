@@ -72,5 +72,5 @@ public interface IAcknowledgeable<T extends Interaction> {
 
     void replyModal(@NotNull Modal modal);
 
-    void reply(InteractionResponseData data);
+    CommandResult reply(InteractionResponseData data);
 }

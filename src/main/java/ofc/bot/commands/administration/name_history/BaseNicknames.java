@@ -63,7 +63,7 @@ public class BaseNicknames extends SlashCommand {
         return Status.PASSED;
     }
 
-    protected static Button[] generateButtons(String type, long targetId, int currentOffset, boolean hasNext) {
+    public static Button[] generateButtons(String type, long targetId, int currentOffset, boolean hasNext) {
 
         int previousOffset = currentOffset - 10;
         int nextOffset = currentOffset + 10;
@@ -95,7 +95,7 @@ public class BaseNicknames extends SlashCommand {
         return new Button[]{ previous, next };
     }
 
-    protected static MessageEmbed embed(NamesHistoryData namesHistoryData, Guild guild, User target) {
+    public static MessageEmbed embed(NamesHistoryData namesHistoryData, Guild guild, User target) {
 
         EmbedBuilder builder = new EmbedBuilder();
 

@@ -69,7 +69,7 @@ public class MarriageListSubcommand extends SlashSubcommand {
         return Status.PASSED;
     }
 
-    protected static Button[] generateButtons(long userId, int page, boolean hasNext) {
+    public static Button[] generateButtons(long userId, int page, boolean hasNext) {
 
         int previousPage = page - 1;
         int nextPage = page + 1;
@@ -97,7 +97,7 @@ public class MarriageListSubcommand extends SlashSubcommand {
         return new Button[]{ previous, next };
     }
 
-    protected static MessageEmbed embed(Guild guild, User target, MarriagesData data) {
+    public static MessageEmbed embed(Guild guild, User target, MarriagesData data) {
 
         EmbedBuilder builder = new EmbedBuilder();
 
@@ -117,7 +117,7 @@ public class MarriageListSubcommand extends SlashSubcommand {
         return builder.build();
     }
 
-    protected static MarriagesData retrieveMarriageData(long userId, int inputPage) {
+    public static MarriagesData retrieveMarriageData(long userId, int inputPage) {
 
         // 'inputPage' is a user-provided page which is always equivalent to (index + 1)
         int pageIndex = inputPage - 1;

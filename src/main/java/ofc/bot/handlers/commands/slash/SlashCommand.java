@@ -19,31 +19,12 @@ import java.util.stream.Collectors;
 
 public abstract class SlashCommand extends AbstractCommandData implements SubcommandContainer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SlashCommand.class);
-    private final Permission permission;
     private final Map<String, SlashSubcommand> subCommands = new HashMap<>();
-    private final Map<String, SlashSubcommandGroup> commandGroups;
-
-    public SlashCommand(SlashSubcommand... subcommands) {
-        super();
-
-        this.permission = resolvePermission();
-        this.commandGroups = resolveGroups();
-
-        for (SlashSubcommand cmd : subcommands) {
-
-            if (cmd.isInSubcommandGroup())
-                sendSubcommandToGroup(cmd);
-            else
-                this.subCommands.put(cmd.getName(), cmd);
-        }
-    }
 
     // For commands that extend this class, the implementation of this method is optional
     // and will be ignored if Subcommands and Subcommand Groups are declared
     @Override
-    public CommandResult onCommand(CommandContext ctx) {
-        throw new UnsupportedOperationException("Command at class '" + this.getClass().getName() + "' must implement 'onCommand(CommandContext)' method");
-    }
+    public abstract CommandResult onCommand(CommandContext ctx);
 
     @Override
     public Collection<? extends SlashSubcommand> getSubcommands() {
@@ -67,14 +48,6 @@ public abstract class SlashCommand extends AbstractCommandData implements Subcom
     @Override
     public final boolean hasSubcommands() {
         return !subCommands.isEmpty();
-    }
-
-    public final boolean hasSubcommandGroups() {
-        return !commandGroups.isEmpty();
-    }
-
-    public final Collection<? extends SlashSubcommandGroup> getSubcommandGroups() {
-        return this.commandGroups.values();
     }
 
     public final SlashSubcommandGroup getSubcommandGroup(String name) {

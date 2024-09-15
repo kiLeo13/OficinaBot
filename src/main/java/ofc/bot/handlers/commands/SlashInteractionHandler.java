@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
+import ofc.bot.handlers.commands.exceptions.CommandExecutionException;
 import ofc.bot.util.content.annotations.listeners.EventHandler;
 import ofc.bot.handlers.commands.contexts.CommandContext;
 import ofc.bot.handlers.commands.contexts.SlashCommandContext;
@@ -90,12 +91,12 @@ public class SlashInteractionHandler extends ListenerAdapter {
 
     private void handleCommand(CommandContext ctx, CommandExecutor cmd) {
 
-        SlashCommandInteraction interaction = ctx.getInteraction();
-        List<OptionMapping> options = interaction.getOptions();
+        SlashCommandInteraction itr = ctx.getInteraction();
+        List<OptionMapping> options = itr.getOptions();
         User user = ctx.getUser();
         String userId = user.getId();
         String userName = user.getName();
-        String cmdName = interaction.getFullCommandName();
+        String cmdName = itr.getFullCommandName();
         String out = getFullCommand(cmdName, options);
 
         EXECUTOR.execute(() -> {
@@ -108,17 +109,22 @@ public class SlashInteractionHandler extends ListenerAdapter {
                 long end = System.currentTimeMillis();
                 long duration = end - start;
 
-                String statName = status == null ? "Unknown" : status.getStatus().name();
+                if (status == null)
+                    throw new CommandExecutionException("Status cannot return null for command /" + itr.getFullCommandName());
 
-                LOGGER.info("@{} issued \"/{}\" with status {}, took {}ms", userName, out, statName, duration);
+                String[] args = status.getStrArgs();
+                String prettyArgs = String.join(", ", args);
+                String statName = status.getStatus().name();
 
-                if (status != null && status.getContent() != null)
+                LOGGER.info("@{} issued \"/{}\" with status {}({}), took {}ms", userName, out, statName, prettyArgs, duration);
+
+                if (status.getContent() != null)
                     ctx.reply(status.getContent(), status.isEphemeral());
 
-            } catch (Exception e) {
+            } catch (Exception err) {
 
                 LOGGER.error("Command execution triggered by @{} [{}], as \"/{}\", at \"{}\" failed",
-                        userName, userId, out, ctx.getTimeCreated(), e
+                        userName, userId, out, ctx.getTimeCreated(), err
                 );
                 ctx.reply("Ocorreu um erro :/", true);
             }
