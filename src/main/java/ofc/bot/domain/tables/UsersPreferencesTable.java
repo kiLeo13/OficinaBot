@@ -11,15 +11,14 @@ import org.jooq.impl.SQLDataType;
 
 import static ofc.bot.domain.tables.UsersTable.USERS;
 import static org.jooq.impl.DSL.foreignKey;
-import static org.jooq.impl.DSL.name;
 
 public class UsersPreferencesTable extends InitializableTable<UserPreference> {
     public static final UsersPreferencesTable USERS_PREFERENCES = new UsersPreferencesTable();
 
-    public final Field<Long> USER_ID    = createField(name("user_id"),    SQLDataType.BIGINT.notNull());
-    public final Field<String> LOCALE   = createField(name("locale"),     SQLDataType.CHAR.notNull());
-    public final Field<Long> CREATED_AT = createField(name("created_at"), SQLDataType.BIGINT.notNull());
-    public final Field<Long> UPDATED_AT = createField(name("updated_at"), SQLDataType.BIGINT.notNull());
+    public final Field<Long> USER_ID    = newField("user_id",    SQLDataType.BIGINT.notNull());
+    public final Field<String> LOCALE   = newField("locale",     SQLDataType.CHAR.notNull());
+    public final Field<Long> CREATED_AT = newField("created_at", SQLDataType.BIGINT.notNull());
+    public final Field<Long> UPDATED_AT = newField("updated_at", SQLDataType.BIGINT.notNull());
 
     public UsersPreferencesTable() {
         super("users_preferences");

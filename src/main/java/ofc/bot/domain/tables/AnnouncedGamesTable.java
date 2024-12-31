@@ -9,15 +9,13 @@ import org.jooq.Query;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.SQLDataType;
 
-import static org.jooq.impl.DSL.name;
-
 public class AnnouncedGamesTable extends InitializableTable<AnnouncedGame> {
     public static final AnnouncedGamesTable ANNOUNCED_GAMES = new AnnouncedGamesTable();
 
-    public final Field<Integer> ID       = createField(name("id"),          SQLDataType.INTEGER.identity(true));
-    public final Field<String> GAME_ID   = createField(name("game_id"),     SQLDataType.CHAR.notNull());
-    public final Field<String> TITLE     = createField(name("title"),       SQLDataType.CHAR.notNull());
-    public final Field<Long> NOTIFIED_AT = createField(name("notified_at"), SQLDataType.BIGINT.notNull());
+    public final Field<Integer> ID       = newField("id",          SQLDataType.INTEGER.identity(true));
+    public final Field<String> GAME_ID   = newField("game_id",     SQLDataType.CHAR.notNull());
+    public final Field<String> TITLE     = newField("title",       SQLDataType.CHAR.notNull());
+    public final Field<Long> NOTIFIED_AT = newField("notified_at", SQLDataType.BIGINT.notNull());
 
     public AnnouncedGamesTable() {
         super("announced_games");

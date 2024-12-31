@@ -15,11 +15,11 @@ import static org.jooq.impl.DSL.*;
 public class DiscordMessageUpdatesTable extends InitializableTable<DiscordMessageUpdate> {
     public static final DiscordMessageUpdatesTable DISCORD_MESSAGE_UPDATES = new DiscordMessageUpdatesTable();
 
-    public final Field<Integer> ID         = createField(name("id"),         SQLDataType.INTEGER.notNull().identity(true));
-    public final Field<Long> MESSAGE_ID    = createField(name("message_id"), SQLDataType.BIGINT.notNull());
-    public final Field<String> OLD_CONTENT = createField(name("old_value"),  SQLDataType.CHAR.notNull());
-    public final Field<String> NEW_CONTENT = createField(name("new_value"),  SQLDataType.CHAR.notNull());
-    public final Field<Long> CREATED_AT    = createField(name("created_at"), SQLDataType.BIGINT.notNull());
+    public final Field<Integer> ID         = newField("id",         SQLDataType.INTEGER.identity(true));
+    public final Field<Long> MESSAGE_ID    = newField("message_id", SQLDataType.BIGINT.notNull());
+    public final Field<String> OLD_CONTENT = newField("old_value",  SQLDataType.CHAR.notNull());
+    public final Field<String> NEW_CONTENT = newField("new_value",  SQLDataType.CHAR.notNull());
+    public final Field<Long> CREATED_AT    = newField("created_at", SQLDataType.BIGINT.notNull());
 
     public DiscordMessageUpdatesTable() {
         super("discord_message_updates");

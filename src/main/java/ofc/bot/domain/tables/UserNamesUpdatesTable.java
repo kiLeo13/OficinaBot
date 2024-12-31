@@ -11,19 +11,18 @@ import org.jooq.impl.SQLDataType;
 
 import static ofc.bot.domain.tables.UsersTable.USERS;
 import static org.jooq.impl.DSL.foreignKey;
-import static org.jooq.impl.DSL.name;
 
 public class UserNamesUpdatesTable extends InitializableTable<UserNameUpdate> {
     public static final UserNamesUpdatesTable USERNAMES_UPDATES = new UserNamesUpdatesTable();
 
-    public final Field<Integer> ID       = createField(name("id"),         SQLDataType.INTEGER.notNull().identity(true));
-    public final Field<Long> USER_ID     = createField(name("user_id"),    SQLDataType.BIGINT.notNull());
-    public final Field<Long> GUILD_ID    = createField(name("guild_id"),   SQLDataType.BIGINT);
-    public final Field<String> SCOPE     = createField(name("scope"),      SQLDataType.CHAR.notNull());
-    public final Field<Long> AUTHOR_ID   = createField(name("author_id"),  SQLDataType.BIGINT.notNull());
-    public final Field<String> OLD_VALUE = createField(name("old_value"),  SQLDataType.CHAR);
-    public final Field<String> NEW_VALUE = createField(name("new_value"),  SQLDataType.CHAR);
-    public final Field<Long> CREATED_AT  = createField(name("created_at"), SQLDataType.BIGINT.notNull());
+    public final Field<Integer> ID       = newField("id",         SQLDataType.INTEGER.identity(true));
+    public final Field<Long> USER_ID     = newField("user_id",    SQLDataType.BIGINT.notNull());
+    public final Field<Long> GUILD_ID    = newField("guild_id",   SQLDataType.BIGINT);
+    public final Field<String> SCOPE     = newField("scope",      SQLDataType.CHAR.notNull());
+    public final Field<Long> AUTHOR_ID   = newField("author_id",  SQLDataType.BIGINT.notNull());
+    public final Field<String> OLD_VALUE = newField("old_value",  SQLDataType.CHAR);
+    public final Field<String> NEW_VALUE = newField("new_value",  SQLDataType.CHAR);
+    public final Field<Long> CREATED_AT  = newField("created_at", SQLDataType.BIGINT.notNull());
 
     public UserNamesUpdatesTable() {
         super("usernames_updates");

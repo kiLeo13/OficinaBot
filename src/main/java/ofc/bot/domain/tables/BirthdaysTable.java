@@ -11,16 +11,14 @@ import org.jooq.impl.SQLDataType;
 
 import java.time.LocalDate;
 
-import static org.jooq.impl.DSL.name;
-
 public class BirthdaysTable extends InitializableTable<Birthday> {
     public static final BirthdaysTable BIRTHDAYS = new BirthdaysTable();
 
-    public final Field<Long> USER_ID       = createField(name("user_id"),    SQLDataType.BIGINT.notNull());
-    public final Field<String> NAME        = createField(name("name"),       SQLDataType.CHAR.notNull());
-    public final Field<LocalDate> BIRTHDAY = createField(name("birthday"),   SQLDataType.LOCALDATE.notNull());
-    public final Field<Long> CREATED_AT    = createField(name("created_at"), SQLDataType.BIGINT.notNull());
-    public final Field<Long> UPDATED_AT    = createField(name("updated_at"), SQLDataType.BIGINT.notNull());
+    public final Field<Long> USER_ID       = newField("user_id",    SQLDataType.BIGINT.notNull());
+    public final Field<String> NAME        = newField("name",       SQLDataType.CHAR.notNull());
+    public final Field<LocalDate> BIRTHDAY = newField("birthday",   SQLDataType.LOCALDATE.notNull());
+    public final Field<Long> CREATED_AT    = newField("created_at", SQLDataType.BIGINT.notNull());
+    public final Field<Long> UPDATED_AT    = newField("updated_at", SQLDataType.BIGINT.notNull());
 
     public BirthdaysTable() {
         super("birthdays");

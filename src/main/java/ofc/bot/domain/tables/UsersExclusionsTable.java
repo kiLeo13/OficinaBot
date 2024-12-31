@@ -11,15 +11,14 @@ import org.jooq.impl.SQLDataType;
 
 import static ofc.bot.domain.tables.UsersTable.USERS;
 import static org.jooq.impl.DSL.foreignKey;
-import static org.jooq.impl.DSL.name;
 
 public class UsersExclusionsTable extends InitializableTable<UserExclusion> {
     public static final UsersExclusionsTable USERS_EXCLUSIONS = new UsersExclusionsTable();
 
-    public final Field<Integer> ID      = createField(name("id"),             SQLDataType.INTEGER.identity(true));
-    public final Field<Long> USER_ID    = createField(name("user_id"),        SQLDataType.BIGINT.notNull());
-    public final Field<String> TYPE     = createField(name("exclusion_type"), SQLDataType.CHAR.notNull());
-    public final Field<Long> CREATED_AT = createField(name("created_at"),     SQLDataType.BIGINT.notNull());
+    public final Field<Integer> ID      = newField("id",             SQLDataType.INTEGER.identity(true));
+    public final Field<Long> USER_ID    = newField("user_id",        SQLDataType.BIGINT.notNull());
+    public final Field<String> TYPE     = newField("exclusion_type", SQLDataType.CHAR.notNull());
+    public final Field<Long> CREATED_AT = newField("created_at",     SQLDataType.BIGINT.notNull());
 
     public UsersExclusionsTable() {
         super("users_exclusions");

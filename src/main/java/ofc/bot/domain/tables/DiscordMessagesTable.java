@@ -15,16 +15,16 @@ import static org.jooq.impl.DSL.*;
 public class DiscordMessagesTable extends InitializableTable<DiscordMessage> {
     public static final DiscordMessagesTable DISCORD_MESSAGES = new DiscordMessagesTable();
 
-    public final Field<Long> ID                   = createField(name("id"),                   SQLDataType.BIGINT.notNull());
-    public final Field<Long> AUTHOR_ID            = createField(name("author_id"),            SQLDataType.BIGINT.notNull());
-    public final Field<Long> CHANNEL_ID           = createField(name("channel_id"),           SQLDataType.BIGINT.notNull());
-    public final Field<Long> MESSAGE_REFERENCE_ID = createField(name("message_reference_id"), SQLDataType.BIGINT);
-    public final Field<String> CONTENT            = createField(name("content"),              SQLDataType.CHAR);
-    public final Field<Long> STICKER_ID           = createField(name("sticker_id"),           SQLDataType.BIGINT);
-    public final Field<Integer> DELETED           = createField(name("deleted"),              SQLDataType.INTEGER);
-    public final Field<Long> DELETION_AUTHOR_ID   = createField(name("deletion_author_id"),   SQLDataType.BIGINT);
-    public final Field<Long> CREATED_AT           = createField(name("created_at"),           SQLDataType.BIGINT.notNull());
-    public final Field<Long> UPDATED_AT           = createField(name("updated_at"),           SQLDataType.BIGINT.notNull());
+    public final Field<Long> ID                   = newField("id",                   SQLDataType.BIGINT.notNull());
+    public final Field<Long> AUTHOR_ID            = newField("author_id",            SQLDataType.BIGINT.notNull());
+    public final Field<Long> CHANNEL_ID           = newField("channel_id",           SQLDataType.BIGINT.notNull());
+    public final Field<Long> MESSAGE_REFERENCE_ID = newField("message_reference_id", SQLDataType.BIGINT);
+    public final Field<String> CONTENT            = newField("content",              SQLDataType.CHAR);
+    public final Field<Long> STICKER_ID           = newField("sticker_id",           SQLDataType.BIGINT);
+    public final Field<Integer> DELETED           = newField("deleted",              SQLDataType.INTEGER);
+    public final Field<Long> DELETION_AUTHOR_ID   = newField("deletion_author_id",   SQLDataType.BIGINT);
+    public final Field<Long> CREATED_AT           = newField("created_at",           SQLDataType.BIGINT.notNull());
+    public final Field<Long> UPDATED_AT           = newField("updated_at",           SQLDataType.BIGINT.notNull());
 
     public DiscordMessagesTable() {
         super("discord_messages");
