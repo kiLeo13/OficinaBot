@@ -21,6 +21,7 @@ import ofc.bot.listeners.discord.guilds.roles.ColorRoleHandler;
 import ofc.bot.listeners.discord.guilds.roles.GroupRoleDeletionHandler;
 import ofc.bot.listeners.discord.guilds.roles.MemberRolesBackup;
 import ofc.bot.listeners.discord.interactions.GenericInteractionLocaleUpsert;
+import ofc.bot.listeners.discord.interactions.autocomplete.GroupBotAutocompletion;
 import ofc.bot.listeners.discord.interactions.autocomplete.OficinaGroupAutocompletion;
 import ofc.bot.listeners.discord.interactions.buttons.WorkReminderHandler;
 import ofc.bot.listeners.discord.interactions.buttons.groups.*;
@@ -131,6 +132,7 @@ public final class EntityInitializerManager {
         DiscordMessageRepository msgRepo = RepositoryFactory.getDiscordMessageRepository();
         OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
         UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
+        GroupBotRepository grpBotRepo = RepositoryFactory.getGroupBotRepository();
         UserRepository usersRepo = RepositoryFactory.getUserRepository();
         JDA api = Main.getApi();
 
@@ -143,6 +145,7 @@ public final class EntityInitializerManager {
                 new DirectMessageReceived(),
                 new ErikPingReactionHelper(),
                 new GenericInteractionLocaleUpsert(usprefRepo),
+                new GroupBotAutocompletion(grpBotRepo),
                 new GroupRoleDeletionHandler(grpRepo),
                 new LogTimeout(),
                 new MemberJoinUpsert(),
