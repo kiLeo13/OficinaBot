@@ -76,7 +76,8 @@ public final class EntityInitializerManager {
                     new ColorRoleRemotionHandler(),
                     new EpicGamesPromotionAdvertiser(),
                     new GroupsRentCharger(grpRepo),
-                    new VoiceChatMoneyHandler()
+                    new VoiceChatMoneyHandler(),
+                    new HappyNewYearAnnouncement()
             );
             SchedulerRegistryManager.start();
         } catch (SchedulerException e) {
