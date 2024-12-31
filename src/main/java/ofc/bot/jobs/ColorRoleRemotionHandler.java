@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.Main;
 import ofc.bot.util.content.annotations.jobs.CronJob;
-import ofc.bot.databases.entities.records.ColorRoleRecord;
-import ofc.bot.databases.DBManager;
+import ofc.bot.domain.entity.ColorRoleState;
+import ofc.bot.domain.sqlite.DB;
 import org.jooq.DSLContext;
 import org.jooq.impl.SQLDataType;
 import org.quartz.Job;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static ofc.bot.databases.entities.tables.ColorRoles.COLOR_ROLES;
+import static ofc.bot.domain.tables.ColorRolesStateTable.COLOR_ROLES_STATES;
 import static org.jooq.impl.DSL.*;
 
 @CronJob(expression = "0 0 0 ? * * *") // Every day at midnight
@@ -29,10 +29,9 @@ public class ColorRoleRemotionHandler implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        
         LOGGER.info("Checking for members with color role due to be removed...");
 
-        List<ColorRoleRecord> toRemove = retrieveToRemove();
+        List<ColorRoleState> toRemove = retrieveToRemove();
         JDA api = Main.getApi();
 
         if (toRemove.isEmpty()) {
@@ -42,8 +41,7 @@ public class ColorRoleRemotionHandler implements Job {
 
         LOGGER.info("Found {} member{}.", toRemove.size(), toRemove.size() == 1 ? "" : "s");
 
-        for (ColorRoleRecord data : toRemove) {
-
+        for (ColorRoleState data : toRemove) {
             long roleId = data.getRoleId();
             long userId = data.getUserId();
             long guildId = data.getGuildId();
@@ -71,29 +69,27 @@ public class ColorRoleRemotionHandler implements Job {
                     removeFrom(guildId, userId, roleId);
                     LOGGER.warn("Member '{}' was not found, probably no longer present in the server, ignoring.", userId);
                 } else {
-                    LOGGER.error("Could not remove color role " + roleId + " from " + userId, error);
+                    LOGGER.error("Could not remove color role {} from {}", roleId, userId, error);
                 }
             });
         }
     }
 
-    private List<ColorRoleRecord> retrieveToRemove() {
+    private List<ColorRoleState> retrieveToRemove() {
+        DSLContext ctx = DB.getContext();
 
-        DSLContext ctx = DBManager.getContext();
-
-        return ctx.selectFrom(COLOR_ROLES)
+        return ctx.selectFrom(COLOR_ROLES_STATES)
                 .where(field("(julianday('now') - julianday(datetime(updated_at, 'unixepoch'))) >= 60", SQLDataType.BOOLEAN))
                 .fetch();
     }
 
     private void removeFrom(long guildId, long userId, long roleId) {
+        DSLContext ctx = DB.getContext();
 
-        DSLContext ctx = DBManager.getContext();
-
-        ctx.deleteFrom(COLOR_ROLES)
-                .where(COLOR_ROLES.GUILD_ID.eq(guildId))
-                .and(COLOR_ROLES.USER_ID.eq(userId))
-                .and(COLOR_ROLES.ROLE_ID.eq(roleId))
+        ctx.deleteFrom(COLOR_ROLES_STATES)
+                .where(COLOR_ROLES_STATES.GUILD_ID.eq(guildId))
+                .and(COLOR_ROLES_STATES.USER_ID.eq(userId))
+                .and(COLOR_ROLES_STATES.ROLE_ID.eq(roleId))
                 .execute();
     }
 }

@@ -1,6 +1,6 @@
 package ofc.bot.handlers;
 
-import ofc.bot.databases.DBManager;
+import ofc.bot.domain.sqlite.DB;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ public class ConsoleQueryHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleQueryHandler.class);
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static final Scanner SCANNER = new Scanner(System.in);
-    private static final DSLContext CTX = DBManager.getContext();
+    private static final DSLContext CTX = DB.getContext();
 
     public static void init() {
 

@@ -1,0 +1,37 @@
+package ofc.bot.handlers.economy;
+
+import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
+import ofc.bot.handlers.economy.oficina.OficinaBankClient;
+import ofc.bot.handlers.economy.unb.UnbelievaBoatClient;
+import ofc.bot.internal.data.BotData;
+
+public final class PaymentManagerProvider {
+    private static UnbelievaBoatClient ub;
+    private static OficinaBankClient ofc;
+
+    private PaymentManagerProvider() {}
+
+    public static UnbelievaBoatClient getUnbelievaBoatClient() {
+        if (ub == null) {
+            String token = BotData.get("unbelievaboat.token");
+            ub = new UnbelievaBoatClient(token);
+        }
+        return ub;
+    }
+
+    public static OficinaBankClient getOficinaBankClient() {
+        if (ofc == null) {
+            UserEconomyRepository userEco = RepositoryFactory.getUserEconomyRepository();
+            ofc = new OficinaBankClient(userEco);
+        }
+        return ofc;
+    }
+
+    public static PaymentManager fromType(CurrencyType type) {
+        return switch (type) {
+            case OFICINA -> getOficinaBankClient();
+            case UNBELIEVABOAT -> getUnbelievaBoatClient();
+        };
+    }
+}

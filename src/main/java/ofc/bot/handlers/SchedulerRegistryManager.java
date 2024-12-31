@@ -3,48 +3,50 @@ package ofc.bot.handlers;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
-import org.reflections.Reflections;
-import org.reflections.util.ConfigurationBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Constructor;
-import java.util.Set;
 
 public class SchedulerRegistryManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerRegistryManager.class);
-    private static final Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage("ofc.bot"));
 
-    public static void initializeSchedulers() throws SchedulerException {
-
-        Set<Class<?>> jobs = reflections.getTypesAnnotatedWith(CronJob.class);
+    /**
+     * Registers the provided cron jobs into the {@link Scheduler}.
+     * <p>
+     * This method <b><u>DOES NOT</u></b> start the scheduler automatically,
+     * you must call {@link #start} in order to fully initialize the cron jobs.
+     *
+     * @param jobs the cron jobs to be registered.
+     * @throws SchedulerException if there is an error scheduling the job.
+     */
+    public static void initializeSchedulers(Job... jobs) throws SchedulerException {
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+        Class<CronJob> jobAnn = CronJob.class;
 
-        for (Class<?> jobClass : jobs) {
+        for (Job job : jobs) {
+            if (!job.getClass().isAnnotationPresent(jobAnn))
+                throw new IllegalStateException("Annotation '@" + jobAnn.getSimpleName() + "' must be present in cron job classes");
 
-            if (!Job.class.isAssignableFrom(jobClass))
-                throw new IllegalStateException("Class '" + jobClass.getName() + "' annotated with CronJob does not implement the " + Job.class.getName() + " interface");
+            JobDetail detail = getDetail(job);
+            Trigger trigger = getTrigger(job);
 
-            try {
-                Constructor<?> constructor = jobClass.getConstructor();
-                constructor.setAccessible(true);
-                Job job = (Job) constructor.newInstance();
-
-                JobDetail detail = getDetail(job);
-                Trigger trigger = getTrigger(job);
-
-                scheduler.scheduleJob(detail, trigger);
-
-            } catch (ReflectiveOperationException e) {
-                LOGGER.error("Could not instantiate job at " + jobClass.getName(), e);
-            }
+            scheduler.scheduleJob(detail, trigger);
         }
+    }
 
+    /**
+     * Starts the cron jobs registered with {@link #initializeSchedulers(Job...)}.
+     *
+     * @throws SchedulerException if {@link #stopSchedulers(boolean)} has
+     *         been called, or there is an error starting the scheduler.
+     */
+    public static void start() throws SchedulerException {
+        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
         scheduler.start();
     }
 
-    private static JobDetail getDetail(Job job) {
+    public static void stopSchedulers(boolean waitCompletion) throws SchedulerException {
+        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+        scheduler.shutdown(waitCompletion);
+    }
 
+    private static JobDetail getDetail(Job job) {
         Class<? extends Job> jobClass = job.getClass();
         CronJob jobAnnotation = jobClass.getDeclaredAnnotation(CronJob.class);
 
@@ -62,7 +64,6 @@ public class SchedulerRegistryManager {
     }
 
     private static Trigger getTrigger(Job job) {
-
         Class<? extends Job> jobClass = job.getClass();
         CronJob jobAnnotation = jobClass.getDeclaredAnnotation(CronJob.class);
 

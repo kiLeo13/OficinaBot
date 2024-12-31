@@ -1,88 +1,91 @@
 package ofc.bot.commands.userinfo;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.User.Profile;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import ofc.bot.databases.DBManager;
-import ofc.bot.databases.entities.records.CustomUserinfoRecord;
-import ofc.bot.databases.entities.records.MarriageRecord;
-import ofc.bot.databases.entities.tables.Economy;
-import ofc.bot.util.content.annotations.commands.DiscordCommand;
-import ofc.bot.util.content.annotations.commands.Option;
-import ofc.bot.handlers.commands.contexts.CommandContext;
-import ofc.bot.handlers.commands.responses.results.CommandResult;
-import ofc.bot.handlers.commands.responses.results.Status;
-import ofc.bot.handlers.commands.slash.SlashCommand;
+import ofc.bot.domain.entity.*;
+import ofc.bot.domain.sqlite.repository.*;
+import ofc.bot.domain.viewmodels.MarriageView;
+import ofc.bot.domain.viewmodels.UserinfoView;
+import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
-import ofc.bot.util.EconomyUtil;
-import ofc.bot.util.MarriageUtil;
-import org.jooq.DSLContext;
+import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import static ofc.bot.databases.entities.tables.CustomUserinfo.CUSTOM_USERINFO;
-import static ofc.bot.databases.entities.tables.Marriages.MARRIAGES;
-import static ofc.bot.databases.entities.tables.Users.USERS;
-
 @DiscordCommand(name = "userinfo", description = "Comando usado para saber informaçõe gerais do membro no servidor e do usuário do Discord.")
 public class UserinfoCommand extends SlashCommand {
-    public static final int MAX_MARRIAGE_DISPLAY = 20;
+    private static final int MAX_MARRIAGE_DISPLAY = 20;
+    private final CustomUserinfoRepository csInfoRepo;
+    private final MemberEmojiRepository emjRepo;
+    private final UserEconomyRepository ecoRepo;
+    private final MarriageRepository marrRepo;
+    private final OficinaGroupRepository groupRepo;
 
-    @Option
-    private static final OptionData MEMBER = new OptionData(OptionType.USER, "member", "O usuário a verificar as informações.");
+    public UserinfoCommand(
+            CustomUserinfoRepository csInfoRepo, MemberEmojiRepository emjRepo,
+            UserEconomyRepository ecoRepo, MarriageRepository marrRepo,
+            OficinaGroupRepository groupRepo
+    ) {
+        this.csInfoRepo = csInfoRepo;
+        this.emjRepo = emjRepo;
+        this.ecoRepo = ecoRepo;
+        this.marrRepo = marrRepo;
+        this.groupRepo = groupRepo;
+    }
 
     @Override
-    public CommandResult onCommand(CommandContext ctx) {
-
-        boolean hasMember = ctx.hasOption("member");
+    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         Member issuer = ctx.getIssuer();
         Member member = ctx.getOption("member", OptionMapping::getAsMember);
         Member target = member == null ? issuer : member;
 
-        // Received a User instead of a Member, which means
-        // the provided user does not exist in the current guild
-        if (hasMember && member == null)
-            return Status.MEMBER_NOT_IN_GUILD;
+        if (ctx.hasOption("member") && member == null)
+            return Status.MEMBER_NOT_FOUND;
 
         target.getUser().retrieveProfile().queue((profile -> {
-
             long userId = target.getIdLong();
-            CustomUserinfoRecord userinfo = retrieveUserinfo(userId);
+            UserinfoView userinfo = fetchUserinfo(userId);
             MessageEmbed embed = embed(userinfo, target, profile);
 
             ctx.replyEmbeds(embed);
         }));
 
-        return Status.PASSED;
+        return Status.OK;
     }
 
-    private MessageEmbed embed(CustomUserinfoRecord userinfo, Member target, Profile profile) {
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "member", "O usuário a verificar as informações.")
+        );
+    }
 
+    private MessageEmbed embed(UserinfoView cs, Member target, Profile profile) {
         EmbedBuilder builder = new EmbedBuilder();
 
         OffsetDateTime timeBoosted = target.getTimeBoosted();
-        long boosterSince = timeBoosted == null
-                ? 0
-                : timeBoosted.toEpochSecond();
-        long userId = target.getIdLong();
+        long boosterSince = timeBoosted == null ? 0 : timeBoosted.toEpochSecond();
         long creation = target.getUser().getTimeCreated().toEpochSecond();
         long joined = target.getTimeJoined().toEpochSecond();
-        long balance = EconomyUtil.fetchBalance(userId);
+        long groupRoleId = cs.group() == null ? 0 : cs.group().getRoleId();
+        long balance = cs.balance();
         Guild guild = target.getGuild();
+        Role groupRole = guild.getRoleById(groupRoleId);
         User user = target.getUser();
-        Color color = userinfo.getEffectiveColor(target);
-        String title = userinfo.getEffectiveTitle(user);
-        String description = userinfo.getEffectiveDescription(target);
+        Color color = getColor(cs, target);
+        String title = getTitle(user);
+        String description = getDescription(cs, target);
+        String footer = getFooter(cs, guild);
         String banner = profile.getBannerUrl();
-        String footer = userinfo.getEffectiveFooter(guild);
         String resizedBanner = banner == null
                 ? null
                 : banner + "?size=2048";
@@ -95,61 +98,83 @@ public class UserinfoCommand extends SlashCommand {
                 .addField("📅 Criação da Conta", String.format("<t:%d>\n<t:%1$d:R>", creation), true)
                 .addField("🌐 User ID", "`" + target.getIdLong() + "`", true)
                 .addField("🌟 Entrou no Servidor", String.format("<t:%d>", joined), true)
-                .addField(Economy.SYMBOL + " Saldo", "$" + Bot.strfNumber(balance), true)
+                .addField(UserEconomy.SYMBOL + " Saldo", "$" + Bot.fmtNum(balance), true)
                 .setFooter(footer, guild.getIconUrl());
 
         if (banner != null)
             builder.setImage(resizedBanner);
 
+        if (groupRole != null)
+            builder.addField("🎪 Grupo", groupRole.getAsMention(), true);
+
         if (boosterSince != 0)
             builder.addField("<:discordbooster:1094816233234378762> Booster Desde", "<t:" + boosterSince + ">", true);
 
-        includeMarriagesIfPresent(builder, userId);
-
+        includeMarriagesIfPresent(cs, builder);
         return builder.build();
     }
 
-    private void includeMarriagesIfPresent(EmbedBuilder builder, long userId) {
+    private void includeMarriagesIfPresent(UserinfoView cs, EmbedBuilder builder) {
+        List<MarriageView> marriages = cs.marriages();
 
-        boolean isMarried = MarriageUtil.isPartnered(userId);
+        if (marriages.isEmpty()) return;
 
-        if (!isMarried)
-            return;
-
-        int marriageCount = MarriageUtil.getMarriageCount(userId);
-        String strfCount = Bot.strfNumber(marriageCount);
-        List<MarriageRecord> marriages = retrieveMarriages(userId);
-        String formattedMarriages = MarriageUtil.format(marriages);
+        String strfCount = Bot.fmtNum(cs.marriageCount());
+        String formattedMarriages = formatMarriages(cs.userId(), marriages);
 
         builder.addField("💍 Casamentos (" + strfCount + ")", formattedMarriages, false);
     }
 
-    private List<MarriageRecord> retrieveMarriages(long userId) {
-
-        DSLContext ctx = DBManager.getContext();
-
-        return ctx.select(MARRIAGES.REQUESTER_ID, MARRIAGES.TARGET_ID, MARRIAGES.CREATED_AT, USERS.NAME, USERS.GLOBAL_NAME)
-                .from(MARRIAGES)
-                .join(USERS)
-                .on(MARRIAGES.REQUESTER_ID.eq(USERS.ID).or(MARRIAGES.TARGET_ID.eq(USERS.ID)))
-                .where(MARRIAGES.REQUESTER_ID.eq(userId).or(MARRIAGES.TARGET_ID.eq(userId))
-                        .and(USERS.ID.ne(userId)))
-                .groupBy(USERS.ID)
-                .orderBy(MARRIAGES.CREATED_AT)
-                .limit(MAX_MARRIAGE_DISPLAY)
-                .fetchInto(MARRIAGES);
+    private String formatMarriages(long userId, List<MarriageView> marriages) {
+        return Bot.format(marriages, (mr) -> {
+            AppUser partner = mr.partner(userId);
+            return String.format(CustomUserinfo.MARRIAGE_FORMAT, partner.getDisplayName(), mr.createdAt());
+        });
     }
 
-    private CustomUserinfoRecord retrieveUserinfo(long userId) {
+    private UserinfoView fetchUserinfo(long userId) {
+        CustomUserinfo csInfo = csInfoRepo.findByUserId(userId, CustomUserinfo.fromUserId(userId));
+        UserEconomy userEco = ecoRepo.findByUserId(userId);
+        OficinaGroup group = groupRepo.findByOwnerId(userId);
+        List<MarriageView> rels = marrRepo.viewByUserId(userId, MAX_MARRIAGE_DISPLAY);
+        int relCount = marrRepo.countByUserId(userId);
 
-        DSLContext ctx = DBManager.getContext();
+        return new UserinfoView(csInfo, group, rels, relCount, userId, userEco.getBalance());
+    }
 
-        CustomUserinfoRecord customUserinfo = ctx.selectFrom(CUSTOM_USERINFO)
-                .where(CUSTOM_USERINFO.USER_ID.eq(userId))
-                .fetchOne();
+    private Color getColor(UserinfoView cs, Member member) {
+        int color = cs.mods().getColorRaw();
+        List<Role> roles = member.getRoles();
 
-        return customUserinfo == null
-                ? new CustomUserinfoRecord(userId)
-                : customUserinfo;
+        if (color > 0) return new Color(color);
+
+        return roles.isEmpty()
+                ? Color.GRAY
+                : roles.get(0).getColor();
+    }
+
+    private String getTitle(User user) {
+        MemberEmoji emoji = emjRepo.findByUserId(user.getIdLong());
+        String name = user.getEffectiveName();
+
+        return emoji == null
+                ? String.format(CustomUserinfo.DEFAULT_TITLE_FORMAT, name)
+                : emoji.getEmoji() + " " + name;
+    }
+
+    private String getDescription(UserinfoView cs, Member member) {
+        String desc = cs.mods().getDescription();
+
+        return desc == null
+                ? String.format(CustomUserinfo.DEFAULT_DESCRIPTION_FORMAT, member.getEffectiveName())
+                : desc;
+    }
+
+    private String getFooter(UserinfoView cs, Guild guild) {
+        String footer = cs.mods().getFooter();
+
+        return footer == null
+                ? guild.getName()
+                : footer;
     }
 }

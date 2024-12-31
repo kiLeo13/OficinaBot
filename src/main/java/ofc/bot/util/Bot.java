@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 import ofc.bot.Main;
 import org.slf4j.Logger;
@@ -26,14 +27,48 @@ public final class Bot {
     
     private Bot() {}
 
-    public static int calculateMaxPages(int totalUsers, int pageSize) {
+    public static Locale defaultLocale() {
+        return LOCALE;
+    }
 
-        int maxPages = totalUsers / pageSize;
+    public static List<GatewayIntent> getIntents() {
+        return List.of(
+                GatewayIntent.MESSAGE_CONTENT,
+                GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.GUILD_EXPRESSIONS,
+                GatewayIntent.GUILD_MODERATION,
+                GatewayIntent.GUILD_PRESENCES,
+                GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                GatewayIntent.AUTO_MODERATION_EXECUTION,
+                GatewayIntent.SCHEDULED_EVENTS,
+                GatewayIntent.DIRECT_MESSAGES
+        );
+    }
 
-        if (totalUsers % pageSize > 0)
+    public static int calcMaxPages(int total, int pageSize) {
+        int maxPages = total / pageSize;
+
+        if (total % pageSize > 0)
             maxPages++;
 
         return Math.max(maxPages, 1);
+    }
+
+    /**
+     * Checks if {@code a + b} overflows either
+     * {@link Long#MAX_VALUE} or {@link Long#MIN_VALUE}.
+     *
+     * @param a the first value.
+     * @param b the second value.
+     * @return {@code true} if the sum of both values overflows the {@code long}
+     * datatype, {@code false} otherwise.
+     */
+    public static boolean overflows(long a, long b) {
+        if (b > 0) return a > Long.MAX_VALUE - b;
+        if (b < 0) return a < Long.MIN_VALUE - b;
+        return false;
     }
 
     public static void delete(Message message) {
@@ -42,12 +77,10 @@ public final class Bot {
                         .ignore(ErrorResponse.UNKNOWN_MESSAGE));
     }
 
-    public static boolean isOdd(long value) {
-        return !isEven(value);
-    }
+    public static String upperFirst(String str) {
+        if (str == null || str.isEmpty()) return str;
 
-    public static boolean isEven(long value) {
-        return value % 2 == 0;
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     public static CacheRestAction<User> fetchUser(long userId) {
@@ -55,7 +88,6 @@ public final class Bot {
     }
 
     public static String parsePeriod(long seconds) {
-
         if (seconds <= 0)
             return "0s";
         
@@ -80,14 +112,6 @@ public final class Bot {
         return Instant.now().getEpochSecond();
     }
 
-    public static String readFile(File file) {
-        try {
-            return String.join(System.lineSeparator(), Files.readAllLines(Path.of(file.getAbsolutePath())));
-        } catch (IOException e) {
-            return "";
-        }
-    }
-
     public static void writeToFile(String content, File file) {
         try (
                 OutputStream out = Files.newOutputStream(Path.of(file.getAbsolutePath()));
@@ -100,10 +124,10 @@ public final class Bot {
         }
     }
 
-    public static String strfNumber(long value) {
+    public static String fmtNum(long value) {
+        if (value == 0) return "0";
 
-        if (value > -10 && value < 10)
-            return String.format("%02d", value);
+        if (value > -10 && value < 10) return String.format("%02d", value);
 
         NumberFormat currency = NumberFormat.getNumberInstance(LOCALE);
 
@@ -111,19 +135,26 @@ public final class Bot {
     }
 
     public static <T> String format(final List<T> values, final Function<T, String> format) {
-
-        if (values.isEmpty())
-            return "";
+        if (values.isEmpty()) return "";
 
         StringBuilder builder = new StringBuilder();
 
-        for (T value : values)
+        for (T value : values) {
             builder.append(format.apply(value));
+        }
 
         return builder.toString().strip();
     }
 
+    /**
+     * Returns the {@code int} RGB color of this HEX string.
+     *
+     * @param hex the HEX color value.
+     * @return the RGB value of the color, or {@code -1} if the argument is not of length {@code 6}.
+     * @throws NumberFormatException if the {@code String} does not contain a parsable {@code int}.
+     */
     public static int hexToRgb(String hex) {
+        if (hex.length() != 6) return -1;
 
         int red = Integer.parseInt(hex.substring(0, 2), 16);
         int green = Integer.parseInt(hex.substring(2, 4), 16);

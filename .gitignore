@@ -24,9 +24,9 @@ dependency-reduced-pom.xml
 hs_err_pid*
 replay_pid*
 
-# bot Config
+# Bot Config
 src/main/java/ofc/bot/internal/data/
-bot.json
+content/*.json
 
 # Idea files
 .idea/
@@ -34,7 +34,6 @@ bot.json
 
 # Database files
 database.db
-
 
 # Confidential directories/files
 target/

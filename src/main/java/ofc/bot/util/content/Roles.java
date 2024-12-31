@@ -1,12 +1,12 @@
 package ofc.bot.util.content;
 
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
+import ofc.bot.Main;
 
 public enum Roles {
-    AMONG_US("596784802150088704"),
-    SALADA(  "693973471989858714"),
-    STUDY(   "1249474433278677022");
+    AMONG_US(     "596784802150088704"),
+    SALADA(       "693973471989858714"),
+    STUDY(        "1249474433278677022");
 
     final String id;
 
@@ -18,7 +18,7 @@ public enum Roles {
         return this.id;
     }
 
-    public Role toRole(Guild guild) {
-        return guild.getRoleById(this.id);
+    public Role role() {
+        return Main.getApi().getRoleById(this.id);
     }
 }

@@ -9,7 +9,6 @@ public class TemporalTaskExecutor {
     private final int interval;
 
     public TemporalTaskExecutor(int intervalMillis, int threads) {
-
         if (intervalMillis <= 0)
             throw new IllegalArgumentException("Task Interval cannot be less than or equal to 0, provided: " + intervalMillis);
 
@@ -23,7 +22,6 @@ public class TemporalTaskExecutor {
     }
 
     public void addTask(Runnable task) {
-
         if (task == null)
             throw new IllegalArgumentException("Task may not be null");
 
@@ -31,18 +29,14 @@ public class TemporalTaskExecutor {
     }
 
     public void run() {
-
         int time = interval;
 
         while (taskQueue.peek() != null) {
-
             Runnable task = taskQueue.poll();
 
             scheduler.schedule(task, time, TimeUnit.MILLISECONDS);
-
             time += interval;
         }
-
         this.scheduler.shutdown();
     }
 }
