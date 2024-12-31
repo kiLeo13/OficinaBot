@@ -17,7 +17,7 @@ public class DiscordMessageUpdatesTable extends InitializableTable<DiscordMessag
 
     public final Field<Integer> ID         = newField("id",         SQLDataType.INTEGER.identity(true));
     public final Field<Long> MESSAGE_ID    = newField("message_id", SQLDataType.BIGINT.notNull());
-    public final Field<String> OLD_CONTENT = newField("old_value",  SQLDataType.CHAR.notNull());
+    public final Field<String> OLD_CONTENT = newField("old_value",  SQLDataType.CHAR);
     public final Field<String> NEW_CONTENT = newField("new_value",  SQLDataType.CHAR.notNull());
     public final Field<Long> CREATED_AT    = newField("created_at", SQLDataType.BIGINT.notNull());
 
