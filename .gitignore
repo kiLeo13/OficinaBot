@@ -33,7 +33,7 @@ content/*.json
 .vscode/
 
 # Database files
-database.db
+*.db
 
 # Confidential directories/files
 target/
