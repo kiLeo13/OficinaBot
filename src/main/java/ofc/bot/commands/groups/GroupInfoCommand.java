@@ -4,6 +4,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
@@ -37,9 +40,10 @@ public class GroupInfoCommand extends SlashSubcommand {
 
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+        int groupId = ctx.getOption("group", -1, OptionMapping::getAsInt);
         long userId = ctx.getUserId();
         Guild guild = ctx.getGuild();
-        OficinaGroup group = grpRepo.findByOwnerId(userId);
+        OficinaGroup group = groupId == -1 ? grpRepo.findByOwnerId(userId) : grpRepo.findById(groupId);
 
         if (group == null)
             return Status.YOU_DO_NOT_OWN_A_GROUP;
@@ -59,6 +63,13 @@ public class GroupInfoCommand extends SlashSubcommand {
             updateEmbedRentField(ctx, group, guild, role, embed);
 
         return Status.OK;
+    }
+
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.INTEGER, "group", "O grupo que você deseja saber as informações", false, true)
+        );
     }
 
     private EmbedBuilder embed(int color, Guild guild, OficinaGroup group) {
