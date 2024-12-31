@@ -1,9 +1,7 @@
 package ofc.bot.commands.groups;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -25,11 +23,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@DiscordCommand(name = "group info", description = "Mostra informações sobre o seu grupo.", cooldown = 10)
+@DiscordCommand(name = "group info", description = "Mostra informações sobre o seu grupo.", cooldown = 30)
 public class GroupInfoCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupInfoCommand.class);
     private static final String RENT_AMOUNT_FIELD_NAME = "Aluguel 📅";
-    private static final MessageEmbed.Field FAILED_CALCULATION_FIELD = new MessageEmbed.Field(RENT_AMOUNT_FIELD_NAME, "?", true);
     private final BankTransactionRepository bankTrRepo;
     private final OficinaGroupRepository grpRepo;
 
@@ -54,13 +51,15 @@ public class GroupInfoCommand extends SlashSubcommand {
         if (role == null)
             return Status.GROUP_ROLE_NOT_FOUND;
 
-        EmbedBuilder embed = embed(role.getColorRaw(), guild, group);
+        ctx.ack();
+        guild.findMembersWithRoles(role).onSuccess((members) -> {
+            MessageEmbed embed = embed(role.getColorRaw(), members, guild, group);
 
-        ctx.replyEmbeds(embed.build());
-
-        // Lazy-update the "Rent" field
-        if (group.isRentRecurring())
-            updateEmbedRentField(ctx, group, guild, role, embed);
+            ctx.replyEmbeds(embed);
+        }).onError((err) -> {
+            LOGGER.error("Could not fetch members from group {}", group.getId(), err);
+            ctx.reply(Status.COULD_NOT_EXECUTE_SUCH_OPERATION);
+        });
 
         return Status.OK;
     }
@@ -72,13 +71,16 @@ public class GroupInfoCommand extends SlashSubcommand {
         );
     }
 
-    private EmbedBuilder embed(int color, Guild guild, OficinaGroup group) {
+    private MessageEmbed embed(int color, List<Member> members, Guild guild, OficinaGroup group) {
         EmbedBuilder builder = new EmbedBuilder();
-        String hex = Integer.toHexString(color);
-        String rent = group.isRentRecurring() ? "..." : "$0";
+        long rent = group.calcRent(members);
         long appreciation = -getAppreciation(group);
-        String fmtApprec = '$' + Bot.fmtNum(appreciation);
+        String hex = Integer.toHexString(color);
+        String fmtRent = String.format("%s/mês", Bot.fmtMoney(rent));
+        String fmtApprec = Bot.fmtMoney(appreciation);
+        String fmtMembers = Bot.fmtNum(members.size());
         RentStatus rentStatus = group.getRentStatus();
+        String fmtTimestamp = String.format("<t:%d>", group.getTimeCreated());
 
         return builder
                 .setTitle(group.getName())
@@ -86,27 +88,13 @@ public class GroupInfoCommand extends SlashSubcommand {
                 .addField("🎨 Cor", hex, true)
                 .addField("💳 Economia", group.getCurrency().getName(), true)
                 .addField("💎 Valorização", fmtApprec, true)
-                .addField(RENT_AMOUNT_FIELD_NAME, rent, true)
+                .addField(RENT_AMOUNT_FIELD_NAME, fmtRent, true)
+                .addField("🤴 Dono", group.getOwnerAsMention(), true)
                 .addField("🏡 Status de Aluguel", rentStatus.getDisplayStatus(), true)
-                .setFooter(guild.getName(), guild.getIconUrl());
-    }
-
-    private void updateEmbedRentField(SlashCommandContext ctx, OficinaGroup group, Guild guild, Role role, EmbedBuilder embed) {
-        List<MessageEmbed.Field> embedFields = embed.getFields();
-        long roleId = role.getIdLong();
-        int rentFieldIndex = getRentFieldIndex(embed);
-
-        guild.findMembersWithRoles(role).onSuccess(members -> {
-            long rent = group.calcRent(members);
-            String fmtRent = String.format("$%s/mês", Bot.fmtNum(rent));
-
-            embedFields.set(rentFieldIndex, new MessageEmbed.Field(RENT_AMOUNT_FIELD_NAME, fmtRent, true));
-            ctx.replyEmbeds(embed.build());
-        }).onError(err -> {
-            LOGGER.error("Could not fetch members from role {}", roleId, err);
-            embedFields.set(rentFieldIndex, FAILED_CALCULATION_FIELD);
-            ctx.replyEmbeds(embed.build());
-        });
+                .addField("👥 Membros", fmtMembers, true)
+                .addField("📅 Criação", fmtTimestamp, true)
+                .setFooter(guild.getName(), guild.getIconUrl())
+                .build();
     }
 
     private long getAppreciation(OficinaGroup group) {
@@ -121,10 +109,5 @@ public class GroupInfoCommand extends SlashSubcommand {
         return items.stream()
                 .mapToLong(BankTransaction::getAmount)
                 .sum();
-    }
-
-    private int getRentFieldIndex(EmbedBuilder embed) {
-        List<MessageEmbed.Field> fields = embed.getFields();
-        return fields.size() - 2;
     }
 }
