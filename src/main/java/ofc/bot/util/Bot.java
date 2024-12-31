@@ -134,6 +134,10 @@ public final class Bot {
         return currency.format(value);
     }
 
+    public static String fmtMoney(long value) {
+        return '$' + fmtNum(value);
+    }
+
     public static <T> String format(final List<T> values, final Function<T, String> format) {
         if (values.isEmpty()) return "";
 
