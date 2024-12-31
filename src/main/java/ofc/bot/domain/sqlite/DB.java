@@ -32,7 +32,7 @@ public final class DB {
     public static void init() throws DataAccessException {
         initConfigs();
         DSLContext ctx = getContext();
-        List<InitializableTable<?>> tables = getTablesCreation();
+        List<InitializableTable<?>> tables = getTables();
 
         for (InitializableTable<?> table : tables) {
             table.getSchema(ctx).execute();
@@ -41,7 +41,7 @@ public final class DB {
         LOGGER.info("Successfully created all tables");
     }
 
-    private static List<InitializableTable<?>> getTablesCreation() {
+    private static List<InitializableTable<?>> getTables() {
         return List.of(
                 AnnouncedGamesTable.ANNOUNCED_GAMES,
                 BankTransactionsTable.BANK_TRANSACTIONS,
@@ -51,6 +51,7 @@ public final class DB {
                 DiscordMessagesTable.DISCORD_MESSAGES,
                 DiscordMessageUpdatesTable.DISCORD_MESSAGE_UPDATES,
                 FormerMembersRolesTable.FORMER_MEMBERS_ROLES,
+                GroupBotsTable.GROUP_BOTS,
                 MarriageRequestsTable.MARRIAGE_REQUESTS,
                 MarriagesTable.MARRIAGES,
                 MembersEmojisTable.MEMBERS_EMOJIS,

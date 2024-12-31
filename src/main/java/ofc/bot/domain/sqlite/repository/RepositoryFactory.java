@@ -4,29 +4,35 @@ import ofc.bot.domain.sqlite.DB;
 import org.jooq.DSLContext;
 
 public final class RepositoryFactory {
-    private static UserRepository userRepository;
+    private static AnnouncedGameRepository announcedGameRepository;
+    private static BankTransactionRepository bankTransactionRepository;
     private static BirthdayRepository birthdayRepository;
     private static ColorRoleStateRepository colorRoleStateRepository;
     private static CustomUserinfoRepository customUserinfoRepository;
-    private static AnnouncedGameRepository announcedGameRepository;
     private static DiscordMessageRepository discordMessageRepository;
     private static DiscordMessageUpdateRepository discordMessageUpdateRepository;
     private static FormerMemberRoleRepository formerMemberRoleRepository;
+    private static GroupBotRepository groupBotRepository;
     private static MarriageRepository marriageRepository;
     private static MarriageRequestRepository marriageRequestRepository;
     private static MemberEmojiRepository memberEmojiRepository;
     private static OficinaGroupRepository oficinaGroupRepository;
-    private static BankTransactionRepository bankTransactionRepository;
     private static UserEconomyRepository userEconomyRepository;
     private static UserExclusionRepository userExclusionRepository;
     private static UserNameUpdateRepository userNameUpdateRepository;
     private static UserPreferenceRepository userPreferenceRepository;
+    private static UserRepository userRepository;
 
     private RepositoryFactory() {}
 
-    public static UserRepository getUserRepository() {
-        if (userRepository == null) userRepository = new UserRepository(getDSLContext());
-        return userRepository;
+    public static AnnouncedGameRepository getAnnouncedGameRepository() {
+        if (announcedGameRepository == null) announcedGameRepository = new AnnouncedGameRepository(getDSLContext());
+        return announcedGameRepository;
+    }
+
+    public static BankTransactionRepository getBankTransactionRepository() {
+        if (bankTransactionRepository == null) bankTransactionRepository = new BankTransactionRepository(getDSLContext());
+        return bankTransactionRepository;
     }
 
     public static BirthdayRepository getBirthdayRepository() {
@@ -44,11 +50,6 @@ public final class RepositoryFactory {
         return customUserinfoRepository;
     }
 
-    public static AnnouncedGameRepository getAnnouncedGameRepository() {
-        if (announcedGameRepository == null) announcedGameRepository = new AnnouncedGameRepository(getDSLContext());
-        return announcedGameRepository;
-    }
-
     public static DiscordMessageRepository getDiscordMessageRepository() {
         if (discordMessageRepository == null) discordMessageRepository = new DiscordMessageRepository(getDSLContext());
         return discordMessageRepository;
@@ -62,6 +63,11 @@ public final class RepositoryFactory {
     public static FormerMemberRoleRepository getFormerMemberRoleRepository() {
         if (formerMemberRoleRepository == null) formerMemberRoleRepository = new FormerMemberRoleRepository(getDSLContext());
         return formerMemberRoleRepository;
+    }
+
+    public static GroupBotRepository getGroupBotRepository() {
+        if (groupBotRepository == null) groupBotRepository = new GroupBotRepository(getDSLContext());
+        return groupBotRepository;
     }
 
     public static MarriageRepository getMarriageRepository() {
@@ -84,11 +90,6 @@ public final class RepositoryFactory {
         return oficinaGroupRepository;
     }
 
-    public static BankTransactionRepository getBankTransactionRepository() {
-        if (bankTransactionRepository == null) bankTransactionRepository = new BankTransactionRepository(getDSLContext());
-        return bankTransactionRepository;
-    }
-
     public static UserEconomyRepository getUserEconomyRepository() {
         if (userEconomyRepository == null) userEconomyRepository = new UserEconomyRepository(getDSLContext());
         return userEconomyRepository;
@@ -107,6 +108,11 @@ public final class RepositoryFactory {
     public static UserPreferenceRepository getUserPreferenceRepository() {
         if (userPreferenceRepository == null) userPreferenceRepository = new UserPreferenceRepository(getDSLContext());
         return userPreferenceRepository;
+    }
+
+    public static UserRepository getUserRepository() {
+        if (userRepository == null) userRepository = new UserRepository(getDSLContext());
+        return userRepository;
     }
 
     private static DSLContext getDSLContext() {
