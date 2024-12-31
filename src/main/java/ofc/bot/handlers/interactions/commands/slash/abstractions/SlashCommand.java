@@ -84,13 +84,6 @@ public abstract class SlashCommand extends AbstractSlashCommand {
         return this;
     }
 
-    public final SlashCommand addSubcommands(SlashSubcommand... subs) {
-        for (SlashSubcommand sub : subs) {
-            addSubcommand(sub);
-        }
-        return this;
-    }
-
     public final List<SlashSubcommand> getSubcommands() {
         return this.subCmds;
     }
@@ -122,9 +115,8 @@ public abstract class SlashCommand extends AbstractSlashCommand {
             slash.addSubcommands(sub.build());
         }
 
-        slash.setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR));
         if (getPermission() != null) {
-            //slash.setDefaultPermissions(DefaultMemberPermissions.enabledFor(getPermission()));
+            slash.setDefaultPermissions(DefaultMemberPermissions.enabledFor(getPermission()));
         }
         return slash;
     }
