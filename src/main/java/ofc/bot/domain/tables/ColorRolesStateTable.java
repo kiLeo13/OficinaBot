@@ -12,7 +12,7 @@ import org.jooq.impl.SQLDataType;
 public class ColorRolesStateTable extends InitializableTable<ColorRoleState> {
     public static final ColorRolesStateTable COLOR_ROLES_STATES = new ColorRolesStateTable();
 
-    public final Field<Integer> ID      = newField("id",         SQLDataType.INTEGER.notNull().identity(true));
+    public final Field<Integer> ID      = newField("id",         SQLDataType.INTEGER.identity(true));
     public final Field<Long> USER_ID    = newField("user_id",    SQLDataType.BIGINT.notNull());
     public final Field<Long> GUILD_ID   = newField("guild_id",   SQLDataType.BIGINT.notNull());
     public final Field<Long> ROLE_ID    = newField("role_id",    SQLDataType.BIGINT.notNull());
