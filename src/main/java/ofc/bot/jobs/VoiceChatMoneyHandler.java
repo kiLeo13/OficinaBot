@@ -68,7 +68,7 @@ public class VoiceChatMoneyHandler implements Job {
                 long bank = isSpecial ? amount : 0;
 
                 BankAccount balance = paymentManager.update(
-                        guildId, userId, cash, bank, "VoiceChat money"
+                        userId, guildId, cash, bank, "VoiceChat money"
                 );
 
                 if (balance == null)
@@ -76,8 +76,8 @@ public class VoiceChatMoneyHandler implements Job {
             });
             totalGiven += amount;
         }
-        LOGGER.info("A total of ${} was given to {} different members at in {} different guilds",
-                String.format("%02d", totalGiven), membersToPay.size(), guilds.size()
+        LOGGER.info("A total of ${} was given to {} different members",
+                String.format("%02d", totalGiven), membersToPay.size()
         );
         executor.run();
     }
