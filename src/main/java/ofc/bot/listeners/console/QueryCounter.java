@@ -16,7 +16,7 @@ public class QueryCounter implements ExecuteListener {
     /**
      * Returns the amount of executed queries so far and resets the counter.
      *
-     * @return the amount of queries executes until now.
+     * @return the amount of queries executed until now.
      */
     public static int poll() {
         return queryCount.getAndSet(0);
