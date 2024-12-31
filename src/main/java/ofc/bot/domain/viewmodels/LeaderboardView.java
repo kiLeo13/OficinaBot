@@ -16,7 +16,6 @@ public record LeaderboardView(
     }
 
     public boolean hasMorePages() {
-        System.out.printf("Max pages %d, Last page index: %d, page index: %d\n", maxPages, getLastPageIndex(), pageIndex);
         return pageIndex < getLastPageIndex();
     }
 }
