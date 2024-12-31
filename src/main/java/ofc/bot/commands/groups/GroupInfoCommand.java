@@ -26,7 +26,6 @@ import java.util.List;
 @DiscordCommand(name = "group info", description = "Mostra informações sobre o seu grupo.", cooldown = 30)
 public class GroupInfoCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupInfoCommand.class);
-    private static final String RENT_AMOUNT_FIELD_NAME = "Aluguel 📅";
     private final BankTransactionRepository bankTrRepo;
     private final OficinaGroupRepository grpRepo;
 
@@ -88,7 +87,7 @@ public class GroupInfoCommand extends SlashSubcommand {
                 .addField("🎨 Cor", hex, true)
                 .addField("💳 Economia", group.getCurrency().getName(), true)
                 .addField("💎 Valorização", fmtApprec, true)
-                .addField(RENT_AMOUNT_FIELD_NAME, fmtRent, true)
+                .addField("📅 Aluguel", fmtRent, true)
                 .addField("🤴 Dono", group.getOwnerAsMention(), true)
                 .addField("🏡 Status de Aluguel", rentStatus.getDisplayStatus(), true)
                 .addField("👥 Membros", fmtMembers, true)
