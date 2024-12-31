@@ -3,7 +3,7 @@ package ofc.bot.domain.entity.enums;
 public enum NameScope {
     USERNAME("Username"),
     GLOBAL_NAME("Global Name"),
-    GUILD_NICK("Server Name");
+    GUILD_NICK("Server Nick");
 
     private final String displayName;
 
