@@ -114,6 +114,10 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         return get(GROUPS.OWNER_ID);
     }
 
+    public String getOwnerAsMention() {
+        return "<@" + getOwnerId() + '>';
+    }
+
     public long getGuildId() {
         return get(GROUPS.GUILD_ID);
     }
