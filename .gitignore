@@ -40,4 +40,3 @@ target/
 
 # Some util stuff
 src/main/java/ofc/bot/util/content/Channels.java
-src/main/java/ofc/bot/commands/groups/
