@@ -21,7 +21,7 @@ public class SchedulerRegistryManager {
 
         for (Job job : jobs) {
             if (!job.getClass().isAnnotationPresent(jobAnn))
-                throw new IllegalStateException("Annotation '@" + jobAnn.getSimpleName() + "' must be present in cron job classes");
+                throw new IllegalStateException("Annotation '@" + jobAnn.getSimpleName() + "' must be present in cron job classes, please, include it at " + job.getClass().getName());
 
             JobDetail detail = getDetail(job);
             Trigger trigger = getTrigger(job);
