@@ -2,6 +2,7 @@ package ofc.bot.jobs;
 
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
+import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 // This will be implemented in a future
-// @CronJob(expression = "0 0 14 10 * ? *")
+@CronJob(expression = "0 0 14 10 * ? *")
 public class GroupsRentCharger implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupsRentCharger.class);
     private final OficinaGroupRepository grpRepo;
