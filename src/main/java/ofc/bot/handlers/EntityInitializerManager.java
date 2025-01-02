@@ -101,6 +101,7 @@ public final class EntityInitializerManager {
                 new ProposalListPagination(mreqRepo),
 
                 // Groups' commands confirmation handlers
+                new GroupBotAddHandler(),
                 new GroupChannelCreationHandler(grpRepo),
                 new GroupCreationHandler(grpRepo),
                 new GroupDeletionHandler(grpRepo),

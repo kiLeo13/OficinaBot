@@ -19,6 +19,10 @@ public class GroupBot extends TableRecordImpl<GroupBot> {
         return get(GROUP_BOTS.BOT_ID);
     }
 
+    public String getBotMention() {
+        return "<@" + getBotId() + '>';
+    }
+
     public String getBotName() {
         return get(GROUP_BOTS.BOT_NAME);
     }

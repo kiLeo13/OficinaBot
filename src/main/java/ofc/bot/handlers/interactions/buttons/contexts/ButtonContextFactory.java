@@ -172,6 +172,20 @@ public final class ButtonContextFactory {
         return confirm.getButton();
     }
 
+    public static Button createGroupBotConfirmationButton(OficinaGroup group, GroupBot bot, int price) {
+        String label = String.format("Confirmat Pagamento ($%s)", Bot.fmtNum(price));
+        ButtonContext confirm = ButtonContext.success(label, group.getCurrency().getEmoji())
+                .setAuthorOnly(true)
+                .setScope(OficinaGroup.GROUP_BOT_ADD_BUTTON_SCOPE)
+                .setValidity(30, TimeUnit.SECONDS)
+                .setAuthorId(group.getOwnerId())
+                .put("group", group)
+                .put("bot", bot);
+
+        BUTTON_MANAGER.save(confirm);
+        return confirm.getButton();
+    }
+
     public static Button createGroupConfirmationButton(OficinaGroup partialGroup, int price, int color) {
         String label = String.format("Confirmar Pagamento ($%s)", Bot.fmtNum(price));
         ButtonContext confirm = ButtonContext.success(label, partialGroup.getCurrency().getEmoji())

@@ -1,5 +1,6 @@
 package ofc.bot.domain.entity;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -15,6 +16,7 @@ import ofc.bot.util.Bot;
 import ofc.bot.util.content.Staff;
 import org.jooq.impl.TableRecordImpl;
 
+import java.awt.*;
 import java.util.List;
 
 import static net.dv8tion.jda.api.Permission.*;
@@ -25,6 +27,7 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
     public static final String GROUP_CREATE_BUTTON_SCOPE = "CREATE_GROUP";
     public static final String GROUP_UPDATE_BUTTON_SCOPE = "UPDATE_GROUP";
     public static final String GROUP_DELETE_BUTTON_SCOPE = "DELETE_GROUP";
+    public static final String GROUP_BOT_ADD_BUTTON_SCOPE = "GROUP_BOT_ADD";
     public static final String GROUP_CHANNEL_CREATE_BUTTON_SCOPE = "CREATE_GROUP_CHANNEL";
     public static final String GROUP_MEMBER_ADD_BUTTON_SCOPE = "GROUP_MEMBER_ADD";
     public static final String GROUP_MEMBER_REMOVE_BUTTON_SCOPE = "GROUP_MEMBER_REMOVE";
@@ -124,6 +127,31 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
 
     public long getRoleId() {
         return get(GROUPS.ROLE_ID);
+    }
+
+    /**
+     * This method attempts to resolve the color of the group.
+     * <p>
+     * Such information is not stored in the database, instead,
+     * we get it from the group {@link Role}.
+     * <p>
+     * The returned value may be {@code 0} for 2 reasons:
+     * <ul>
+     *   <li>The group {@link Role} was not found.</li>
+     *   <li>There is no color set.</li>
+     * </ul>
+     *
+     * @return the color of the group, or {@code 0}.
+     */
+    public int resolveColor() {
+        long roleId = getRoleId();
+        JDA api = Main.getApi();
+        Role role = api.getRoleById(roleId);
+
+        if (role == null) return 0;
+
+        Color color = role.getColor();
+        return color == null ? 0 : color.getRGB();
     }
 
     public long getTextChannelId() {

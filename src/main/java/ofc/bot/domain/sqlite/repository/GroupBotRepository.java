@@ -23,4 +23,10 @@ public class GroupBotRepository {
                 .limit(limit)
                 .fetch();
     }
+
+    public GroupBot findById(int id) {
+        return ctx.selectFrom(GROUP_BOTS)
+                .where(GROUP_BOTS.ID.eq(id))
+                .fetchOne();
+    }
 }

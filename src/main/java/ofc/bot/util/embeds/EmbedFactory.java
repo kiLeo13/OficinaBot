@@ -1,18 +1,21 @@
 package ofc.bot.util.embeds;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import ofc.bot.commands.economy.LeaderboardCommand;
 import ofc.bot.domain.entity.*;
+import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.viewmodels.*;
+import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.util.Bot;
 
 import java.awt.*;
 import java.time.Month;
 import java.time.format.TextStyle;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for embeds used in multiple classes.
@@ -123,6 +126,35 @@ public final class EmbedFactory {
                 .setColor(Bot.Colors.DEFAULT)
                 .setFooter(pages, guild.getIconUrl())
                 .build();
+    }
+
+    public static MessageEmbed embedItemPurchase(Member buyer, OficinaGroup group, long price, StoreItemType... items) {
+        return embedItemPurchase(buyer, group, price, Map.of(), items);
+    }
+
+    public static MessageEmbed embedItemPurchase(Member buyer, OficinaGroup group, long price, Map<String, Object> fields, StoreItemType... items) {
+        EmbedBuilder builder = new EmbedBuilder();
+        Guild guild = buyer.getGuild();
+        CurrencyType currency = group.getCurrency();
+        String guildName = guild.getName();
+        String avatarUrl = buyer.getEffectiveAvatarUrl();
+        String groupName = group.getName();
+        String fmtPrice = Bot.fmtMoney(price);
+        String fmtItems = Arrays.stream(items).map(StoreItemType::getName).collect(Collectors.joining("\n"));
+        int color = group.resolveColor();
+
+        builder
+                .setTitle(groupName)
+                .setDescription("Deseja confirmar a compra deste item?")
+                .setThumbnail(avatarUrl)
+                .setColor(color)
+                .setFooter(guildName, guild.getIconUrl())
+                .addField("🎈 Itens", fmtItems, true)
+                .addField("💳 Economia", currency.getName(), true)
+                .addField("💰 Preço", fmtPrice, true);
+
+        fields.forEach((k, v) -> builder.addField(k, v.toString(), true));
+        return builder.build();
     }
 
     private static String formatProposals(List<MarriageRequest> requests, String type) {

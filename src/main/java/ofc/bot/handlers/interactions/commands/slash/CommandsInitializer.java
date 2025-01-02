@@ -47,6 +47,7 @@ public final class CommandsInitializer {
         OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
         UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
         MemberEmojiRepository emjRepo = RepositoryFactory.getMemberEmojiRepository();
+        GroupBotRepository grpBotRepo = RepositoryFactory.getGroupBotRepository();
         BirthdayRepository bdayRepo = RepositoryFactory.getBirthdayRepository();
         MarriageRepository marrRepo = RepositoryFactory.getMarriageRepository();
         UserRepository userRepo = RepositoryFactory.getUserRepository();
@@ -84,7 +85,7 @@ public final class CommandsInitializer {
                 )
                 .addSubcommand(new CreateGroupCommand(grpRepo))
                 .addSubcommand(new DeleteGroupCommand(bankTrRepo, grpRepo))
-                .addSubcommand(new GroupBotsCommand())
+                .addSubcommand(new GroupBotsCommand(grpBotRepo, grpRepo))
                 .addSubcommand(new GroupInfoCommand(bankTrRepo, grpRepo))
                 .addSubcommand(new HelpGroupCommand())
                 .addSubcommand(new LeaveGroupCommand(grpRepo))
