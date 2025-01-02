@@ -32,12 +32,7 @@ public class ButtonInteractionGateway extends ListenerAdapter {
 
         if (!e.isFromGuild() || member == null) return;
 
-        if (buttonCtx == null) {
-            e.reply("Você clicou em um botão que já expirou! Tente executar este comando novamente.")
-                    .setEphemeral(true)
-                    .queue();
-            return;
-        }
+        if (buttonCtx == null) return;
 
         String scope = buttonCtx.getScope();
         BotButtonListener listener = buttons.get(scope);
