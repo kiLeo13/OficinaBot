@@ -73,8 +73,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
                 long end = System.currentTimeMillis();
                 long duration = end - start;
 
-                if (state.isOk())
-                    LOGGER.info("@{} issued \"/{}\" at \"#{}\": status {}, took {}ms", userName, cmdName, channel.getName(), state.getStatus(), duration);
+                LOGGER.info("@{} issued \"/{}\" at \"#{}\": status {}, took {}ms", userName, cmdName, channel.getName(), state.getStatus(), duration);
 
                 if (state.getContent() != null)
                     ctx.reply(state);
