@@ -43,11 +43,12 @@ public class ChatMoney extends ListenerAdapter {
         int amount = getRandom();
 
         try {
-            UserEconomy userEconomy = UserEconomy.fromUserId(userId).setBalance(amount);
+            UserEconomy userEconomy = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId))
+                    .modifyBalance(amount)
+                    .tickUpdate();
             ecoRepo.upsert(userEconomy);
 
             dispatchChatMoneyEvent(userId, amount);
-
             cooldown.put(userId, now);
         } catch (DataAccessException e) {
             LOGGER.error("Could not update money of user '{}' by chat money", userId, e);
