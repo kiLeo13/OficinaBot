@@ -8,7 +8,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@CronJob(expression = "0 * * ? * * *")
+@CronJob(expression = "0 0/5 * ? * * *")
 public class QueryCountPrinter implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryCountPrinter.class);
 
