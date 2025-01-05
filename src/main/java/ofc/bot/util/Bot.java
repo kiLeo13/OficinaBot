@@ -18,7 +18,7 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Function;
 
 public final class Bot {
@@ -132,6 +132,30 @@ public final class Bot {
         NumberFormat currency = NumberFormat.getNumberInstance(LOCALE);
 
         return currency.format(value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <K, V> Map<K, V> map(Object... values) {
+        if (values.length == 0) return Map.of();
+
+        if (isOdd(values.length))
+            throw new IllegalArgumentException("Odd amount of arguments");
+
+        Map<Object, Object> map = new LinkedHashMap<>();
+        for (int i = 0; i < values.length; i += 2) {
+            Object key = values[i];
+            Object value = values[i + 1];
+            map.put(key, value);
+        }
+        return (Map<K, V>) Collections.unmodifiableMap(map);
+    }
+
+    public static boolean isOdd(long value) {
+        return value % 2 != 0;
+    }
+
+    public static String fmtColorHex(int color) {
+        return String.format("#%06X", color);
     }
 
     public static String fmtMoney(long value) {
