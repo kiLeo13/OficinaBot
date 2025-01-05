@@ -63,19 +63,16 @@ public final class EntityInitializerManager {
     }
 
     public static void initializeCronJobs() {
-        FormerMemberRoleRepository rolesRepo = RepositoryFactory.getFormerMemberRoleRepository();
-        OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
-
         try {
             SchedulerRegistryManager.initializeSchedulers(
                     new QueryCountPrinter(),
-                    new ExpiredBackupsRemover(rolesRepo),
+                    new ExpiredBackupsRemover(),
                     new SadMonday(),
                     new SadSunday(),
                     new BirthdayReminder(),
                     new ColorRoleRemotionHandler(),
                     new EpicGamesPromotionAdvertiser(),
-                    new GroupsRentCharger(grpRepo),
+                    new GroupsRentCharger(),
                     new VoiceChatMoneyHandler(),
                     new HappyNewYearAnnouncement()
             );

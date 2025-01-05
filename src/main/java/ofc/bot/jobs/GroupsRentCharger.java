@@ -2,6 +2,7 @@ package ofc.bot.jobs;
 
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
+import ofc.bot.domain.sqlite.repository.RepositoryFactory;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -23,8 +24,8 @@ public class GroupsRentCharger implements Job {
     // in order to start updating users' cash
     private static boolean operating = false;
 
-    public GroupsRentCharger(OficinaGroupRepository grpRepo) {
-        this.grpRepo = grpRepo;
+    public GroupsRentCharger() {
+        this.grpRepo = RepositoryFactory.getOficinaGroupRepository();
     }
 
     @Override
