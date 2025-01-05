@@ -101,7 +101,14 @@ public class ButtonContext {
     }
 
     public ButtonContext put(String key, Object value) {
+        Checks.notNull(key, "Key");
         this.data.put(key, value);
+        return this;
+    }
+
+    public ButtonContext putAll(Map<String, Object> values) {
+        Checks.notNull(values, "Map");
+        values.forEach(this::put);
         return this;
     }
 
@@ -110,6 +117,7 @@ public class ButtonContext {
     }
 
     public ButtonContext setButton(@NotNull Button button) {
+        Checks.notNull(button, "Button");
         this.button = button;
         return this;
     }
