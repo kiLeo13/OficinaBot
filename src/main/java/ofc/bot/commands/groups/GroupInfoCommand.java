@@ -88,7 +88,7 @@ public class GroupInfoCommand extends SlashSubcommand {
                 .addField("💳 Economia", group.getCurrency().getName(), true)
                 .addField("💎 Valorização", fmtApprec, true)
                 .addField("📅 Aluguel", fmtRent, true)
-                .addField("🤴 Dono", group.getOwnerAsMention(), true)
+                .addField("👑 Dono", group.getOwnerAsMention(), true)
                 .addField("🏡 Status de Aluguel", rentStatus.getDisplayStatus(), true)
                 .addField("👥 Membros", fmtMembers, true)
                 .addField("📅 Criação", fmtTimestamp, true)
