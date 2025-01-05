@@ -128,7 +128,7 @@ public class UserinfoCommand extends SlashCommand {
     private String formatMarriages(long userId, List<MarriageView> marriages) {
         return Bot.format(marriages, (mr) -> {
             AppUser partner = mr.partner(userId);
-            return String.format(CustomUserinfo.MARRIAGE_FORMAT, partner.getDisplayName(), mr.createdAt());
+            return String.format(CustomUserinfo.MARRIAGE_FORMAT, partner.getDisplayName(), mr.marriedAt());
         });
     }
 
