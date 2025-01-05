@@ -1,6 +1,7 @@
 package ofc.bot.commands.groups;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -14,6 +15,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class ModifyGroupCommand extends SlashSubcommand {
         if (group == null)
             return Status.YOU_DO_NOT_OWN_A_GROUP;
 
-        int cost = 0;
+        int price = 0;
         int newColor = -1;
 
         if (newColorHex != null) {
@@ -53,14 +55,15 @@ public class ModifyGroupCommand extends SlashSubcommand {
         }
 
         if (!OficinaGroup.hasFreeAccess(issuer)) {
-            if (newName != null) cost += StoreItemType.UPDATE_GROUP.getPrice();
-            if (newColorHex != null) cost += StoreItemType.UPDATE_GROUP.getPrice();
+            if (newName != null) price += StoreItemType.UPDATE_GROUP.getPrice();
+            if (newColorHex != null) price += StoreItemType.UPDATE_GROUP.getPrice();
         }
 
-        Button confirmButton = ButtonContextFactory.createModifyGroupConfirmationButton(group, newName, newColor, cost);
+        Button confirmButton = ButtonContextFactory.createModifyGroupConfirm(group, newName, newColor, price);
+        MessageEmbed embed = EmbedFactory.embedGroupModify(issuer, group, newName, newColor, price);
         return ctx.create()
-                .setContent(Status.CONFIRM_GROUP_UPDATE)
                 .setActionRow(confirmButton)
+                .setEmbeds(embed)
                 .send();
     }
 

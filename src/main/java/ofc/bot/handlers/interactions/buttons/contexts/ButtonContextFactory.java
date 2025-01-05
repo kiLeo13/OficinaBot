@@ -2,17 +2,18 @@ package ofc.bot.handlers.interactions.buttons.contexts;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.NameScope;
-import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.handlers.interactions.buttons.ButtonManager;
 import ofc.bot.util.Bot;
 
 import java.time.Month;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,11 +27,8 @@ import java.util.concurrent.TimeUnit;
  * feature, that is, when the {@link Button} instance is returned, its already being handled
  * by the {@link ofc.bot.handlers.interactions.buttons.ButtonManager ButtonManager} and ready
  * to be sent to the end-user.
- * <p>
- * You can change how long buttons stay in memory at {@link #setDelay(long, TimeUnit)}.
  */
 public final class ButtonContextFactory {
-    private static long DELAY_MILLIS = ButtonContext.DEFAULT_EXPIRE_AFTER_MILLIS;
     private static final ButtonManager BUTTON_MANAGER = ButtonManager.getManager();
 
     private ButtonContextFactory() {}
@@ -141,109 +139,109 @@ public final class ButtonContextFactory {
         return List.of(prev.getButton(), next.getButton());
     }
 
-    public static Button createGroupChannelConfirmationButton(OficinaGroup group, int price, Category category, StoreItemType itemType) {
-        String label = String.format("Confirmar Pagamento ($%s)", Bot.fmtNum(price));
-        ButtonContext confirm = ButtonContext.success(label, group.getCurrency().getEmoji())
+    public static Button createGroupChannelConfirm(OficinaGroup group, ChannelType channelType, int price) {
+        return createGroupItemPaymentConfirm(
+                group,
+                OficinaGroup.GROUP_CHANNEL_CREATE_BUTTON_SCOPE,
+                group.getCurrency().getEmoji(),
+                price,
+                Bot.map("channel_type", channelType)
+        );
+    }
+
+    public static Button createModifyGroupConfirm(OficinaGroup group, String newName, int newColor, int price) {
+        return createGroupItemPaymentConfirm(
+                group,
+                OficinaGroup.GROUP_UPDATE_BUTTON_SCOPE,
+                group.getCurrency().getEmoji(),
+                price,
+                Bot.map("new_name", newName, "new_color", newColor)
+        );
+    }
+
+    public static Button createGroupBotAddConfirm(OficinaGroup group, GroupBot bot, int price) {
+        return createGroupItemPaymentConfirm(
+                group,
+                OficinaGroup.GROUP_BOT_ADD_BUTTON_SCOPE,
+                group.getCurrency().getEmoji(),
+                price,
+                Bot.map("bot", bot)
+        );
+    }
+
+    public static Button createGroupConfirm(OficinaGroup partialGroup, int color) {
+        return createGroupItemPaymentConfirm(
+                partialGroup,
+                OficinaGroup.GROUP_CREATE_BUTTON_SCOPE,
+                partialGroup.getCurrency().getEmoji(),
+                partialGroup.getAmountPaid(),
+                Bot.map("group_color", color)
+        );
+    }
+
+    public static Button createGroupDeletionConfirm(OficinaGroup group, int refund) {
+        return createGroupItemDeletionConfirm(
+                group,
+                OficinaGroup.GROUP_DELETE_BUTTON_SCOPE,
+                Emoji.fromUnicode("🗑"),
+                refund,
+                null
+        );
+    }
+
+    public static Button createAddGroupMemberConfirm(OficinaGroup group, Member newMember, int price) {
+        return createGroupItemPaymentConfirm(
+                group,
+                OficinaGroup.GROUP_MEMBER_ADD_BUTTON_SCOPE,
+                group.getCurrency().getEmoji(),
+                price,
+                Bot.map("new_member", newMember)
+        );
+    }
+
+    public static Button createRemoveGroupMemberConfirm(OficinaGroup group, long targetId) {
+        return createGroupItemRemotionConfirm(
+                group,
+                OficinaGroup.GROUP_MEMBER_REMOVE_BUTTON_SCOPE,
+                null,
+                0,
+                Bot.map("target_id", targetId)
+        );
+    }
+
+    private static Button createGroupItemPaymentConfirm(
+            OficinaGroup group, String scope, Emoji emoji, int price, Map<String, Object> payload
+    ) {
+        return genericConfirmButton(group, ButtonStyle.SUCCESS, "Pagamento", emoji, scope, price, payload);
+    }
+
+    private static Button createGroupItemRemotionConfirm(
+            OficinaGroup group, String scope, Emoji emoji, int price, Map<String, Object> payload
+    ) {
+        return genericConfirmButton(group, ButtonStyle.DANGER, "Remoção", emoji, scope, price, payload);
+    }
+
+    private static Button createGroupItemDeletionConfirm(
+            OficinaGroup group, String scope, Emoji emoji, int price, Map<String, Object> payload
+    ) {
+        return genericConfirmButton(group, ButtonStyle.DANGER, "Deleção", emoji, scope, price, payload);
+    }
+
+    private static Button genericConfirmButton(
+            OficinaGroup group, ButtonStyle style, String act, Emoji emoji,
+            String scope, int price, Map<String, Object> payload
+    ) {
+        String label = String.format("Confirmar %s (%s)", act, Bot.fmtMoney(price));
+        ButtonContext confirm = ButtonContext.of(style, label, emoji)
                 .setAuthorOnly(true)
-                .setScope(OficinaGroup.GROUP_CHANNEL_CREATE_BUTTON_SCOPE)
+                .setScope(scope)
                 .setValidity(30, TimeUnit.SECONDS)
                 .setAuthorId(group.getOwnerId())
                 .put("group", group)
-                .put("category", category)
-                .put("item_type", itemType);
+                .put("amount", price)
+                .putAll(payload == null ? Map.of() : payload);
 
         BUTTON_MANAGER.save(confirm);
         return confirm.getButton();
-    }
-
-    public static Button createModifyGroupConfirmationButton(OficinaGroup group, String newName, int newColor, int cost) {
-        String label = String.format("Confirmar Pagamento ($%s)", Bot.fmtNum(cost));
-        ButtonContext confirm = ButtonContext.success(label, group.getCurrency().getEmoji())
-                .setAuthorOnly(true)
-                .setScope(OficinaGroup.GROUP_UPDATE_BUTTON_SCOPE)
-                .setValidity(30, TimeUnit.SECONDS)
-                .setAuthorId(group.getOwnerId())
-                .put("group", group)
-                .put("new_name", newName)
-                .put("new_color", newColor)
-                .put("cost", cost);
-
-        BUTTON_MANAGER.save(confirm);
-        return confirm.getButton();
-    }
-
-    public static Button createGroupBotConfirmationButton(OficinaGroup group, GroupBot bot, int price) {
-        String label = String.format("Confirmat Pagamento ($%s)", Bot.fmtNum(price));
-        ButtonContext confirm = ButtonContext.success(label, group.getCurrency().getEmoji())
-                .setAuthorOnly(true)
-                .setScope(OficinaGroup.GROUP_BOT_ADD_BUTTON_SCOPE)
-                .setValidity(30, TimeUnit.SECONDS)
-                .setAuthorId(group.getOwnerId())
-                .put("group", group)
-                .put("bot", bot);
-
-        BUTTON_MANAGER.save(confirm);
-        return confirm.getButton();
-    }
-
-    public static Button createGroupConfirmationButton(OficinaGroup partialGroup, int price, int color) {
-        String label = String.format("Confirmar Pagamento ($%s)", Bot.fmtNum(price));
-        ButtonContext confirm = ButtonContext.success(label, partialGroup.getCurrency().getEmoji())
-                .setAuthorOnly(true)
-                .setScope(OficinaGroup.GROUP_CREATE_BUTTON_SCOPE)
-                .setValidity(30, TimeUnit.SECONDS)
-                .setAuthorId(partialGroup.getOwnerId())
-                .put("partial_group_data", partialGroup)
-                .put("group_color", color);
-
-        BUTTON_MANAGER.save(confirm);
-        return confirm.getButton();
-    }
-
-    public static Button createGroupDeletionConfirmationButton(long authorId, int refund) {
-        ButtonContext confirm = ButtonContext.danger("Apagar Grupo", Emoji.fromUnicode("🗑"))
-                .setAuthorOnly(true)
-                .setScope(OficinaGroup.GROUP_DELETE_BUTTON_SCOPE)
-                .setValidity(30, TimeUnit.SECONDS)
-                .setAuthorId(authorId)
-                .put("refund", refund);
-
-        BUTTON_MANAGER.save(confirm);
-        return confirm.getButton();
-    }
-
-    public static Button createAddGroupMemberConfirmationButton(OficinaGroup group, Member newMember, int price) {
-        String label = String.format("Confirmar Pagamento ($%s)", Bot.fmtNum(price));
-        ButtonContext confirm = ButtonContext.success(label, group.getCurrency().getEmoji())
-                .setAuthorOnly(true)
-                .setScope(OficinaGroup.GROUP_MEMBER_ADD_BUTTON_SCOPE)
-                .setValidity(30, TimeUnit.SECONDS)
-                .setAuthorId(group.getOwnerId())
-                .put("group", group)
-                .put("price", price)
-                .put("new_member", newMember);
-
-        BUTTON_MANAGER.save(confirm);
-        return confirm.getButton();
-    }
-
-    public static Button createRemoveGroupMemberConfirmationButton(OficinaGroup group, long targetId) {
-        ButtonContext confirm = ButtonContext.danger("Confirmar Remoção ($0)")
-                .setScope(OficinaGroup.GROUP_MEMBER_REMOVE_BUTTON_SCOPE)
-                .setAuthorOnly(true)
-                .setAuthorId(group.getOwnerId())
-                .put("group", group)
-                .put("target_id", targetId);
-
-        BUTTON_MANAGER.save(confirm);
-        return confirm.getButton();
-    }
-
-    public static long getDelayMillis() {
-        return DELAY_MILLIS;
-    }
-
-    public static void setDelay(long delay, TimeUnit unit) {
-        DELAY_MILLIS = unit.toMillis(delay);
     }
 }

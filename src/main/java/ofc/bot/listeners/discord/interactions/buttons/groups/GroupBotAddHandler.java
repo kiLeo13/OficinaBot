@@ -33,15 +33,14 @@ public class GroupBotAddHandler implements BotButtonListener {
 
     @Override
     public InteractionResult onClick(ButtonClickContext ctx) {
-        Guild guild = ctx.getGuild();
+        int price = ctx.get("amount");
         GroupBot bot = ctx.get("bot");
         OficinaGroup group = ctx.get("group");
+        Guild guild = ctx.getGuild();
         TextChannel textChan = group.getTextChannel();
         PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
-        boolean isFree = group.hasFreeAccess();
         long ownerId = group.getOwnerId();
         long guildId = guild.getIdLong();
-        int price = isFree ? 0 : StoreItemType.ADDITIONAL_BOT.getPrice();
 
         BankAction chargeAction = bank.charge(ownerId, guildId, 0, price, "Group bot added");
         if (!chargeAction.isOk()) {

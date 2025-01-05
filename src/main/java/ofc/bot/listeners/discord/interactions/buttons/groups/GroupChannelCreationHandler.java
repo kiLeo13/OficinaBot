@@ -1,10 +1,13 @@
 package ofc.bot.listeners.discord.interactions.buttons.groups;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import ofc.bot.Main;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
@@ -38,15 +41,17 @@ public class GroupChannelCreationHandler implements BotButtonListener {
 
     @Override
     public InteractionResult onClick(ButtonClickContext ctx) {
+        int price = ctx.get("amount");
         OficinaGroup group = ctx.get("group");
-        Category category = ctx.get("category");
-        StoreItemType itemType = ctx.get("item_type");
+        ChannelType chanType = ctx.get("channel_type");
+        Category category = resolveChannelCategory(chanType);
         PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
         Guild guild = ctx.getGuild();
-        boolean isFree = group.hasFreeAccess();
         long ownerId = group.getOwnerId();
         long guildId = guild.getIdLong();
-        int price = isFree ? 0 : itemType.getPrice();
+
+        if (category == null)
+            return Status.CHANNEL_CATEGORY_NOT_FOUND;
 
         BankAction chargeAction = bank.charge(ownerId, guildId, 0, price, "Group channel created");
         if (!chargeAction.isOk()) {
@@ -54,18 +59,14 @@ public class GroupChannelCreationHandler implements BotButtonListener {
         }
 
         try {
-            MessageChannel channel = createChannel(group.getRoleId(), itemType, category,
-                    itemType == StoreItemType.GROUP_TEXT_CHANNEL ? group.getTextChannelName() : group.getVoiceChannelName()
+            MessageChannel channel = createChannel(
+                    group.getRoleId(), chanType, category, group.getChannelName(chanType)
             );
 
-            if (itemType == StoreItemType.GROUP_TEXT_CHANNEL)
-                group.setTextChannelId(channel.getIdLong()).tickUpdate();
-            else
-                group.setVoiceChannelId(channel.getIdLong()).tickUpdate();
-
+            group.setChannelId(chanType, channel.getIdLong()).tickUpdate();
             grpRepo.upsert(group);
 
-            dispatchChannelBoughtEvent(group.getCurrency(), price, itemType, ownerId);
+            dispatchChannelBoughtEvent(group.getCurrency(), price, chanType, ownerId);
             return Status.GROUP_CHANNEL_SUCCESSFULLY_CREATED.args(channel.getAsMention()).setEphm(true);
         } catch (ErrorResponseException e) {
             LOGGER.error("Could not create channel for group with id {}", group.getId(), e);
@@ -77,10 +78,17 @@ public class GroupChannelCreationHandler implements BotButtonListener {
         }
     }
 
-    private MessageChannel createChannel(long groupRoleId, StoreItemType type, Category category, String name) {
+    private Category resolveChannelCategory(ChannelType type) {
+        JDA api = Main.getApi();
+        return type == ChannelType.TEXT
+                ? api.getCategoryById(OficinaGroup.TEXT_CATEGORY_ID)
+                : api.getCategoryById(OficinaGroup.VOICE_CATEGORY_ID);
+    }
+
+    private MessageChannel createChannel(long groupRoleId, ChannelType type, Category category, String name) {
         Guild guild = category.getGuild();
         long publicRoleID = guild.getPublicRole().getIdLong();
-        return type == StoreItemType.GROUP_TEXT_CHANNEL
+        return type == ChannelType.TEXT
                 ? createTextChannel(groupRoleId, publicRoleID, category, name)
                 : createVoiceChannel(groupRoleId, publicRoleID, category, name);
     }
@@ -100,7 +108,10 @@ public class GroupChannelCreationHandler implements BotButtonListener {
                 .complete();
     }
 
-    private void dispatchChannelBoughtEvent(CurrencyType currencyType, int price, StoreItemType item, long buyerId) {
+    private void dispatchChannelBoughtEvent(CurrencyType currencyType, int price, ChannelType type, long buyerId) {
+        StoreItemType item = type == ChannelType.TEXT
+                ? StoreItemType.GROUP_TEXT_CHANNEL
+                : StoreItemType.GROUP_VOICE_CHANNEL;
         BankTransaction tr = new BankTransaction(buyerId, -price, currencyType, TransactionType.ITEM_BOUGHT, item);
         EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }

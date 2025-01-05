@@ -32,13 +32,13 @@ public class GroupUpdateHandler implements BotButtonListener {
     @Override
     public InteractionResult onClick(ButtonClickContext ctx) {
         OficinaGroup group = ctx.get("group");
-        Guild guild = ctx.getGuild();
         String newName = ctx.find("new_name");
+        Guild guild = ctx.getGuild();
         PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
         long ownerId = group.getOwnerId();
         long guildId = guild.getIdLong();
         int newColor = ctx.get("new_color");
-        int price = ctx.get("cost");
+        int price = ctx.get("amount");
         boolean changedName = newName != null && !newName.isBlank();
 
         if (changedName)
@@ -64,11 +64,12 @@ public class GroupUpdateHandler implements BotButtonListener {
     private void modifyRole(Guild guild, OficinaGroup group, int newColor) {
         long roleId = group.getRoleId();
         Role role = guild.getRoleById(roleId);
+        String roleName = String.format(OficinaGroup.ROLE_NAME_FORMAT, group.getName());
 
         if (role == null) return;
 
         role.getManager()
-                .setName(group.getName())
+                .setName(roleName)
                 .setColor(newColor == -1 ? role.getColorRaw() : newColor)
                 .queue();
     }

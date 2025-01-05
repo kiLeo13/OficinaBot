@@ -36,13 +36,12 @@ public class GroupCreationHandler implements BotButtonListener {
 
     @Override
     public InteractionResult onClick(ButtonClickContext ctx) {
-        OficinaGroup group = ctx.get("partial_group_data");
+        OficinaGroup group = ctx.get("group");
+        PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
         Guild guild = ctx.getGuild();
         long guildId = guild.getIdLong();
         long ownerId = group.getOwnerId();
-        boolean isFree = group.hasFreeAccess();
-        int price = isFree ? 0 : OficinaGroup.PRICE;
-        PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
+        int price = group.getAmountPaid();
 
         ctx.reply(Status.PROCESSING);
 
@@ -86,7 +85,6 @@ public class GroupCreationHandler implements BotButtonListener {
 
     private Role createRole(Guild guild, String name, int color) {
         String roleName = String.format(OficinaGroup.ROLE_NAME_FORMAT, name);
-
         Role role = guild.createRole()
                 .setName(roleName)
                 .setColor(color)

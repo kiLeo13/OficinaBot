@@ -53,12 +53,12 @@ public class GroupBotsCommand extends SlashSubcommand {
         StoreItemType itemType = StoreItemType.ADDITIONAL_BOT;
         boolean isFree = group.hasFreeAccess();
         int price = isFree ? 0 : itemType.getPrice();
-        Button confirm = ButtonContextFactory.createGroupBotConfirmationButton(group, bot, price);
-        MessageEmbed embed = EmbedFactory.embedItemPurchase(issuer, group, price, itemType);
 
+        Button confirm = ButtonContextFactory.createGroupBotAddConfirm(group, bot, price);
+        MessageEmbed embed = EmbedFactory.embedGroupBotAdd(issuer, group, bot, price);
         return ctx.create()
-                .setEmbeds(embed)
                 .setActionRow(confirm)
+                .setEmbeds(embed)
                 .send();
     }
 

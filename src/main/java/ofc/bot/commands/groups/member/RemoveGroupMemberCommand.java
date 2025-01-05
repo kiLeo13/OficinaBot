@@ -1,6 +1,7 @@
 package ofc.bot.commands.groups.member;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -13,6 +14,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
@@ -27,11 +29,15 @@ public class RemoveGroupMemberCommand extends SlashSubcommand {
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         long ownerId = ctx.getUserId();
+        Member issuer = ctx.getIssuer();
         Member member = ctx.getOption("member", OptionMapping::getAsMember);
         OficinaGroup group = grpRepo.findByOwnerId(ownerId);
 
         if (member == null)
             return Status.MEMBER_NOT_FOUND;
+
+        if (member.equals(issuer))
+            return Status.CANNOT_LEAVE_YOUR_OWN_GROUP;
 
         if (group == null)
             return Status.YOU_DO_NOT_OWN_A_GROUP;
@@ -39,10 +45,11 @@ public class RemoveGroupMemberCommand extends SlashSubcommand {
         if (!hasRole(member, group.getRoleId()))
             return Status.MEMBER_NOT_IN_THE_GROUP;
 
-        Button confirmation = ButtonContextFactory.createRemoveGroupMemberConfirmationButton(group, member.getIdLong());
+        Button confirm = ButtonContextFactory.createRemoveGroupMemberConfirm(group, member.getIdLong());
+        MessageEmbed embed = EmbedFactory.embedGroupMemberRemove(issuer, group, member);
         return ctx.create(true)
-                .setContent(Status.CONFIRM_GROUP_MEMBER_REMOVE.args(member.getAsMention()))
-                .setActionRow(confirmation)
+                .setActionRow(confirm)
+                .setEmbeds(embed)
                 .send();
     }
 

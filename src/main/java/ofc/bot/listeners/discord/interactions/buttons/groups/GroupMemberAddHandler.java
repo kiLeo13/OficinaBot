@@ -30,11 +30,11 @@ public class GroupMemberAddHandler implements BotButtonListener {
     public InteractionResult onClick(ButtonClickContext ctx) {
         Guild guild = ctx.getGuild();
         OficinaGroup group = ctx.get("group");
-        int price = ctx.get("price");
+        Member newMember = ctx.get("new_member");
+        int price = ctx.get("amount");
         long roleId = group.getRoleId();
         long ownerId = group.getOwnerId();
         long guildId = guild.getIdLong();
-        Member newMember = ctx.get("new_member");
         PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
         Role groupRole = guild.getRoleById(roleId);
 

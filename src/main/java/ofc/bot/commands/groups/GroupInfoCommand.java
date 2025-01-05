@@ -74,7 +74,7 @@ public class GroupInfoCommand extends SlashSubcommand {
         EmbedBuilder builder = new EmbedBuilder();
         long rent = group.calcRent(members);
         long appreciation = -getAppreciation(group);
-        String hex = Integer.toHexString(color);
+        String hex = Bot.fmtColorHex(color);
         String fmtRent = String.format("%s/mês", Bot.fmtMoney(rent));
         String fmtApprec = Bot.fmtMoney(appreciation);
         String fmtMembers = Bot.fmtNum(members.size());

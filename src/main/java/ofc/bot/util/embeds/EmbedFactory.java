@@ -2,9 +2,9 @@ package ofc.bot.util.embeds;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import ofc.bot.commands.economy.LeaderboardCommand;
 import ofc.bot.domain.entity.*;
-import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.viewmodels.*;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.util.Bot;
@@ -12,10 +12,8 @@ import ofc.bot.util.Bot;
 import java.awt.*;
 import java.time.Month;
 import java.time.format.TextStyle;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Utility class for embeds used in multiple classes.
@@ -128,30 +126,142 @@ public final class EmbedFactory {
                 .build();
     }
 
-    public static MessageEmbed embedItemPurchase(Member buyer, OficinaGroup group, long price, StoreItemType... items) {
-        return embedItemPurchase(buyer, group, price, Map.of(), items);
+    public static MessageEmbed embedGroupChannelCreate(
+            Member buyer, OficinaGroup group, ChannelType type, int price
+    ) {
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                buyer.getUser().getEffectiveAvatarUrl(),
+                "a compra deste canal",
+                price,
+                Map.of("📚 Tipo", Bot.upperFirst(type.name().toLowerCase()))
+        );
     }
 
-    public static MessageEmbed embedItemPurchase(Member buyer, OficinaGroup group, long price, Map<String, Object> fields, StoreItemType... items) {
+    public static MessageEmbed embedGroupMemberAdd(Member buyer, OficinaGroup group, Member newMember, int price) {
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                newMember.getUser().getEffectiveAvatarUrl(),
+                "a adição deste membro",
+                price,
+                Map.of("👤 Membro", newMember.getAsMention())
+        );
+    }
+
+    public static MessageEmbed embedGroupMemberRemove(Member buyer, OficinaGroup group, Member member) {
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                member.getUser().getEffectiveAvatarUrl(),
+                "a remoção deste membro",
+                0,
+                Map.of("👤 Membro", member.getAsMention())
+        );
+    }
+
+    public static MessageEmbed embedGroupCreate(Member buyer, OficinaGroup group, int color) {
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                buyer.getUser().getEffectiveAvatarUrl(),
+                color,
+                "a compra deste grupo",
+                group.getAmountPaid(),
+                Map.of("🎨 Cor", Bot.fmtColorHex(color))
+        );
+    }
+
+    public static MessageEmbed embedGroupDelete(Member owner, OficinaGroup group, int refund) {
+        return embedGroupSellConfirmation(
+                owner,
+                group,
+                owner.getUser().getEffectiveAvatarUrl(),
+                new Color(255, 50, 50).getRGB(),
+                "a deleção deste grupo",
+                refund,
+                Map.of()
+        );
+    }
+
+    public static MessageEmbed embedGroupBotAdd(Member buyer, OficinaGroup group, GroupBot bot, int price) {
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                buyer.getUser().getEffectiveAvatarUrl(),
+                "a adição deste bot",
+                price,
+                Map.of("🤖 Bot", bot.getBotMention())
+        );
+    }
+
+    public static MessageEmbed embedGroupModify(
+            Member buyer, OficinaGroup group, String newName, int newColor, int price
+    ) {
+        StringBuilder itemsList = new StringBuilder();
+        if (newName != null) itemsList.append("Nome").append("\n");
+        if (newColor != -1) itemsList.append("Cor");
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                buyer.getUser().getEffectiveAvatarUrl(),
+                "a modificação deste grupo",
+                price,
+                Map.of("🎈 Modificações", itemsList.toString())
+        );
+    }
+
+    private static MessageEmbed embedGroupSellConfirmation(
+            Member member, OficinaGroup group, String thumbUrl,
+            Integer color, String act, int refund, Map<String, Object> fields
+    ) {
+        int embedColor = color == null ? group.resolveColor() : color;
+        Map<String, Object> fieldsMap = new LinkedHashMap<>();
+        fieldsMap.put("💰 Reembolso", Bot.fmtMoney(refund));
+        fieldsMap.putAll(fields);
+        return embedGroupConfirmation(
+                member, group, thumbUrl, act, embedColor, fieldsMap
+        );
+    }
+
+    private static MessageEmbed embedGroupPurchaseConfirmation(
+            Member buyer, OficinaGroup group, String thumbUrl,
+            String act, int price, Map<String, Object> fields
+    ) {
+        return embedGroupPurchaseConfirmation(buyer, group, thumbUrl, null, act, price, fields);
+    }
+
+    private static MessageEmbed embedGroupPurchaseConfirmation(
+            Member buyer, OficinaGroup group, String thumbUrl,
+            Integer color, String act, int price, Map<String, Object> fields
+    ) {
+        int embedColor = color == null ? group.resolveColor() : color;
+        Map<String, Object> fieldsMap = new LinkedHashMap<>();
+        fieldsMap.put("💰 Preço", Bot.fmtMoney(price));
+        fieldsMap.putAll(fields);
+        return embedGroupConfirmation(
+                buyer, group, thumbUrl, act, embedColor, fieldsMap
+        );
+    }
+
+    private static MessageEmbed embedGroupConfirmation(
+            Member member, OficinaGroup group, String thumbUrl, String act,
+            int color, Map<String, Object> fields
+    ) {
         EmbedBuilder builder = new EmbedBuilder();
-        Guild guild = buyer.getGuild();
+        Guild guild = member.getGuild();
         CurrencyType currency = group.getCurrency();
         String guildName = guild.getName();
-        String avatarUrl = buyer.getEffectiveAvatarUrl();
         String groupName = group.getName();
-        String fmtPrice = Bot.fmtMoney(price);
-        String fmtItems = Arrays.stream(items).map(StoreItemType::getName).collect(Collectors.joining("\n"));
-        int color = group.resolveColor();
 
         builder
                 .setTitle(groupName)
-                .setDescription("Deseja confirmar a compra deste item?")
-                .setThumbnail(avatarUrl)
+                .setDescription("Deseja confirmar " + act + "?")
+                .setThumbnail(thumbUrl)
                 .setColor(color)
                 .setFooter(guildName, guild.getIconUrl())
-                .addField("🎈 Itens", fmtItems, true)
-                .addField("💳 Economia", currency.getName(), true)
-                .addField("💰 Preço", fmtPrice, true);
+                .addField("💳 Economia", currency.getName(), true);
 
         fields.forEach((k, v) -> builder.addField(k, v.toString(), true));
         return builder.build();

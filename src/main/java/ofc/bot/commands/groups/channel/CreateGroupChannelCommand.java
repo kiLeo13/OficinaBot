@@ -1,13 +1,12 @@
 package ofc.bot.commands.groups.channel;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import ofc.bot.Main;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
@@ -17,6 +16,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
@@ -36,6 +36,7 @@ public class CreateGroupChannelCommand extends SlashSubcommand {
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         long userId = ctx.getUserId();
         OficinaGroup group = grpRepo.findByOwnerId(userId);
+        Member issuer = ctx.getIssuer();
         ChannelType chanType = ctx.getSafeEnumOption("type", ChannelType.class);
         Guild guild = ctx.getGuild();
 
@@ -52,17 +53,14 @@ public class CreateGroupChannelCommand extends SlashSubcommand {
         if (hasChannelOfType(group, chanType))
             return Status.GROUP_ALREADY_HAS_THE_PROVIDED_CHANNEL;
 
-        Category category = resolveChannelCategory(chanType);
         StoreItemType itemType = resolveStoreItem(chanType);
         int price = group.hasFreeAccess() ? 0 : itemType.getPrice();
 
-        if (category == null)
-            return Status.CHANNEL_CATEGORY_NOT_FOUND;
-
-        Button confirmButton = ButtonContextFactory.createGroupChannelConfirmationButton(group, price, category, itemType);
+        Button confirm = ButtonContextFactory.createGroupChannelConfirm(group, chanType, price);
+        MessageEmbed embed = EmbedFactory.embedGroupChannelCreate(issuer, group, chanType, price);
         return ctx.create()
-                .setContent(Status.CONFIRM_GROUP_CHANNEL_CREATION.args(chanType))
-                .setActionRow(confirmButton)
+                .setActionRow(confirm)
+                .setEmbeds(embed)
                 .send();
     }
 
@@ -70,16 +68,9 @@ public class CreateGroupChannelCommand extends SlashSubcommand {
     public List<OptionData> getOptions() {
         return List.of(
                 new OptionData(OptionType.STRING, "type", "O tipo de canal a ser criado", true)
-                        .addChoice("🔊 Voice", "VOICE")
-                        .addChoice("📖 Text", "TEXT")
+                        .addChoice("🔊 Voice", ChannelType.VOICE.name())
+                        .addChoice("📖 Text", ChannelType.TEXT.name())
         );
-    }
-
-    private Category resolveChannelCategory(ChannelType type) {
-        JDA api = Main.getApi();
-        return type == ChannelType.TEXT
-                ? api.getCategoryById(OficinaGroup.TEXT_CATEGORY_ID)
-                : api.getCategoryById(OficinaGroup.VOICE_CATEGORY_ID);
     }
 
     private boolean hasChannelOfType(OficinaGroup group, ChannelType type) {

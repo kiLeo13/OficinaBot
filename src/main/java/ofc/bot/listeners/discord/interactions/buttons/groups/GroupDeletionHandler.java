@@ -39,7 +39,7 @@ public class GroupDeletionHandler implements BotButtonListener {
         Guild guild = ctx.getGuild();
         OficinaGroup group = grpRepo.findByOwnerId(userId);
         Role groupRole = guild.getRoleById(group.getRoleId());
-        int refund = ctx.get("refund");
+        int refund = ctx.get("amount");
 
         handleDeletion(userId, refund, group, guild, groupRole);
 
