@@ -1,8 +1,6 @@
 package ofc.bot.commands.groups.member;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -19,6 +17,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
@@ -38,6 +37,7 @@ public class AddGroupMemberCommand extends SlashSubcommand {
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         long issuerId = ctx.getUserId();
+        Member issuer = ctx.getIssuer();
         Member newMember = ctx.getOption("member", OptionMapping::getAsMember);
         Guild guild = ctx.getGuild();
         OficinaGroup group = grpRepo.findByOwnerId(issuerId);
@@ -47,6 +47,9 @@ public class AddGroupMemberCommand extends SlashSubcommand {
 
         if (group == null)
             return Status.YOU_DO_NOT_OWN_A_GROUP;
+
+        if (newMember.getUser().isBot())
+            return Status.CANNOT_ADD_BOTS_TO_GROUP;
 
         long groupRoleId = group.getRoleId();
         Role groupRole = guild.getRoleById(groupRoleId);
@@ -60,13 +63,14 @@ public class AddGroupMemberCommand extends SlashSubcommand {
 
         boolean hasFreeSlots = hasFreeSlots(group);
         boolean targetHasFreeAccess = OficinaGroup.hasFreeAccess(newMember);
-        int amountToPay = group.hasFreeAccess() || targetHasFreeAccess || hasFreeSlots
+        int price = group.hasFreeAccess() || targetHasFreeAccess || hasFreeSlots
                 ? 0
                 : StoreItemType.GROUP_SLOT.getPrice();
-        Button confirmation = ButtonContextFactory.createAddGroupMemberConfirmationButton(group, newMember, amountToPay);
+        Button confirm = ButtonContextFactory.createAddGroupMemberConfirm(group, newMember, price);
+        MessageEmbed embed = EmbedFactory.embedGroupMemberAdd(issuer, group, newMember, price);
         return ctx.create()
-                .setContent(Status.CONFIRM_GROUP_MEMBER_ADD.args(newMember.getAsMention()))
-                .setActionRow(confirmation)
+                .setActionRow(confirm)
+                .setEmbeds(embed)
                 .send();
     }
 
