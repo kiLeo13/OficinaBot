@@ -1,6 +1,7 @@
 package ofc.bot.jobs.roles;
 
 import ofc.bot.domain.sqlite.repository.FormerMemberRoleRepository;
+import ofc.bot.domain.sqlite.repository.RepositoryFactory;
 import ofc.bot.domain.tables.FormerMembersRolesTable;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.jooq.exception.DataAccessException;
@@ -23,8 +24,8 @@ public class ExpiredBackupsRemover implements Job {
     private static final long EXPIRY_DAYS = 90;
     private final FormerMemberRoleRepository rolesRepo;
 
-    public ExpiredBackupsRemover(FormerMemberRoleRepository rolesRepo) {
-        this.rolesRepo = rolesRepo;
+    public ExpiredBackupsRemover() {
+        this.rolesRepo = RepositoryFactory.getFormerMemberRoleRepository();
     }
 
     @Override
