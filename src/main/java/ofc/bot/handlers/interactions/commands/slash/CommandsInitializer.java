@@ -62,7 +62,6 @@ public final class CommandsInitializer {
                 .addSubcommand(new MarriageAcceptCommanad(mreqRepo, marrRepo, ecoRepo))
                 .addSubcommand(new CancelProposalCommand(mreqRepo))
                 .addSubcommand(new MarriageHelpCommand(exclRepo, marrRepo))
-                .addSubcommand(new MarriageListCommand(marrRepo))
                 .addSubcommand(new ProposalsListCommand(mreqRepo))
                 .addSubcommand(new MarriageRejectCommand(mreqRepo));
 
