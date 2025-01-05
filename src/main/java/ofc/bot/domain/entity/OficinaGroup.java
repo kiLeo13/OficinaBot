@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import ofc.bot.Main;
@@ -213,6 +214,14 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         return String.format(VOICE_CHANNEL_NAME_FORMAT, getEmoji(), getName());
     }
 
+    public String getChannelName(ChannelType channelType) {
+        return switch (channelType) {
+            case TEXT -> getTextChannelName();
+            case VOICE -> getVoiceChannelName();
+            default -> null;
+        };
+    }
+
     /**
      * Whether the group has either a {@link net.dv8tion.jda.api.entities.channel.concrete.TextChannel TextChannel}
      * or a {@link net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel VoiceChannel}.
@@ -313,6 +322,14 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
     public OficinaGroup setVoiceChannelId(long chanId) {
         set(GROUPS.VOICE_CHANNEL_ID, chanId);
         return this;
+    }
+
+    public OficinaGroup setChannelId(ChannelType channelType, long id) {
+        return switch (channelType) {
+            case TEXT -> setTextChannelId(id);
+            case VOICE -> setVoiceChannelId(id);
+            default -> throw new IllegalArgumentException("Invalid channel type: " + channelType);
+        };
     }
 
     public OficinaGroup setName(String name) {
