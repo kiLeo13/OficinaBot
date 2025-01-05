@@ -15,6 +15,6 @@ public class QueryCountPrinter implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         int queryCount = QueryCounter.poll();
-        LOGGER.info("Executed {} queries in the last 60 seconds", queryCount);
+        LOGGER.info("Executed {} queries in the last 5 minutes", queryCount);
     }
 }
