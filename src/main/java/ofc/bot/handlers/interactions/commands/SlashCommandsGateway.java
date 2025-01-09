@@ -1,6 +1,8 @@
 package ofc.bot.handlers.interactions.commands;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -32,6 +34,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
 
         String fullName = e.getFullCommandName();
         ICommand<SlashCommandContext> cmd = SlashCommandsRegistryManager.getCommand(fullName);
+        Member member = e.getMember();
 
         if (cmd == null) {
             e.reply("""
@@ -46,7 +49,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
         User user = ctx.getUser();
         long userId = user.getIdLong();
         long remains = cmd.cooldownRemain(userId);
-        if (cmd.inCooldown(userId)) {
+        if (!member.hasPermission(Permission.MANAGE_SERVER) && cmd.inCooldown(userId)) {
             ctx.reply(Status.PLEASE_WAIT_COOLDOWN.args(Bot.parsePeriod(remains)));
             LOGGER.warn("User '@{} [{}]' hit command \"/{}\" rate-limit, time remain: {}s", user.getName(), userId, fullName, remains);
             return;
@@ -77,7 +80,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
 
                 if (state.getContent() != null)
                     ctx.reply(state);
-            } catch (Exception err) {
+            } catch (Throwable err) {
                 LOGGER.error("Command execution triggered by @{} [{}], as \"/{}\", at \"{}\" failed",
                         userName, userId, cmdName, ctx.getTimeCreated(), err
                 );
