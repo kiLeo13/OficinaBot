@@ -18,11 +18,11 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @DiscordCommand(name = "customize description", description = "Define/reseta a descrição da embed apresentada no userinfo.")
-public class SetDescription extends SlashSubcommand {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SetDescription.class);
+public class SetDescriptionCommand extends SlashSubcommand {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SetDescriptionCommand.class);
     private final CustomUserinfoRepository csinfoRepo;
 
-    public SetDescription(CustomUserinfoRepository csinfoRepo) {
+    public SetDescriptionCommand(CustomUserinfoRepository csinfoRepo) {
         this.csinfoRepo = csinfoRepo;
     }
 

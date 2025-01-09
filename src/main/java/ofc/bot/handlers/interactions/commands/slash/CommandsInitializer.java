@@ -69,7 +69,7 @@ public final class CommandsInitializer {
         SlashCommand customizeUserinfo = new EmptySlashCommand("customize", "Customize o seu userinfo.", Permission.MANAGE_SERVER)
                 .addSubcommand(new ResetUserinfoCommand(csinfoRepo))
                 .addSubcommand(new SetUserinfoColorCommand(csinfoRepo))
-                .addSubcommand(new SetDescription(csinfoRepo))
+                .addSubcommand(new SetDescriptionCommand(csinfoRepo))
                 .addSubcommand(new SetUserinfoFooterCommand(csinfoRepo));
 
         // Groups
