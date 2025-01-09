@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
+import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.events.entities.BankTransactionEvent;
@@ -90,7 +91,7 @@ public class GroupUpdateHandler implements BotButtonListener {
     }
 
     private void dispatchGroupUpdateEvent(CurrencyType currency, long buyerId, int price) {
-        BankTransaction tr = new BankTransaction(buyerId, -price, currency, TransactionType.ITEM_BOUGHT);
+        BankTransaction tr = new BankTransaction(buyerId, -price, currency, TransactionType.ITEM_BOUGHT, StoreItemType.UPDATE_GROUP);
         EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }
