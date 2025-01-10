@@ -17,7 +17,16 @@ public class MessageReferenceIndicator extends ListenerAdapter {
 
         if (!content.equals("-r") || ref == null) return;
 
-        msg.reply(getUrl(ref)).queue();
+        ref.resolve().queue(refMsg -> {
+            MessageReference targetRef = refMsg.getMessageReference();
+
+            if (targetRef == null) return;
+
+            String url = getUrl(targetRef);
+            msg.reply(url)
+                    .fla
+                    .queue();
+        });
     }
 
     private String getUrl(MessageReference ref) {
