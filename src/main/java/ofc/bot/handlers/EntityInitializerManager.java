@@ -88,12 +88,10 @@ public final class EntityInitializerManager {
         OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
         UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
         BirthdayRepository bdayRepo = RepositoryFactory.getBirthdayRepository();
-        MarriageRepository marrRepo = RepositoryFactory.getMarriageRepository();
 
         ButtonInteractionGateway.registerButtons(
                 new BirthdayPageUpdate(bdayRepo),
                 new LeaderboardOffsetUpdate(ecoRepo),
-                new MarriageListPagination(marrRepo),
                 new NamesPageUpdate(namesRepo),
                 new ProposalListPagination(mreqRepo),
 
