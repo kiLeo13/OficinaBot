@@ -23,9 +23,7 @@ public class MessageReferenceIndicator extends ListenerAdapter {
             if (targetRef == null) return;
 
             String url = getUrl(targetRef);
-            msg.reply(url)
-                    .fla
-                    .queue();
+            msg.reply(url).queue();
         });
     }
 
