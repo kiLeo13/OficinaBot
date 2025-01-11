@@ -3,6 +3,7 @@ package ofc.bot;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import ofc.bot.domain.sqlite.DB;
@@ -31,6 +32,7 @@ public final class Main {
                     .setBulkDeleteSplittingEnabled(false)
                     .setEventPassthrough(true)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
+                    .setChunkingFilter(ChunkingFilter.ALL)
                     .enableCache(CacheFlag.VOICE_STATE, CacheFlag.ONLINE_STATUS)
                     .setActivity(Activity.playing("Oficina"))
                     .build()
