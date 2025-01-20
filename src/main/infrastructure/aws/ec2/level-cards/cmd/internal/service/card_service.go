@@ -4,22 +4,22 @@ import (
 	"fmt"
 	"github.com/playwright-community/playwright-go"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
-const (
-	viewportWidth  = 934
-	viewportHeight = 282
-)
-
 var (
-	htmlFileURL = "file://" + filepath.ToSlash("./static/templates/template.html")
-	pw          *playwright.Playwright
+	viewport = &playwright.Size{Width: 934, Height: 282}
+	pw       *playwright.Playwright
+	chromium playwright.Browser
 )
 
-func SetPlaywright(playwright *playwright.Playwright) {
+func InitializePlaywrightService(playwright *playwright.Playwright) {
 	pw = playwright
+	browser, err := pw.Chromium.Launch(getLaunchOptions())
+	if err != nil {
+		panic(err)
+	}
+	chromium = browser
 }
 
 var OnlineColors = map[string]onlineColor{
@@ -40,14 +40,13 @@ func (o *onlineColor) getHtmlColor() string {
 }
 
 type LevelDataDTO struct {
-	Username     string  `json:"username"`
-	Rank         int     `json:"rank"`
-	Level        int     `json:"level"`
-	Xp           int     `json:"xp"`
-	XpNext       int     `json:"xp_next"`
-	AvatarUrl    string  `json:"avatar_url"`
-	ProgressBar  float32 `json:"progress_bar"`
-	OnlineStatus string  `json:"online_status"`
+	Username     string `json:"username"`
+	Rank         int    `json:"rank"`
+	Level        int    `json:"level"`
+	Xp           int    `json:"xp"`
+	XpNext       int    `json:"xp_next"`
+	AvatarUrl    string `json:"avatar_url"`
+	OnlineStatus string `json:"online_status"`
 }
 
 func GenerateLevelCard(ld *LevelDataDTO) ([]byte, *APIError) {
@@ -61,29 +60,19 @@ func GenerateLevelCard(ld *LevelDataDTO) ([]byte, *APIError) {
 		return nil, err
 	}
 
-	browser, lerr := pw.Chromium.Launch(getLaunchOptions()...)
-	if lerr != nil {
-		fmt.Printf("Could not launcher chromium\n%s", lerr)
-		return nil, ErrorInternalServer
-	}
-
-	page, perr := browser.NewPage()
+	page, perr := chromium.NewPage(getPageOptions())
 	if perr != nil {
 		fmt.Printf("Could not create page\n%s", perr)
 		return nil, ErrorInternalServer
 	}
+	defer page.Close()
 
-	if err := page.SetContent(html, getPageLoadOptions()...); err != nil {
+	if err := page.SetContent(html, getPageLoadOptions()); err != nil {
 		fmt.Printf("Could not set page content\n%s", err)
 		return nil, ErrorInternalServer
 	}
 
-	if err := page.SetViewportSize(viewportWidth, viewportHeight); err != nil {
-		fmt.Printf("Could not set viewport size\n%s", err)
-		return nil, ErrorInternalServer
-	}
-
-	img, serr := page.Screenshot(getScreenshotOptions()...)
+	img, serr := page.Screenshot(getScreenshotOptions())
 	if serr != nil {
 		fmt.Printf("Could not take screenshot\n%s", serr)
 		return nil, ErrorInternalServer
@@ -98,11 +87,12 @@ func getHTML(statusColor onlineColor, ld *LevelDataDTO) (string, *APIError) {
 		return "", ErrorInternalServer
 	}
 	htmlColor := statusColor.getHtmlColor()
+	progress := float32(ld.Xp) * 100 / float32(ld.XpNext)
 
 	html := string(template)
 	html = strings.ReplaceAll(html, "'{{online.color}}'", fmt.Sprintf("rgb(%s)", htmlColor))
 	html = strings.ReplaceAll(html, "'{{online.shadow}}'", fmt.Sprintf("rgba(%s, 0.5)", htmlColor))
-	html = strings.ReplaceAll(html, "'{{progress.bar.percent}}'", fmt.Sprintf("%.2f%%", ld.ProgressBar))
+	html = strings.ReplaceAll(html, "'{{progress.bar.percent}}'", fmt.Sprintf("%.2f%%", progress))
 	html = strings.ReplaceAll(html, "{{username}}", ld.Username)
 	html = strings.ReplaceAll(html, "{{avatar.url}}", ld.AvatarUrl)
 	html = strings.ReplaceAll(html, "{{rank}}", fmt.Sprintf("%d", ld.Rank))
@@ -117,10 +107,6 @@ func checkFields(ld *LevelDataDTO) *APIError {
 		return ErrorMissingFields("username")
 	}
 
-	if ld.ProgressBar < 0 || ld.ProgressBar > 100 {
-		return ErrorInvalidValue("progress_bar", ld.ProgressBar, "0 - 100")
-	}
-
 	// Validating numbers
 	if err := validateNumber(ld.Rank, "rank"); err != nil {
 		return err
@@ -131,13 +117,16 @@ func checkFields(ld *LevelDataDTO) *APIError {
 	if err := validateNumber(ld.Xp, "xp"); err != nil {
 		return err
 	}
-	if err := validateNumber(ld.XpNext, "xp_next"); err != nil {
-		return err
+	if err := validateNumber(ld.XpNext, "xp_next"); err != nil || ld.XpNext == 0 {
+		return ErrorCannotBeZero("xp_next", ld.XpNext)
+	}
+	if ld.Xp > ld.XpNext {
+		return ErrorXpGreaterThanNext
 	}
 
 	_, ok := OnlineColors[ld.OnlineStatus]
 	if !ok {
-		return ErrorInvalidValue("online_status", ld.OnlineStatus, getOnlineStatusKeys()...)
+		return ErrorInvalidValue("online_status", ld.OnlineStatus, getOnlineStatusKeys())
 	}
 	return nil
 }
@@ -157,20 +146,26 @@ func getOnlineStatusKeys() []string {
 	return keys
 }
 
-func getLaunchOptions() []playwright.BrowserTypeLaunchOptions {
-	return []playwright.BrowserTypeLaunchOptions{
-		{Args: []string{"--headless"}},
+func getLaunchOptions() playwright.BrowserTypeLaunchOptions {
+	return playwright.BrowserTypeLaunchOptions{
+		Args: []string{"--headless"},
 	}
 }
 
-func getPageLoadOptions() []playwright.PageSetContentOptions {
-	return []playwright.PageSetContentOptions{
-		{WaitUntil: playwright.WaitUntilStateLoad},
+func getPageOptions() playwright.BrowserNewPageOptions {
+	return playwright.BrowserNewPageOptions{
+		Viewport: viewport,
 	}
 }
 
-func getScreenshotOptions() []playwright.PageScreenshotOptions {
-	return []playwright.PageScreenshotOptions{
-		{Type: playwright.ScreenshotTypePng},
+func getPageLoadOptions() playwright.PageSetContentOptions {
+	return playwright.PageSetContentOptions{
+		WaitUntil: playwright.WaitUntilStateLoad,
+	}
+}
+
+func getScreenshotOptions() playwright.PageScreenshotOptions {
+	return playwright.PageScreenshotOptions{
+		Type: playwright.ScreenshotTypePng,
 	}
 }

@@ -17,7 +17,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	service.SetPlaywright(pw)
+	service.InitializePlaywrightService(pw)
 
 	e := echo.New()
 	e.Static("/static", "./static")

@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	ErrorMalformedJSON  = NewError(400, "Malformed JSON body")
-	ErrorInternalServer = NewError(500, "Internal server error")
+	ErrorMalformedJSON     = NewError(400, "Malformed JSON body")
+	ErrorInternalServer    = NewError(500, "Internal server error")
+	ErrorXpGreaterThanNext = NewError(400, "Field 'xp' is greater than 'xp_next', which should be impossible")
 )
 
 type APIError struct {
@@ -30,7 +31,11 @@ func ErrorValueMustBePositive(fieldName string, value int) *APIError {
 	return NewError(400, "Field '%s' should be positive, provided: %d", fieldName, value)
 }
 
-func ErrorInvalidValue(fieldName string, valueProvided any, validValues ...string) *APIError {
-	return NewError(400, "Invalid value provided for '%s': '%v', allowed: %s",
-		fieldName, valueProvided, strings.Join(validValues, ", "))
+func ErrorInvalidValue(fieldName string, valueProvided any, validValues ...any) *APIError {
+	return NewError(400, "Invalid value provided for '%s': '%v', allowed: %v",
+		fieldName, valueProvided, validValues)
+}
+
+func ErrorCannotBeZero(fieldName string, value any) *APIError {
+	return NewError(400, "Field '%s' cannot be less than, or equal to zero, provided: %v", fieldName, value)
 }
