@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/playwright-community/playwright-go"
+	"math/rand/v2"
 	"os"
 	"strings"
 )
@@ -22,7 +23,7 @@ func InitializePlaywrightService(playwright *playwright.Playwright) {
 	chromium = browser
 }
 
-var OnlineColors = map[string]Color{
+var OnlineColors = map[string]*Color{
 	"ONLINE":  {35, 165, 90},
 	"IDLE":    {240, 178, 50},
 	"DND":     {242, 63, 67},
@@ -71,7 +72,7 @@ func GenerateLevelCard(ld *LevelDataDTO) ([]byte, *APIError) {
 	return img, nil
 }
 
-func getHTML(statusColor Color, ld *LevelDataDTO) (string, *APIError) {
+func getHTML(statusColor *Color, ld *LevelDataDTO) (string, *APIError) {
 	template, err := os.ReadFile("./static/templates/template.html")
 	if err != nil {
 		fmt.Printf("Could not read template file\n%s", err)
@@ -79,6 +80,7 @@ func getHTML(statusColor Color, ld *LevelDataDTO) (string, *APIError) {
 	}
 	progress := float32(ld.Xp) * 100 / float32(ld.XpNext)
 	themeColor := FromRGB(ld.ThemeColor).ToHtmlRGB()
+	backImg := rand.IntN(9) + 1
 
 	html := string(template)
 	html = strings.ReplaceAll(html, "'{{online.color}}'", statusColor.ToHtmlRGB())
@@ -89,6 +91,7 @@ func getHTML(statusColor Color, ld *LevelDataDTO) (string, *APIError) {
 	html = strings.ReplaceAll(html, "{{avatar.url}}", ld.AvatarUrl)
 	html = strings.ReplaceAll(html, "{{rank}}", fmt.Sprintf("%d", ld.Rank))
 	html = strings.ReplaceAll(html, "{{level}}", fmt.Sprintf("%d", ld.Level))
+	html = strings.ReplaceAll(html, "{{background.image}}", fmt.Sprintf("background-%d.png", backImg))
 	html = strings.ReplaceAll(html, "{{xp.now}}", HumanizeNumber(ld.Xp))
 	html = strings.ReplaceAll(html, "{{xp.next}}", HumanizeNumber(ld.XpNext))
 	return html, nil
@@ -100,7 +103,7 @@ func checkFields(ld *LevelDataDTO) *APIError {
 	}
 
 	if !IsColorValid(ld.ThemeColor) {
-		return ErrorInvalidValue("theme_color", ld.ThemeColor, fmt.Sprintf("0 - %d", 0xFFFFFF))
+		return ErrorInvalidValue("theme_color", ld.ThemeColor, fmt.Sprintf("0 - %d", MaxColorValue))
 	}
 
 	// Validating numbers

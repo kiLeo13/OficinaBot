@@ -6,6 +6,8 @@ const (
 	Thousand = 1_000
 	Million  = 1_000 * Thousand
 	Billion  = 1_000 * Million
+
+	MaxColorValue = 0xFFFFFF
 )
 
 type Color struct {
@@ -31,7 +33,7 @@ func FromRGB(rgb int) *Color {
 }
 
 func IsColorValid(rgb int) bool {
-	return rgb >= 0 && rgb <= 0xFFFFFF
+	return rgb >= 0 && rgb <= MaxColorValue
 }
 
 func HumanizeNumber(value int) string {
