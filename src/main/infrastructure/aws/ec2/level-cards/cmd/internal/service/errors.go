@@ -32,10 +32,21 @@ func ErrorValueMustBePositive(fieldName string, value int) *APIError {
 }
 
 func ErrorInvalidValue(fieldName string, valueProvided any, validValues ...any) *APIError {
-	return NewError(400, "Invalid value provided for '%s': '%v', allowed: %v",
-		fieldName, valueProvided, validValues)
+	return NewError(400, "Invalid value provided for '%s': '%v', allowed: (%s)",
+		fieldName, valueProvided, humanizeFields(validValues))
 }
 
 func ErrorCannotBeZero(fieldName string, value any) *APIError {
-	return NewError(400, "Field '%s' cannot be less than, or equal to zero, provided: %v", fieldName, value)
+	return NewError(400, "Field '%s' cannot be less than or equal to zero, provided: %v", fieldName, value)
+}
+
+func humanizeFields(fields ...any) string {
+	var builder strings.Builder
+	for i, f := range fields {
+		if i > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString(fmt.Sprintf("%v", f))
+	}
+	return builder.String()
 }

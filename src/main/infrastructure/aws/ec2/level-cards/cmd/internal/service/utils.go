@@ -8,6 +8,32 @@ const (
 	Billion  = 1_000 * Million
 )
 
+type Color struct {
+	Red   int
+	Green int
+	Blue  int
+}
+
+func (c *Color) ToHtmlRGB() string {
+	return fmt.Sprintf("rgb(%d, %d, %d)", c.Red, c.Green, c.Blue)
+}
+
+func (c *Color) ToHtmlRGBA(alpha float32) string {
+	return fmt.Sprintf("rgba(%d, %d, %d, %.2f)", c.Red, c.Green, c.Blue, alpha)
+}
+
+func FromRGB(rgb int) *Color {
+	return &Color{
+		Red:   (rgb >> 16) & 0xFF,
+		Green: (rgb >> 8) & 0xFF,
+		Blue:  rgb & 0xFF,
+	}
+}
+
+func IsColorValid(rgb int) bool {
+	return rgb >= 0 && rgb <= 0xFFFFFF
+}
+
 func HumanizeNumber(value int) string {
 	num := float64(value)
 	switch {

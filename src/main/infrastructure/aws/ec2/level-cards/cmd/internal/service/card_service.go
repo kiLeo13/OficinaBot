@@ -22,30 +22,21 @@ func InitializePlaywrightService(playwright *playwright.Playwright) {
 	chromium = browser
 }
 
-var OnlineColors = map[string]onlineColor{
+var OnlineColors = map[string]Color{
 	"ONLINE":  {35, 165, 90},
 	"IDLE":    {240, 178, 50},
 	"DND":     {242, 63, 67},
 	"OFFLINE": {128, 128, 128},
 }
 
-type onlineColor struct {
-	Red   int
-	Green int
-	Blue  int
-}
-
-func (o *onlineColor) getHtmlColor() string {
-	return fmt.Sprintf("%d, %d, %d", o.Red, o.Green, o.Blue)
-}
-
 type LevelDataDTO struct {
 	Username     string `json:"username"`
+	AvatarUrl    string `json:"avatar_url"`
 	Rank         int    `json:"rank"`
 	Level        int    `json:"level"`
 	Xp           int    `json:"xp"`
 	XpNext       int    `json:"xp_next"`
-	AvatarUrl    string `json:"avatar_url"`
+	ThemeColor   int    `json:"theme_color"`
 	OnlineStatus string `json:"online_status"`
 }
 
@@ -80,19 +71,20 @@ func GenerateLevelCard(ld *LevelDataDTO) ([]byte, *APIError) {
 	return img, nil
 }
 
-func getHTML(statusColor onlineColor, ld *LevelDataDTO) (string, *APIError) {
+func getHTML(statusColor Color, ld *LevelDataDTO) (string, *APIError) {
 	template, err := os.ReadFile("./static/templates/template.html")
 	if err != nil {
 		fmt.Printf("Could not read template file\n%s", err)
 		return "", ErrorInternalServer
 	}
-	htmlColor := statusColor.getHtmlColor()
 	progress := float32(ld.Xp) * 100 / float32(ld.XpNext)
+	themeColor := FromRGB(ld.ThemeColor).ToHtmlRGB()
 
 	html := string(template)
-	html = strings.ReplaceAll(html, "'{{online.color}}'", fmt.Sprintf("rgb(%s)", htmlColor))
-	html = strings.ReplaceAll(html, "'{{online.shadow}}'", fmt.Sprintf("rgba(%s, 0.5)", htmlColor))
+	html = strings.ReplaceAll(html, "'{{online.color}}'", statusColor.ToHtmlRGB())
+	html = strings.ReplaceAll(html, "'{{online.shadow}}'", statusColor.ToHtmlRGBA(0.5))
 	html = strings.ReplaceAll(html, "'{{progress.bar.percent}}'", fmt.Sprintf("%.2f%%", progress))
+	html = strings.ReplaceAll(html, "'{{theme.color}}'", themeColor)
 	html = strings.ReplaceAll(html, "{{username}}", ld.Username)
 	html = strings.ReplaceAll(html, "{{avatar.url}}", ld.AvatarUrl)
 	html = strings.ReplaceAll(html, "{{rank}}", fmt.Sprintf("%d", ld.Rank))
@@ -105,6 +97,10 @@ func getHTML(statusColor onlineColor, ld *LevelDataDTO) (string, *APIError) {
 func checkFields(ld *LevelDataDTO) *APIError {
 	if strings.TrimSpace(ld.Username) == "" {
 		return ErrorMissingFields("username")
+	}
+
+	if !IsColorValid(ld.ThemeColor) {
+		return ErrorInvalidValue("theme_color", ld.ThemeColor, fmt.Sprintf("0 - %d", 0xFFFFFF))
 	}
 
 	// Validating numbers
