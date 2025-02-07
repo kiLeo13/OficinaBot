@@ -1,28 +1,26 @@
 package ofc.bot.domain.entity.enums;
 
 public enum RentStatus {
-    TRIAL(  "Isenção Inicial"),
-    FREE(   "Isento"),
-    PAID(   "Pago"),
-    PENDING("Pendente");
+    TRIAL(   "Isenção Inicial", "O grupo foi comprado recentemente e não será cobrado no ciclo de aluguel seguinte."),
+    FREE(    "Isento",          "O grupo não paga aluguel."),
+    PAID(    "Pago",            "O aluguel já foi pago."),
+    PENDING( "Pendente",        "O aluguel ainda não foi pago."),
+    LATE(    "⚠️ Atrasado",     "O aluguel já está atrasado."),
+    NOT_PAID("❌ Não Pago",     "O aluguel não foi pago e excedeu o fim do mês.");
 
     private final String displayStatus;
+    private final String description;
 
-    RentStatus(final String displayStatus) {
+    RentStatus(String displayStatus, String description) {
         this.displayStatus = displayStatus;
+        this.description = description;
     }
 
     public String getDisplayStatus() {
         return this.displayStatus;
     }
 
-    public static RentStatus fromName(String name) {
-        for (RentStatus status : RentStatus.values()) {
-            if (status.name().equals(name)) {
-                return status;
-            }
-        }
-
-        return null;
+    public String getDescription() {
+        return this.description;
     }
 }

@@ -22,7 +22,8 @@ func main() {
 	e := echo.New()
 	e.Static("/static", "./static")
 
-	e.POST("/api/level-cards", routes.GetLevelCard)
+	e.POST("/api/levels/cards", routes.GetLevelCard)
+	e.POST("/api/levels/roles", routes.GetLevelsRoles)
 
 	if err := e.Start(":8080"); err != nil {
 		e.Logger.Fatal(err)

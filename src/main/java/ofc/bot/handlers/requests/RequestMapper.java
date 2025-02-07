@@ -2,6 +2,7 @@ package ofc.bot.handlers.requests;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.dv8tion.jda.api.utils.data.DataObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -14,9 +15,13 @@ public class RequestMapper {
     private final byte[] bytes;
     private final int statusCode;
 
-    protected RequestMapper(byte[] bytes, int code) {
+    public RequestMapper(byte[] bytes, int code) {
         this.bytes = bytes;
         this.statusCode = code;
+    }
+
+    public DataObject asDataObject() {
+        return DataObject.fromJson(this.bytes);
     }
 
     public String asString() {

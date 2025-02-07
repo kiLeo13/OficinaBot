@@ -7,8 +7,6 @@ import org.jooq.impl.TableRecordImpl;
 public class MarriageRequest extends TableRecordImpl<MarriageRequest> {
     private static final MarriageRequestsTable MARRIAGE_REQUESTS = MarriageRequestsTable.MARRIAGE_REQUESTS;
 
-    public static final String MARRIAGE_BUTTON_SCOPE = "MARRIAGE_REQUESTS";
-
     public MarriageRequest() {
         super(MARRIAGE_REQUESTS);
     }

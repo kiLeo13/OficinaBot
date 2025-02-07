@@ -7,9 +7,11 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import ofc.bot.domain.entity.*;
+import ofc.bot.domain.entity.enums.GroupPermission;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.handlers.interactions.buttons.ButtonManager;
 import ofc.bot.util.Bot;
+import ofc.bot.util.Scopes;
 
 import java.time.Month;
 import java.util.List;
@@ -40,12 +42,12 @@ public final class ButtonContextFactory {
         boolean hasNext = currMonth != Month.DECEMBER;
 
         ButtonContext prevButton = ButtonContext.primary(Emoji.fromUnicode("◀"))
-                .setScope(Birthday.BUTTON_SCOPE)
+                .setScope(Scopes.Misc.PAGINATE_BIRTHDAYS)
                 .put("month", previousMonth)
                 .setEnabled(hasPrevious);
 
         ButtonContext nextButton = ButtonContext.primary(Emoji.fromUnicode("▶"))
-                .setScope(Birthday.BUTTON_SCOPE)
+                .setScope(Scopes.Misc.PAGINATE_BIRTHDAYS)
                 .put("month", nextMonth)
                 .setEnabled(hasNext);
 
@@ -53,16 +55,57 @@ public final class ButtonContextFactory {
         return List.of(prevButton.getButton(), nextButton.getButton());
     }
 
-    public static List<Button> createLeaderboardButtons(int pageIndex, boolean hasNext) {
+    public static List<Button> createInfractionsButtons(long userId, int pageIndex, boolean hasNext) {
         boolean hasPrevious = pageIndex > 0;
 
         ButtonContext prev = ButtonContext.primary("Previous")
-                .setScope(UserEconomy.LEADERBOARD_BUTTON_SCOPE)
+                .setScope(Scopes.Punishments.VIEW_INFRACTIONS)
                 .put("page_index", pageIndex - 1)
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.primary("Next")
-                .setScope(UserEconomy.LEADERBOARD_BUTTON_SCOPE)
+                .setScope(Scopes.Punishments.VIEW_INFRACTIONS)
+                .put("page_index", pageIndex + 1)
+                .setEnabled(hasNext);
+
+        ButtonContext delete = ButtonContext.danger(Emoji.fromUnicode("🗑"))
+                .setScope(Scopes.Punishments.DELETE_INFRACTION)
+                .put("user_id", userId)
+                .setEnabled(userId != 0);
+
+        BUTTON_MANAGER.save(prev, next, delete);
+        return List.of(prev.getButton(), next.getButton());
+    }
+
+    public static List<Button> createLeaderboardButtons(int pageIndex, boolean hasNext) {
+        boolean hasPrevious = pageIndex > 0;
+
+        ButtonContext prev = ButtonContext.primary("Previous")
+                .setScope(Scopes.Misc.PAGINATE_LEADERBOARD)
+                .put("page_index", pageIndex - 1)
+                .setEnabled(hasPrevious);
+
+        ButtonContext next = ButtonContext.primary("Next")
+                .setScope(Scopes.Misc.PAGINATE_LEADERBOARD)
+                .put("page_index", pageIndex + 1)
+                .setEnabled(hasNext);
+
+        BUTTON_MANAGER.save(prev, next);
+        return List.of(prev.getButton(), next.getButton());
+    }
+
+    public static List<Button> createLevelsButtons(long authorId, int pageIndex, boolean hasNext) {
+        boolean hasPrevious = pageIndex > 0;
+
+        ButtonContext prev = ButtonContext.secondary(Bot.Emojis.GRAY_ARROW_LEFT)
+                .setScope(Scopes.Misc.PAGINATE_LEVELS)
+                .setAuthorId(authorId)
+                .put("page_index", pageIndex - 1)
+                .setEnabled(hasPrevious);
+
+        ButtonContext next = ButtonContext.secondary(Bot.Emojis.GRAY_ARROW_RIGHT)
+                .setScope(Scopes.Misc.PAGINATE_LEVELS)
+                .setAuthorId(authorId)
                 .put("page_index", pageIndex + 1)
                 .setEnabled(hasNext);
 
@@ -76,7 +119,7 @@ public final class ButtonContextFactory {
         boolean hasPrevious = currentOffset >= 10;
 
         ButtonContext prev = ButtonContext.primary("Previous")
-                .setScope(UserNameUpdate.NAME_UPDATE_SCOPE)
+                .setScope(Scopes.Misc.PAGINATE_NAME_UPDATE)
                 .put("offset", previousOffset)
                 .put("type", type)
                 .put("target_id", targetId)
@@ -84,30 +127,11 @@ public final class ButtonContextFactory {
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.primary("Next")
-                .setScope(UserNameUpdate.NAME_UPDATE_SCOPE)
+                .setScope(Scopes.Misc.PAGINATE_NAME_UPDATE)
                 .put("offset", nextOffset)
                 .put("type", type)
                 .put("target_id", targetId)
                 .setPermission(Permission.MANAGE_SERVER)
-                .setEnabled(hasNext);
-
-        BUTTON_MANAGER.save(prev, next);
-        return List.of(prev.getButton(), next.getButton());
-    }
-
-    public static List<Button> createMarriageListButtons(long targetId, int page, boolean hasNext) {
-        boolean hasPrevious = page > 1;
-
-        ButtonContext prev = ButtonContext.primary("Previous")
-                .setScope(Marriage.MARRIAGE_BUTTON_SCOPE)
-                .put("page", page - 1)
-                .put("target_id", targetId)
-                .setEnabled(hasPrevious);
-
-        ButtonContext next = ButtonContext.primary("Next")
-                .setScope(Marriage.MARRIAGE_BUTTON_SCOPE)
-                .put("page", page + 1)
-                .put("target_id", targetId)
                 .setEnabled(hasNext);
 
         BUTTON_MANAGER.save(prev, next);
@@ -120,7 +144,7 @@ public final class ButtonContextFactory {
         boolean hasPrevious = page > 1;
 
         ButtonContext prev = ButtonContext.primary("Previous")
-                .setScope(MarriageRequest.MARRIAGE_BUTTON_SCOPE)
+                .setScope(Scopes.Misc.PAGINATE_MARRIAGE_REQUESTS)
                 .setAuthorId(userId)
                 .put("page", previousPage)
                 .put("type", type)
@@ -128,7 +152,7 @@ public final class ButtonContextFactory {
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.primary("Next")
-                .setScope(MarriageRequest.MARRIAGE_BUTTON_SCOPE)
+                .setScope(Scopes.Misc.PAGINATE_MARRIAGE_REQUESTS)
                 .setAuthorId(userId)
                 .put("page", nextPage)
                 .put("type", type)
@@ -142,17 +166,65 @@ public final class ButtonContextFactory {
     public static Button createGroupChannelConfirm(OficinaGroup group, ChannelType channelType, int price) {
         return createGroupItemPaymentConfirm(
                 group,
-                OficinaGroup.GROUP_CHANNEL_CREATE_BUTTON_SCOPE,
+                Scopes.Group.CREATE_CHANNEL,
                 group.getCurrency().getEmoji(),
                 price,
                 Bot.map("channel_type", channelType)
         );
     }
 
-    public static Button createModifyGroupConfirm(OficinaGroup group, String newName, int newColor, int price) {
+    public static Button createInvoiceConfirm(OficinaGroup group, int amount) {
         return createGroupItemPaymentConfirm(
                 group,
-                OficinaGroup.GROUP_UPDATE_BUTTON_SCOPE,
+                Scopes.Group.PAY_INVOICE,
+                group.getCurrency().getEmoji(),
+                amount,
+                Bot.map()
+        );
+    }
+
+    public static Button createPermissionConfirm(OficinaGroup group, GroupPermission perm, int amount) {
+        return createGroupItemPaymentConfirm(
+                group,
+                Scopes.Group.ADD_PERMISSION,
+                group.getCurrency().getEmoji(),
+                amount,
+                Bot.map("permission", perm)
+        );
+    }
+
+    public static Button createMessagePinConfirm(OficinaGroup group, long messageId, int price) {
+        return createGroupItemPaymentConfirm(
+                group,
+                Scopes.Group.PIN_MESSAGE,
+                group.getCurrency().getEmoji(),
+                price,
+                Bot.map(
+                        "message_id", messageId,
+                        "is_pin", true,
+                        "group", group
+                )
+        );
+    }
+
+    public static Button createMessageUnpinConfirm(OficinaGroup group, long messageId) {
+        return createGroupItemRemotionConfirm(
+                group,
+                Scopes.Group.PIN_MESSAGE,
+                Emoji.fromUnicode("🗑"),
+                0,
+                Bot.map(
+                        "message_id", messageId,
+                        "is_pin", false,
+                        "group", group
+                )
+        );
+    }
+
+    public static Button createModifyGroupConfirm(OficinaGroup group, String newName, int newColor, int price) {
+        return createGroupItemRemotionConfirm(
+                group,
+                Scopes.Group.UPDATE_GROUP,
                 group.getCurrency().getEmoji(),
                 price,
                 Bot.map("new_name", newName, "new_color", newColor)
@@ -162,7 +234,7 @@ public final class ButtonContextFactory {
     public static Button createGroupBotAddConfirm(OficinaGroup group, GroupBot bot, int price) {
         return createGroupItemPaymentConfirm(
                 group,
-                OficinaGroup.GROUP_BOT_ADD_BUTTON_SCOPE,
+                Scopes.Group.ADD_BOT,
                 group.getCurrency().getEmoji(),
                 price,
                 Bot.map("bot", bot)
@@ -172,27 +244,17 @@ public final class ButtonContextFactory {
     public static Button createGroupConfirm(OficinaGroup partialGroup, int color) {
         return createGroupItemPaymentConfirm(
                 partialGroup,
-                OficinaGroup.GROUP_CREATE_BUTTON_SCOPE,
+                Scopes.Group.CREATE_GROUP,
                 partialGroup.getCurrency().getEmoji(),
                 partialGroup.getAmountPaid(),
                 Bot.map("group_color", color)
         );
     }
 
-    public static Button createGroupDeletionConfirm(OficinaGroup group, int refund) {
-        return createGroupItemDeletionConfirm(
-                group,
-                OficinaGroup.GROUP_DELETE_BUTTON_SCOPE,
-                Emoji.fromUnicode("🗑"),
-                refund,
-                null
-        );
-    }
-
     public static Button createAddGroupMemberConfirm(OficinaGroup group, Member newMember, int price) {
         return createGroupItemPaymentConfirm(
                 group,
-                OficinaGroup.GROUP_MEMBER_ADD_BUTTON_SCOPE,
+                Scopes.Group.ADD_MEMBER,
                 group.getCurrency().getEmoji(),
                 price,
                 Bot.map("new_member", newMember)
@@ -202,7 +264,7 @@ public final class ButtonContextFactory {
     public static Button createRemoveGroupMemberConfirm(OficinaGroup group, long targetId) {
         return createGroupItemRemotionConfirm(
                 group,
-                OficinaGroup.GROUP_MEMBER_REMOVE_BUTTON_SCOPE,
+                Scopes.Group.REMOVE_MEMBER,
                 null,
                 0,
                 Bot.map("target_id", targetId)
@@ -221,17 +283,11 @@ public final class ButtonContextFactory {
         return genericConfirmButton(group, ButtonStyle.DANGER, "Remoção", emoji, scope, price, payload);
     }
 
-    private static Button createGroupItemDeletionConfirm(
-            OficinaGroup group, String scope, Emoji emoji, int price, Map<String, Object> payload
-    ) {
-        return genericConfirmButton(group, ButtonStyle.DANGER, "Deleção", emoji, scope, price, payload);
-    }
-
     private static Button genericConfirmButton(
             OficinaGroup group, ButtonStyle style, String act, Emoji emoji,
             String scope, int price, Map<String, Object> payload
     ) {
-        String label = String.format("Confirmar %s (%s)", act, Bot.fmtMoney(price));
+        String label = String.format("Confirmar %s", act);
         ButtonContext confirm = ButtonContext.of(style, label, emoji)
                 .setAuthorOnly(true)
                 .setScope(scope)

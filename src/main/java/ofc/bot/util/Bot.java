@@ -2,6 +2,7 @@ package ofc.bot.util;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -24,6 +25,10 @@ import java.util.function.Function;
 public final class Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
     private static final Locale LOCALE = new Locale("pt", "BR");
+
+    private static final int THOUSAND = 1_000;
+    private static final int MILLION = 1_000 * THOUSAND;
+    private static final int BILLION = 1_000 * MILLION;
     
     private Bot() {}
 
@@ -45,6 +50,20 @@ public final class Bot {
                 GatewayIntent.SCHEDULED_EVENTS,
                 GatewayIntent.DIRECT_MESSAGES
         );
+    }
+
+    public static <T> T ifNull(T obj, T fallback) {
+        return obj == null ? fallback : obj;
+    }
+
+    public static String limitStr(String str, int limit) {
+        if (limit <= 3)
+            throw new IllegalArgumentException("Limit cannot be less than or equal to 3");
+
+        if (str.length() <= limit) return str;
+
+        String newStr = str.substring(0, limit - 3);
+        return newStr + "...";
     }
 
     public static int calcMaxPages(int total, int pageSize) {
@@ -112,15 +131,17 @@ public final class Bot {
         return Instant.now().getEpochSecond();
     }
 
-    public static void writeToFile(String content, File file) {
+    public static boolean writeToFile(String content, File file) {
         try (
                 OutputStream out = Files.newOutputStream(Path.of(file.getAbsolutePath()));
                 Writer writer = new OutputStreamWriter(out)
         ) {
             writer.write(content);
             writer.flush();
+            return true;
         } catch (IOException e) {
             LOGGER.error("Could not write to file {}", file.getAbsolutePath(), e);
+            return false;
         }
     }
 
@@ -132,6 +153,19 @@ public final class Bot {
         NumberFormat currency = NumberFormat.getNumberInstance(LOCALE);
 
         return currency.format(value);
+    }
+
+    public static String humanizeNum(long value) {
+        double num = (double) value;
+        if (num >= BILLION) {
+            return String.format("%.2fB", num / BILLION);
+        } else if (num >= MILLION) {
+            return String.format("%.2fM", num / MILLION);
+        } else if (num >= THOUSAND) {
+            return String.format("%.2fK", num / THOUSAND);
+        } else {
+            return String.format("%d", value);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -156,6 +190,10 @@ public final class Bot {
 
     public static String fmtColorHex(int color) {
         return String.format("#%06X", color);
+    }
+
+    public static int toRGB(Color color) {
+        return color.getRGB() & 0x00FFFFFF;
     }
 
     public static String fmtMoney(long value) {
@@ -194,5 +232,10 @@ public final class Bot {
     public static final class Colors {
         public static final Color DISCORD = new Color(88, 101, 242);
         public static final Color DEFAULT = new Color(170, 67, 254);
+    }
+
+    public static final class Emojis {
+        public static final Emoji GRAY_ARROW_LEFT  = Emoji.fromFormatted("<:arrowleft:1331425997890785290>");
+        public static final Emoji GRAY_ARROW_RIGHT = Emoji.fromFormatted("<:arrowright:1331425991205191730>");
     }
 }

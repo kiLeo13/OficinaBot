@@ -7,10 +7,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.domain.entity.Birthday;
-import ofc.bot.domain.entity.enums.ExclusionType;
+import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.sqlite.repository.BirthdayRepository;
 import ofc.bot.domain.sqlite.repository.RepositoryFactory;
-import ofc.bot.domain.sqlite.repository.UserExclusionRepository;
+import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
 import ofc.bot.util.content.Channels;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.Job;
@@ -29,11 +29,11 @@ public class BirthdayReminder implements Job {
     private static final String AGELESS_MESSAGE = "@everyone BELA NOITE, vamos parabenizar esta pessoa tão especial chamada %s, por estar fazendo aniversário hoje! Né? %s";
     private static final long ROLE_ID_UNDERAGE = 664918505400958986L;
     private static final long ROLE_ID_ADULT = 664918505963126814L;
-    private final UserExclusionRepository exclRepo;
+    private final EntityPolicyRepository policyRepo;
     private final BirthdayRepository bdayRepo;
 
     public BirthdayReminder() {
-        this.exclRepo = RepositoryFactory.getUserExclusionRepository();
+        this.policyRepo = RepositoryFactory.getEntityPolicyRepository();
         this.bdayRepo = RepositoryFactory.getBirthdayRepository();
     }
 
@@ -69,7 +69,7 @@ public class BirthdayReminder implements Job {
 
     private String getMessage(Member member, String name, int turnAge) {
         long userId = member.getIdLong();
-        boolean hideAge = exclRepo.existsByTypeAndUserId(ExclusionType.BIRTHDAY_AGE_DISPLAY, userId);
+        boolean hideAge = policyRepo.existsByTypeAndResource(PolicyType.HIDE_BIRTHDAY_AGE, userId);
 
         return hideAge
                 ? String.format(AGELESS_MESSAGE, name, member.getAsMention())

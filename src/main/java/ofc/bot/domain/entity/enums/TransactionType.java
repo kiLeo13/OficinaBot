@@ -8,6 +8,8 @@ public enum TransactionType {
     WORK_EXECUTED(    false, "💼 Trabalhou"),
     CHAT_MONEY(       false, "💰 Chat Money"),
     MARRIAGE_CREATED( false, "💍 Casamento"),
+    FEE_PAID(         false, "\uD83C\uDFE6 Taxa Paga"),
+    INVOICE_PAID(     false, "\uD83E\uDDFE Fatura Paga"),
     ITEM_BOUGHT(      true,  "🛍 Item Comprado"),
     ITEM_SOLD(        true,  "🛒 Item Vendido");
 

@@ -25,16 +25,15 @@ public class EpicGamesPromotionAdvertiser implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        List<GameData> freeGames = retrieveFreeGames();
-        TextChannel channel = Channels.TESTING.channel(TextChannel.class);
-
+        TextChannel channel = Channels.F.channel(TextChannel.class);
         if (channel == null) {
             LOGGER.warn("Free games announcement channel was not found");
             return;
         }
 
-        if (freeGames == null) {
-            LOGGER.warn("Free games could not be fetched from EpicStore");
+        List<GameData> freeGames = retrieveFreeGames();
+        if (freeGames == null || freeGames.isEmpty()) {
+            LOGGER.warn("Free games could not be fetched from EpicStore or none was found");
             return;
         }
 
@@ -77,7 +76,7 @@ public class EpicGamesPromotionAdvertiser implements Job {
     private List<GameData> excludeIneligibleGames(List<GameData> freeGames) {
         return freeGames.stream()
                 .filter(GameData::isBaseGame)
-                .filter(g -> gamesRepo.existsAfterByGameId(g.id, 30, TimeUnit.DAYS))
+                .filter(g -> !gamesRepo.existsAfterByGameId(g.id, 30, TimeUnit.DAYS))
                 .toList();
     }
 
@@ -124,7 +123,10 @@ public class EpicGamesPromotionAdvertiser implements Job {
         }
 
         boolean isBaseGame() {
-            return "BASE_GAME".equals(offerType);
+            // FOR SOME UNKNOWN GODDAMN REASON, THE OFFER TYPE
+            // IN THIS API MAY SOMETIMES BE "OTHER".
+            // AND NOW I ASK YOU WHY? WHY??? WHAT EVEN IS "OTHER"???????
+            return !"ADD_ON".equals(offerType);
         }
     }
 }

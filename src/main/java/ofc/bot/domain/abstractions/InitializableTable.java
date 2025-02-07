@@ -3,19 +3,23 @@ package ofc.bot.domain.abstractions;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.Record;
 import org.jooq.*;
-import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 
-import static org.jooq.impl.DSL.name;
-
 public abstract class InitializableTable<R extends Record> extends TableImpl<R> {
+    protected final DataType<Long>   BIGINT = SQLDataType.BIGINT;
+    protected final DataType<String>   CHAR = SQLDataType.CHAR;
+    protected final DataType<Integer>   INT = SQLDataType.INTEGER;
+    protected final DataType<Boolean>  BOOL = SQLDataType.BOOLEAN;
+    protected final DataType<Double> NUMBER = SQLDataType.DOUBLE;
 
     public InitializableTable(@NotNull String tableName) {
-        super(name(tableName));
+        super(DSL.name(tableName));
     }
 
     protected final <T> TableField<R, T> newField(String name, DataType<T> type) {
-        return createField(name(name), type);
+        return createField(DSL.name(name), type);
     }
 
     /**
@@ -26,7 +30,10 @@ public abstract class InitializableTable<R extends Record> extends TableImpl<R> 
      *
      * @param ctx The executable database context.
      * @return An executable {@link Query} scoped to the provided context to create the table.
-     * @throws DataAccessException if the query fails to be executed.
      */
-    abstract public Query getSchema(@NotNull DSLContext ctx) throws DataAccessException;
+    abstract public Query getSchema(@NotNull DSLContext ctx);
+
+    protected <T> ConstraintForeignKeyReferencesStep1<T> foreignKey(Field<T> key) {
+         return DSL.foreignKey(key);
+    }
 }

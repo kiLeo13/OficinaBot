@@ -7,7 +7,6 @@ import org.jooq.impl.TableRecordImpl;
 public class UserEconomy extends TableRecordImpl<UserEconomy> {
     private static final UsersEconomyTable USERS_ECONOMY = UsersEconomyTable.USERS_ECONOMY;
 
-    public static final String LEADERBOARD_BUTTON_SCOPE = "LEADERBOARD";
     public static final String LEADERBOARD_ROW_FORMAT = "%d. `%s`**・**$%s";
     public static final String SYMBOL = "<a:coin:1160091618746060811>";
     public static final String RANK_SYMBOL = "⬆️";

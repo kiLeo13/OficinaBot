@@ -9,7 +9,7 @@ import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.events.entities.BankTransactionEvent;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.interactions.buttons.AutoResponseType;
@@ -17,10 +17,11 @@ import ofc.bot.handlers.interactions.buttons.BotButtonListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 
 @ButtonHandler(
-        scope = OficinaGroup.GROUP_UPDATE_BUTTON_SCOPE,
+        scope = Scopes.Group.UPDATE_GROUP,
         autoResponseType = AutoResponseType.THINKING
 )
 public class GroupUpdateHandler implements BotButtonListener {

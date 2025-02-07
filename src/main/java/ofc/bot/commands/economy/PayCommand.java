@@ -9,7 +9,7 @@ import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.domain.sqlite.repository.UserRepository;
-import ofc.bot.events.entities.BankTransactionEvent;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -45,9 +45,6 @@ public class PayCommand extends SlashCommand {
         long senderBalance = ecoRepo.fetchBalanceByUserId(senderId);
         long amountTotal = parseAmountToPay(amountInput, senderBalance);
         long targetId = target.getIdLong();
-        long amountToSend = amountTotal >= 10
-                ? (long) (amountTotal * TAX_PER_EXECUTION)
-                : amountTotal;
 
         if (amountTotal > senderBalance)
             return Status.INSUFFICIENT_BALANCE_VALUE.args(Bot.fmtNum(amountTotal - senderBalance));
@@ -62,13 +59,13 @@ public class PayCommand extends SlashCommand {
             return Status.CANNOT_TRANSFER_TO_BOTS;
 
         try {
-            ecoRepo.transfer(senderId, targetId, amountToSend, amountTotal);
+            ecoRepo.transfer(senderId, targetId, amountTotal, amountTotal);
             userRepo.upsert(AppUser.fromUser(target));
 
             dispatchSendMoneyEvent(senderId, targetId, amountTotal);
 
             return Status.TRANSACTION_SUCCESSFUL.args(
-                    Bot.fmtNum(amountToSend),
+                    Bot.fmtNum(amountTotal),
                     target.getAsMention()
             );
         } catch (DataAccessException e) {

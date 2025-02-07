@@ -1,10 +1,9 @@
 package ofc.bot.domain.sqlite;
 
 import ofc.bot.domain.entity.AppUser;
-import ofc.bot.domain.tables.MarriagesTable;
-import ofc.bot.domain.tables.UsersEconomyTable;
-import ofc.bot.domain.tables.UsersTable;
+import ofc.bot.domain.tables.*;
 import ofc.bot.domain.viewmodels.LeaderboardUser;
+import ofc.bot.domain.viewmodels.LevelView;
 import ofc.bot.domain.viewmodels.MarriageView;
 import org.jooq.Record;
 
@@ -12,6 +11,8 @@ public final class MapperFactory {
     private static final UsersEconomyTable USERS_ECONOMY = UsersEconomyTable.USERS_ECONOMY;
     private static final MarriagesTable MARRIAGES = MarriagesTable.MARRIAGES;
     private static final UsersTable USERS = UsersTable.USERS;
+    private static final UsersXPTable USERS_XP = UsersXPTable.USERS_XP;
+
     private MapperFactory() {}
 
     public static MarriageView mapMarriage(Record rec) {
@@ -47,6 +48,16 @@ public final class MapperFactory {
                 rec.get(USERS.NAME),
                 rec.get(USERS_ECONOMY.USER_ID),
                 rec.get(USERS_ECONOMY.BALANCE)
+        );
+    }
+
+    public static LevelView mapLevel(Record rec, int rank) {
+        return new LevelView(
+                rec.get(USERS.NAME),
+                rec.get(USERS_XP.USER_ID),
+                rec.get(USERS_XP.LEVEL),
+                rank,
+                rec.get(USERS_XP.XP)
         );
     }
 }

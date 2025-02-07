@@ -36,7 +36,6 @@ public class BackupMemberRolesCommand extends SlashCommand {
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         ctx.ack();
-
         Member target = ctx.getOption("user", OptionMapping::getAsMember);
         Guild guild = ctx.getGuild();
         boolean keep = ctx.getOption("keep", false, OptionMapping::getAsBoolean);

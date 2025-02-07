@@ -23,7 +23,7 @@ import java.util.List;
 
 @DiscordCommand(name = "marry", description = "Se case com outra pessoa.")
 public class MarryCommand extends SlashCommand {
-    public static final int INITIAL_MARRIAGE_COST = 50000;
+    public static final int INITIAL_MARRIAGE_COST = 25000;
     public static final int DAILY_COST = 150;
     public static final int MAX_GENERAL_MARRIAGES = 10;
     public static final int MAX_PRIVILEGED_MARRIAGES = 20;

@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
+import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
@@ -46,6 +47,9 @@ public class CreateGroupCommand extends SlashSubcommand {
         long guildId = guild.getIdLong();
         int color;
 
+        if (hasGroup(issuerId))
+            return Status.USERS_CANNOT_HAVE_MULTIPLE_GROUPS;
+
         if (hitMaxRoles(guild))
             return Status.GROUPS_CANNOT_BE_CREATED_AT_THE_MOMENT;
 
@@ -55,9 +59,6 @@ public class CreateGroupCommand extends SlashSubcommand {
         if (!EmojiManager.isEmoji(emoji))
             return Status.EMOJI_OPTION_CAN_ONLY_CONTAIN_EMOJI;
 
-        if (hasGroup(issuerId))
-            return Status.USERS_CANNOT_HAVE_MULTIPLE_GROUPS;
-
         try {
             color = Integer.parseInt(hexColor, 16);
         } catch (NumberFormatException e) {
@@ -65,16 +66,17 @@ public class CreateGroupCommand extends SlashSubcommand {
         }
 
         boolean isRentRecurring = OficinaGroup.isRentRecurring(issuer);
-        boolean hasFreeAccess = OficinaGroup.hasFreeAccess(issuer);
-        int price = hasFreeAccess ? 0 : OficinaGroup.PRICE;
-        float refundPercent = hasFreeAccess ? 0 : OficinaGroup.REFUND_PERCENT;
+        boolean isFree = OficinaGroup.hasFreeAccess(issuer);
+        int price = isFree ? 0 : StoreItemType.GROUP.getPrice();
+        float refundPercent = isFree ? 0 : OficinaGroup.REFUND_PERCENT;
         RentStatus rentStatus = isRentRecurring ? RentStatus.TRIAL : RentStatus.FREE;
         // If all checks passed, we create sort of a partial group instance,
         // containing all the information we have so far.
         // We are not sending the group to the database as we must wait
         // for the user to confirm the purchase (handled at ofc.bot.listeners.buttons.groups.GroupCreationHandler).
-        OficinaGroup group = new OficinaGroup(name, issuerId, guildId, rentStatus, hasFreeAccess)
+        OficinaGroup group = new OficinaGroup(name, issuerId, guildId, rentStatus, isFree)
                 .setEmoji(emoji)
+                .setInvoiceAmount(0) // No invoices to pay initially
                 .setCurrency(currency)
                 .setAmountPaid(price)
                 .setRefundPercent(refundPercent);

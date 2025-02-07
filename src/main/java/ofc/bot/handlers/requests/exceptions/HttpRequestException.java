@@ -1,10 +1,12 @@
 package ofc.bot.handlers.requests.exceptions;
 
-import java.io.IOException;
-
 public class HttpRequestException extends RuntimeException {
 
-    public HttpRequestException(IOException e) {
+    public HttpRequestException(Exception e) {
         super(e);
+    }
+
+    public HttpRequestException(String message) {
+        super(message);
     }
 }

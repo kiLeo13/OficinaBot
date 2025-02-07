@@ -1,13 +1,12 @@
 package ofc.bot.commands.economy;
 
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
-import ofc.bot.events.entities.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -29,8 +28,8 @@ public class DailyCommand extends SlashCommand {
     private static final Random RANDOM = new Random();
     private static final Logger LOGGER = LoggerFactory.getLogger(DailyCommand.class);
     private static final double BOOSTER_EXTRA_PERCENTAGE = 1.2;
-    private static final int MIN = 1000;
-    private static final int MAX = 2800;
+    private static final int MIN = 750;
+    private static final int MAX = 2100;
     private final UserEconomyRepository ecoRepo;
 
     public DailyCommand(UserEconomyRepository ecoRepo) {
@@ -40,7 +39,6 @@ public class DailyCommand extends SlashCommand {
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         Member sender = ctx.getIssuer();
-        User user = sender.getUser();
         long userId = sender.getIdLong();
         boolean hasCollected = hasCollected(userId);
 

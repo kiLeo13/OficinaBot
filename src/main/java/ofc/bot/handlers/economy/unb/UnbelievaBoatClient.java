@@ -5,10 +5,12 @@ import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.requests.Route;
+import ofc.bot.handlers.requests.requester.impl.UnbelievaBoatRequester;
 
 import java.lang.reflect.Type;
 
 public class UnbelievaBoatClient implements PaymentManager {
+    private static final UnbelievaBoatRequester REQUESTER = new UnbelievaBoatRequester();
     private static final UnsupportedOperationException NO_GUILD_EXCEPTION;
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(long.class, new LongInfinityDeserializer())
@@ -32,11 +34,8 @@ public class UnbelievaBoatClient implements PaymentManager {
         if (guildId == 0)
             throw NO_GUILD_EXCEPTION;
 
-        String resp = Route.UnbelievaBoat.GET_BALANCE.create(guildId, userId)
-                .addHeader("Authorization", token)
-                .send((map, code) -> code == 200 ? map.asString() : null);
-
-        return fromJson(guildId, resp);
+        String json = makeRequest(Route.UnbelievaBoat.GET_BALANCE, null, guildId, userId);
+        return fromJson(guildId, json);
     }
 
     public BankAccount set(long userId, long guildId, long cash, long bank, String reason) {
@@ -45,16 +44,11 @@ public class UnbelievaBoatClient implements PaymentManager {
 
         DataObject reqBody = DataObject.empty()
                 .put("cash", cash)
-                .put("bank", bank);
+                .put("bank", bank)
+                .put("reason", reason);
 
-        if (reason != null) reqBody.put("reason", reason);
-
-        String resp = Route.UnbelievaBoat.SET_BALANCE.create(guildId, userId)
-                .addHeader("Authorization", token)
-                .setBody(reqBody)
-                .send((map, code) -> code == 200 ? map.asString() : null);
-
-        return fromJson(guildId, resp);
+        String json = makeRequest(Route.UnbelievaBoat.SET_BALANCE, reqBody, guildId, userId);
+        return fromJson(guildId, json);
     }
 
     @Override
@@ -64,16 +58,11 @@ public class UnbelievaBoatClient implements PaymentManager {
 
         DataObject reqBody = DataObject.empty()
                 .put("cash", cash)
-                .put("bank", bank);
+                .put("bank", bank)
+                .put("reason", reason);
 
-        if (reason != null) reqBody.put("reason", reason);
-
-        String resp = Route.UnbelievaBoat.UPDATE_BALANCE.create(guildId, userId)
-                .addHeader("Authorization", token)
-                .setBody(reqBody)
-                .send((map, code) -> code == 200 ? map.asString() : null);
-
-        return fromJson(guildId, resp);
+        String json = makeRequest(Route.UnbelievaBoat.UPDATE_BALANCE, reqBody, guildId, userId);
+        return fromJson(guildId, json);
     }
 
     @Override
@@ -122,6 +111,13 @@ public class UnbelievaBoatClient implements PaymentManager {
         return acc != null
                 && acc.getCash() >= cash
                 && acc.getBank() >= bank;
+    }
+
+    private String makeRequest(Route route, DataObject body, Object... path) {
+        return route.create(path)
+                .addHeader("Authorization", token)
+                .setBody(body)
+                .send(REQUESTER, (map, code) -> code == 200 ? map.asString() : null);
     }
 
     private static class LongInfinityDeserializer implements JsonDeserializer<Long> {

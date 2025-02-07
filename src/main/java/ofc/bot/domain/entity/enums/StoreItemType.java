@@ -3,12 +3,14 @@ package ofc.bot.domain.entity.enums;
 import java.util.List;
 
 public enum StoreItemType {
-    GROUP(              "Grupo",                800_000),
-    GROUP_TEXT_CHANNEL( "Chat de Texto",        550_000),
-    ADDITIONAL_BOT(     "Bot Adicional",        450_000),
-    GROUP_VOICE_CHANNEL("Chat de Voz",          400_000),
-    UPDATE_GROUP(       "Modificação de Grupo", 250_000),
-    GROUP_SLOT(         "Vaga de Grupo",        100_000);
+    GROUP(              "Grupo",                600_000),
+    GROUP_TEXT_CHANNEL( "Chat de Texto",        412_500),
+    ADDITIONAL_BOT(     "Bot Adicional",        337_500),
+    GROUP_VOICE_CHANNEL("Chat de Voz",          300_000),
+    UPDATE_GROUP(       "Modificação de Grupo", 187_500),
+    GROUP_SLOT(         "Vaga de Grupo",        75_000),
+    GROUP_PERMISSION(   "Permissão de Grupo",   15_000),
+    PIN_MESSAGE(        "Fixar Mensagem",       8_000);
     
     private final String name;
     private final int price;

@@ -10,5 +10,5 @@ import java.lang.annotation.*;
  * by the {@link ofc.bot.handlers.EntityInitializerManager EntityInitializerManager}.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.TYPE})
 public @interface DiscordEventHandler {}

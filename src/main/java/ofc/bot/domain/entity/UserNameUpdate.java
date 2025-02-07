@@ -7,8 +7,6 @@ import org.jooq.impl.TableRecordImpl;
 public class UserNameUpdate extends TableRecordImpl<UserNameUpdate> {
     private static final UserNamesUpdatesTable USERNAMES_UPDATES = UserNamesUpdatesTable.USERNAMES_UPDATES;
 
-    public static final String NAME_UPDATE_SCOPE = "USERNAME_UPDATE";
-
     public UserNameUpdate() {
         super(USERNAMES_UPDATES);
     }

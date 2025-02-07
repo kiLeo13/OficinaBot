@@ -10,12 +10,13 @@ import ofc.bot.handlers.interactions.buttons.BotButtonListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@ButtonHandler(scope = "LEADERBOARD", autoResponseType = AutoResponseType.DEFER_EDIT)
+@ButtonHandler(scope = Scopes.Misc.PAGINATE_LEADERBOARD, autoResponseType = AutoResponseType.DEFER_EDIT)
 public class LeaderboardOffsetUpdate implements BotButtonListener {
     private final UserEconomyRepository ecoRepo;
 

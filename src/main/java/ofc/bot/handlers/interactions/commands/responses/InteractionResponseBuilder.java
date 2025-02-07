@@ -60,7 +60,7 @@ public class InteractionResponseBuilder implements InteractionResponseData {
     }
 
     public InteractionResponseBuilder noMentions() {
-        return setAllowedMentions(Collections.emptyList());
+        return setAllowedMentions(List.of());
     }
 
     public InteractionResponseBuilder mentionUsers(long... ids) {

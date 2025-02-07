@@ -59,7 +59,6 @@ public class GroupInfoCommand extends SlashSubcommand {
             LOGGER.error("Could not fetch members from group {}", group.getId(), err);
             ctx.reply(Status.COULD_NOT_EXECUTE_SUCH_OPERATION);
         });
-
         return Status.OK;
     }
 
@@ -72,7 +71,7 @@ public class GroupInfoCommand extends SlashSubcommand {
 
     private MessageEmbed embed(int color, List<Member> members, Guild guild, OficinaGroup group) {
         EmbedBuilder builder = new EmbedBuilder();
-        long rent = group.calcRent(members);
+        long rent = group.calcRawRent(members);
         long appreciation = -getAppreciation(group);
         String hex = Bot.fmtColorHex(color);
         String fmtRent = String.format("%s/mês", Bot.fmtMoney(rent));

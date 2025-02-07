@@ -15,6 +15,7 @@ import org.jooq.impl.DefaultConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.List;
 
 public final class DB {
@@ -44,30 +45,37 @@ public final class DB {
     private static List<InitializableTable<?>> getTables() {
         return List.of(
                 AnnouncedGamesTable.ANNOUNCED_GAMES,
+                AutomodActionsTable.AUTOMOD_ACTIONS,
                 BankTransactionsTable.BANK_TRANSACTIONS,
                 BirthdaysTable.BIRTHDAYS,
+                BlockedWordsTable.BLOCKED_WORDS,
                 ColorRolesStateTable.COLOR_ROLES_STATES,
                 CustomUserinfoTable.CUSTOM_USERINFO,
                 DiscordMessagesTable.DISCORD_MESSAGES,
                 DiscordMessageUpdatesTable.DISCORD_MESSAGE_UPDATES,
+                EntitiesPoliciesTable.ENTITIES_POLICIES,
                 FormerMembersRolesTable.FORMER_MEMBERS_ROLES,
                 GroupBotsTable.GROUP_BOTS,
+                LevelsRolesTable.LEVELS_ROLES,
                 MarriageRequestsTable.MARRIAGE_REQUESTS,
                 MarriagesTable.MARRIAGES,
                 MembersEmojisTable.MEMBERS_EMOJIS,
+                MembersPunishmentsTable.MEMBERS_PUNISHMENTS,
                 OficinaGroupsTable.OFICINA_GROUPS,
                 UserNamesUpdatesTable.USERNAMES_UPDATES,
                 UsersEconomyTable.USERS_ECONOMY,
-                UsersExclusionsTable.USERS_EXCLUSIONS,
                 UsersPreferencesTable.USERS_PREFERENCES,
-                UsersTable.USERS
+                UsersTable.USERS,
+                UsersXPTable.USERS_XP
         );
     }
 
     private static void initConfigs() {
+        File dbFile = BotFiles.DATABASE;
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:sqlite:" + BotFiles.DATABASE);
+        config.setJdbcUrl("jdbc:sqlite:" + dbFile);
 
         dataSource = new HikariDataSource(config);
+        LOGGER.info("Created datasource for database at {}", dbFile.getAbsolutePath());
     }
 }

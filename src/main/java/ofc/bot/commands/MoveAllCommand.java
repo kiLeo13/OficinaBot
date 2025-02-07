@@ -28,8 +28,7 @@ public class MoveAllCommand extends SlashCommand {
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         Member issuer = ctx.getIssuer();
-        Role include = ctx.getOption("only", OptionMapping::getAsRole);
-        Role exclude = ctx.getOption("except", OptionMapping::getAsRole);
+        Guild guild = ctx.getGuild();
         VoiceChannel oldChannel = ctx.getOption("origin", getFallback(issuer), (opt) -> opt.getAsChannel().asVoiceChannel());
         VoiceChannel newChannel = ctx.getSafeOption("destination", OptionMapping::getAsChannel).asVoiceChannel();
 
@@ -42,19 +41,13 @@ public class MoveAllCommand extends SlashCommand {
             return Status.SAME_CHANNEL_FOR_MULTIPLE_ARGUMENTS;
 
         List<Member> connected = oldChannel.getMembers();
-        List<Member> filtered = connected.stream().filter((m) -> {
-            List<Role> roles = m.getRoles();
-            boolean isIncluded = include != null && roles.contains(include);
-            boolean isExcluded = exclude != null && roles.contains(exclude);
+        for (Member m : connected) {
+            guild.moveVoiceMember(m, newChannel).queue(null, new ErrorHandler().ignore(ErrorResponse.USER_NOT_CONNECTED));
+        }
 
-            return isIncluded && !isExcluded || !isIncluded && !isExcluded;
-        }).toList();
-
-        int movedCount = move(filtered, newChannel);
-
-        return movedCount == 0
+        return connected.isEmpty()
                 ? Status.NO_USERS_MOVED
-                : Status.SUCCESSFULLY_MOVING_USERS.args(movedCount, newChannel.getName());
+                : Status.SUCCESSFULLY_MOVING_USERS.args(connected.size(), newChannel.getName());
     }
 
     @Override
@@ -63,23 +56,9 @@ public class MoveAllCommand extends SlashCommand {
                 new OptionData(OptionType.CHANNEL, "destination", "Para qual canal de voz os membros devem ser movidos.", true)
                         .setChannelTypes(ChannelType.VOICE),
 
-                new OptionData(OptionType.ROLE, "only", "Apenas os membros com o cargo selecionado serão movidos."),
-
-                new OptionData(OptionType.ROLE, "except", "Os membros com o cargo selecionado NÃO serão movidos."),
-
                 new OptionData(OptionType.CHANNEL, "origin", "Partindo de qual canal de voz os membros devem ser movidos.")
                         .setChannelTypes(ChannelType.VOICE)
         );
-    }
-
-    private int move(List<Member> members, VoiceChannel newChannel) {
-        Guild guild = newChannel.getGuild();
-        int moved = members.size();
-
-        for (Member m : members)
-            guild.moveVoiceMember(m, newChannel).queue(null, new ErrorHandler().ignore(ErrorResponse.USER_NOT_CONNECTED));
-
-        return moved;
     }
 
     // We can safely ignore the null warning at this point,

@@ -6,9 +6,12 @@ import (
 )
 
 var (
-	ErrorMalformedJSON     = NewError(400, "Malformed JSON body")
-	ErrorInternalServer    = NewError(500, "Internal server error")
-	ErrorXpGreaterThanNext = NewError(400, "Field 'xp' is greater than 'xp_next', which should be impossible")
+	ErrorInternalServer = NewError(500, "Internal server error")
+
+	ErrorMalformedJSON      = NewError(400, "Malformed JSON body")
+	ErrorXpGreaterThanNext  = NewError(400, "Field 'xp' is greater than 'xp_next', which should be impossible")
+	ErrorArrayHasNulls      = NewError(400, "Array cannot have nulls")
+	ErrorDuplicateLevelRole = NewError(400, "The array contains 2 or more roles with the same `level` value")
 )
 
 type APIError struct {
@@ -27,13 +30,21 @@ func ErrorMissingFields(fields ...string) *APIError {
 	return NewError(400, "Missing required fields: %s", strings.Join(fields, ", "))
 }
 
+func ErrorInvalidArrayLength(length, valid int) *APIError {
+	return NewError(400, "Invalid array length; %d elements exceeds the limit of %d values", length, valid)
+}
+
 func ErrorValueMustBePositive(fieldName string, value int) *APIError {
 	return NewError(400, "Field '%s' should be positive, provided: %d", fieldName, value)
 }
 
-func ErrorInvalidValue(fieldName string, valueProvided any, validValues ...any) *APIError {
-	return NewError(400, "Invalid value provided for '%s': '%v', allowed: (%s)",
-		fieldName, valueProvided, humanizeFields(validValues))
+func ErrorInvalidValue(fieldName string, provided any, validValues ...any) *APIError {
+	return NewError(400, "Invalid value provided for '%s': \"%v\", valid values: (%s)",
+		fieldName, provided, humanizeFields(validValues))
+}
+
+func ErrorInvalidColor(fieldName string, provided int) *APIError {
+	return ErrorInvalidValue(fieldName, provided, fmt.Sprintf("0 - %d", MaxColorValue))
 }
 
 func ErrorCannotBeZero(fieldName string, value any) *APIError {

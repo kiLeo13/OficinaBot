@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import ofc.bot.Main;
-import ofc.bot.domain.entity.enums.ExclusionType;
-import ofc.bot.domain.sqlite.repository.UserExclusionRepository;
+import ofc.bot.domain.entity.enums.PolicyType;
+import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -45,10 +45,10 @@ public class RefreshStaffListMessageCommand extends SlashCommand {
     private static final int COOLDOWN = 120000;
     private static boolean isUpdating = false;
     private static long lastUsed = 0L;
-    private final UserExclusionRepository exclRepo;
+    private final EntityPolicyRepository policyRepo;
 
-    public RefreshStaffListMessageCommand(UserExclusionRepository exclRepo) {
-        this.exclRepo = exclRepo;
+    public RefreshStaffListMessageCommand(EntityPolicyRepository policyRepo) {
+        this.policyRepo = policyRepo;
     }
 
     @Override
@@ -125,7 +125,7 @@ public class RefreshStaffListMessageCommand extends SlashCommand {
         String footer = messageData.footer() == null ? "" : messageData.footer();
 
         LOGGER.info("Looking for members with role {} ({})...", role.getName(), role.getId());
-        List<Long> excluded = exclRepo.findUserIdsByType(ExclusionType.APPEAR_ON_STAFF_LIST);
+        List<Long> excluded = policyRepo.findEntitiesIdsByType(PolicyType.HIDE_FROM_STAFF_LIST, Long::parseLong);
         List<Member> members = guild.findMembersWithRoles(role)
                 .setTimeout(30, TimeUnit.SECONDS)
                 .get()

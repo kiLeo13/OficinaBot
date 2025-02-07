@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import ofc.bot.Main;
 import ofc.bot.domain.entity.enums.RentStatus;
-import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.tables.OficinaGroupsTable;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.util.Bot;
@@ -18,6 +17,7 @@ import ofc.bot.util.content.Staff;
 import org.jooq.impl.TableRecordImpl;
 
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.List;
 
 import static net.dv8tion.jda.api.Permission.*;
@@ -25,13 +25,6 @@ import static net.dv8tion.jda.api.Permission.*;
 public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
     private static final OficinaGroupsTable GROUPS = OficinaGroupsTable.OFICINA_GROUPS;
 
-    public static final String GROUP_CREATE_BUTTON_SCOPE = "CREATE_GROUP";
-    public static final String GROUP_UPDATE_BUTTON_SCOPE = "UPDATE_GROUP";
-    public static final String GROUP_DELETE_BUTTON_SCOPE = "DELETE_GROUP";
-    public static final String GROUP_BOT_ADD_BUTTON_SCOPE = "GROUP_BOT_ADD";
-    public static final String GROUP_CHANNEL_CREATE_BUTTON_SCOPE = "CREATE_GROUP_CHANNEL";
-    public static final String GROUP_MEMBER_ADD_BUTTON_SCOPE = "GROUP_MEMBER_ADD";
-    public static final String GROUP_MEMBER_REMOVE_BUTTON_SCOPE = "GROUP_MEMBER_REMOVE";
     public static final List<Permission> PERMS_ALLOW_TEXT_CHANNEL;
     public static final List<Permission> PERMS_ALLOW_VOICE_CHANNEL;
 
@@ -39,10 +32,11 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
     public static final String TEXT_CHANNEL_NAME_FORMAT = "%s｜%s";
     public static final String VOICE_CHANNEL_NAME_FORMAT = "%s・%s";
     public static final float REFUND_PERCENT = .15F;
+    public static final float DAILY_INVOICE_PENALTY_RATE = .15F;
+    public static final int INVOICE_DUE_DAY = 10;
     public static final long ANCHOR_GROUP_ROLE_ID = 596784802150088704L;
     public static final long TEXT_CATEGORY_ID = 648431232429850664L;
     public static final long VOICE_CATEGORY_ID = 623004940918325248L;
-    public static final int PRICE = StoreItemType.GROUP.getPrice();
     public static final int RENT_AMOUNT_PER_MEMBER = 1000;
     public static final int DEFAULT_VOICE_USERS_LIMIT = 50;
     public static final int INITIAL_SLOTS = 4;
@@ -58,7 +52,7 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         set(GROUPS.NAME, name);
         set(GROUPS.OWNER_ID, ownerId);
         set(GROUPS.GUILD_ID, guildId);
-        set(GROUPS.HAS_FREE_ACCESS, hasFreeAccess ? 1 : 0);
+        set(GROUPS.HAS_FREE_ACCESS, hasFreeAccess);
         set(GROUPS.RENT_STATUS, rentStatus.toString());
     }
 
@@ -82,7 +76,7 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
 
         if (member.hasPermission(MANAGE_SERVER)) return false;
 
-        Role hashiras = Staff.HASHIRAS.role();
+        Role hashiras = Staff.ALMIRANTES_FROTA.role();
         List<Role> allowed = findAllAbove(hashiras);
 
         return allowed.stream().noneMatch(r -> member.getRoles().contains(r));
@@ -128,6 +122,10 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
 
     public long getRoleId() {
         return get(GROUPS.ROLE_ID);
+    }
+
+    public Role resolveRole() {
+        return Main.getApi().getRoleById(getRoleId());
     }
 
     /**
@@ -250,6 +248,10 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         return get(GROUPS.AMOUNT_PAID);
     }
 
+    public long getInvoiceAmount() {
+        return get(GROUPS.INVOICE_AMOUNT);
+    }
+
     public double getRefundPercent() {
         return get(GROUPS.REFUND_PERCENT);
     }
@@ -265,13 +267,13 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
      *         {@code false} otherwise.
      */
     public boolean hasFreeAccess() {
-        Integer free = get(GROUPS.HAS_FREE_ACCESS);
-        return free != null && free == 1;
+        Boolean free = get(GROUPS.HAS_FREE_ACCESS);
+        return free != null && free;
     }
 
     public RentStatus getRentStatus() {
         String status = get(GROUPS.RENT_STATUS);
-        return RentStatus.fromName(status);
+        return RentStatus.valueOf(status);
     }
 
     /**
@@ -352,13 +354,18 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         return this;
     }
 
+    public OficinaGroup setInvoiceAmount(long value) {
+        set(GROUPS.INVOICE_AMOUNT, value);
+        return this;
+    }
+
     public OficinaGroup setRefundPercent(double value) {
         set(GROUPS.REFUND_PERCENT, value);
         return this;
     }
 
     public OficinaGroup setFreeAccess(boolean flag) {
-        set(GROUPS.HAS_FREE_ACCESS, flag ? 1 : 0);
+        set(GROUPS.HAS_FREE_ACCESS, flag);
         return this;
     }
 
@@ -388,7 +395,7 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         return setLastUpdated(Bot.unixNow());
     }
 
-    public long calcRent(List<Member> members) {
+    public synchronized long calcRawRent(List<Member> members) {
         if (!isRentRecurring()) return 0;
 
         Role role = Main.getApi().getRoleById(getRoleId());
@@ -396,12 +403,32 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         if (role == null)
             throw new IllegalStateException("Role of group " + getName() + " does not exist");
 
-        Role anchor = Staff.HASHIRAS.role();
-        List<Role> validRoles = findAllAbove(anchor);
+        Role anchor = Staff.ALMIRANTES_FROTA.role();
+        List<Role> privilegedRoles = findAllAbove(anchor);
 
         return members.stream()
-                .filter(m -> m.getRoles().stream().noneMatch(validRoles::contains))
+                .filter(m -> m.getRoles().stream().noneMatch(privilegedRoles::contains))
                 .count() * RENT_AMOUNT_PER_MEMBER;
+    }
+
+    public long calcCurrentInvoice() {
+        int today = LocalDate.now().getDayOfMonth();
+        int daysLate = Math.max(today - INVOICE_DUE_DAY, 0);
+        long raw = getInvoiceAmount();
+
+        for (int i = 0; i < daysLate; i++) {
+            raw += Math.round(raw * DAILY_INVOICE_PENALTY_RATE);
+        }
+        return raw;
+    }
+
+    private static List<Role> findAllAbove(Role role) {
+        Guild guild = role.getGuild();
+
+        return guild.getRoles()
+                .stream()
+                .filter((r) -> r.getPosition() >= role.getPosition())
+                .toList();
     }
 
     static {
@@ -413,16 +440,5 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         PERMS_ALLOW_VOICE_CHANNEL = List.of(
                 VOICE_CONNECT, VOICE_STREAM, USE_EMBEDDED_ACTIVITIES
         );
-    }
-
-    private static List<Role> findAllAbove(Role role) {
-        Guild guild = role.getGuild();
-
-        return guild.getRoles()
-                .stream()
-                // We check for a lower position instead of a higher one,
-                // as JDA sorts them in descending order (0 is the highest)
-                .filter((r) -> r.getPosition() >= role.getPosition())
-                .toList();
     }
 }

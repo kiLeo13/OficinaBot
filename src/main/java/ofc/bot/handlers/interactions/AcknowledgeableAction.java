@@ -53,6 +53,10 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
         return this.itr.getMessageChannel();
     }
 
+    public final long getChannelId() {
+        return getChannel().getIdLong();
+    }
+
     @NotNull
     public final Member getIssuer() {
         return this.issuer;
@@ -70,6 +74,10 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
     @NotNull
     public final Guild getGuild() {
         return this.guild;
+    }
+
+    public final long getGuildId() {
+        return getGuild().getIdLong();
     }
 
     @NotNull
@@ -192,6 +200,10 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
 
     public final InteractionResult replyFiles(@NotNull FileUpload... files) {
         return create().setFiles(files).send();
+    }
+
+    public final InteractionResult replyFile(@NotNull byte[] data, @NotNull String fileName) {
+        return replyFiles(FileUpload.fromData(data, fileName));
     }
 
     @NotNull

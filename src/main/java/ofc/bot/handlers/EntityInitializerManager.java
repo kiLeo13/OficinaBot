@@ -2,13 +2,18 @@ package ofc.bot.handlers;
 
 import net.dv8tion.jda.api.JDA;
 import ofc.bot.Main;
+import ofc.bot.commands.groups.LeaveGroupCommand;
 import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.interactions.buttons.ButtonInteractionGateway;
 import ofc.bot.handlers.interactions.commands.SlashCommandsGateway;
 import ofc.bot.handlers.interactions.commands.slash.CommandsInitializer;
 import ofc.bot.jobs.*;
-import ofc.bot.jobs.database.QueryCountPrinter;
+import ofc.bot.jobs.QueryCountPrinter;
+import ofc.bot.jobs.groups.GroupsInvoiceHandler;
+import ofc.bot.jobs.groups.LateGroupsChecker;
+import ofc.bot.jobs.income.VoiceChatMoneyHandler;
+import ofc.bot.jobs.income.VoiceXPHandler;
 import ofc.bot.jobs.roles.ExpiredBackupsRemover;
 import ofc.bot.jobs.weekdays.SadMonday;
 import ofc.bot.jobs.weekdays.SadSunday;
@@ -16,17 +21,19 @@ import ofc.bot.listeners.discord.economy.ChatMoney;
 import ofc.bot.listeners.discord.guilds.BlockDumbCommands;
 import ofc.bot.listeners.discord.guilds.members.MemberJoinUpsert;
 import ofc.bot.listeners.discord.guilds.messages.*;
-import ofc.bot.listeners.discord.guilds.reactions.StudyRoleHandler;
+import ofc.bot.listeners.discord.guilds.reactionroles.BotChangelogRoleHandler;
+import ofc.bot.listeners.discord.guilds.reactionroles.StudyRoleHandler;
 import ofc.bot.listeners.discord.guilds.roles.ColorRoleHandler;
-import ofc.bot.listeners.discord.guilds.roles.GroupRoleDeletionHandler;
 import ofc.bot.listeners.discord.guilds.roles.MemberRolesBackup;
 import ofc.bot.listeners.discord.interactions.GenericInteractionLocaleUpsert;
 import ofc.bot.listeners.discord.interactions.autocomplete.GroupBotAutocompletion;
+import ofc.bot.listeners.discord.interactions.autocomplete.InfractionsAutocompletion;
 import ofc.bot.listeners.discord.interactions.autocomplete.OficinaGroupAutocompletion;
 import ofc.bot.listeners.discord.interactions.buttons.WorkReminderHandler;
 import ofc.bot.listeners.discord.interactions.buttons.groups.*;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.*;
 import ofc.bot.listeners.discord.interactions.dm.DirectMessageReceived;
+import ofc.bot.listeners.discord.interactions.modals.ChangelogCreationHandler;
 import ofc.bot.listeners.discord.logs.VoiceActivity;
 import ofc.bot.listeners.discord.logs.messages.*;
 import ofc.bot.listeners.discord.logs.moderation.LogTimeout;
@@ -34,6 +41,7 @@ import ofc.bot.listeners.discord.logs.moderation.automod.AutoModLogger;
 import ofc.bot.listeners.discord.logs.names.MemberNickUpdateLogger;
 import ofc.bot.listeners.discord.logs.names.UserGlobalNameUpdateLogger;
 import ofc.bot.listeners.discord.logs.names.UserNameUpdateLogger;
+import ofc.bot.listeners.discord.moderation.AutoModerator;
 import ofc.bot.listeners.oficina.DefaultBankTransactionLogger;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 import org.quartz.SchedulerException;
@@ -72,10 +80,16 @@ public final class EntityInitializerManager {
                     new BirthdayReminder(),
                     new ColorRoleRemotionHandler(),
                     new EpicGamesPromotionAdvertiser(),
-                    new GroupsRentCharger(),
-                    new VoiceChatMoneyHandler(),
                     new HappyNewYearAnnouncement(),
-                    new ToddyMedicineReminder()
+                    new ToddyMedicineReminder(),
+
+                    // Voice Income
+                    new VoiceChatMoneyHandler(),
+                    new VoiceXPHandler(),
+
+                    // Groups
+                    new GroupsInvoiceHandler(),
+                    new LateGroupsChecker()
             );
             SchedulerRegistryManager.start();
         } catch (SchedulerException e) {
@@ -86,13 +100,16 @@ public final class EntityInitializerManager {
     public static void registerButtons() {
         MarriageRequestRepository mreqRepo = RepositoryFactory.getMarriageRequestRepository();
         UserNameUpdateRepository namesRepo = RepositoryFactory.getUserNameUpdateRepository();
+        EntityPolicyRepository policyRepo = RepositoryFactory.getEntityPolicyRepository();
         OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
         UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
         BirthdayRepository bdayRepo = RepositoryFactory.getBirthdayRepository();
+        UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
 
         ButtonInteractionGateway.registerButtons(
                 new BirthdayPageUpdate(bdayRepo),
                 new LeaderboardOffsetUpdate(ecoRepo),
+                new LevelsPageUpdate(xpRepo),
                 new NamesPageUpdate(namesRepo),
                 new ProposalListPagination(mreqRepo),
 
@@ -100,9 +117,10 @@ public final class EntityInitializerManager {
                 new GroupBotAddHandler(),
                 new GroupChannelCreationHandler(grpRepo),
                 new GroupCreationHandler(grpRepo),
-                new GroupDeletionHandler(grpRepo),
                 new GroupMemberAddHandler(),
                 new GroupMemberRemoveHandler(),
+                new GroupPermissionAddHandler(policyRepo),
+                new GroupPinsHandler(),
                 new GroupUpdateHandler(grpRepo)
         );
     }
@@ -124,46 +142,59 @@ public final class EntityInitializerManager {
     private static void registerDiscordListeners() {
         DiscordMessageUpdateRepository updRepo = RepositoryFactory.getDiscordMessageUpdateRepository();
         FormerMemberRoleRepository rolesRepo = RepositoryFactory.getFormerMemberRoleRepository();
+        MemberPunishmentRepository pnshRepo = RepositoryFactory.getMemberPunishmentRepository();
         UserPreferenceRepository usprefRepo = RepositoryFactory.getUserPreferenceRepository();
         ColorRoleStateRepository colorsRepo = RepositoryFactory.getColorRoleStateRepository();
+        EntityPolicyRepository policyRepo = RepositoryFactory.getEntityPolicyRepository();
         UserNameUpdateRepository namesRepo = RepositoryFactory.getUserNameUpdateRepository();
+        AutomodActionRepository modActRepo = RepositoryFactory.getAutomodActionRepository();
+        BlockedWordRepository blckWordsRepo = RepositoryFactory.getBlockedWordRepository();
         DiscordMessageRepository msgRepo = RepositoryFactory.getDiscordMessageRepository();
         OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
+        LevelRoleRepository lvlRoleRepo = RepositoryFactory.getLevelRoleRepository();
         UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
         GroupBotRepository grpBotRepo = RepositoryFactory.getGroupBotRepository();
+        UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
         UserRepository usersRepo = RepositoryFactory.getUserRepository();
         JDA api = Main.getApi();
 
         api.addEventListener(
                 new AutoModLogger(),
                 new BlockDumbCommands(),
+                new BotChangelogRoleHandler(),
                 new ButtonInteractionGateway(),
+                new ChangelogCreationHandler(),
                 new ChatMoney(ecoRepo),
                 new ColorRoleHandler(colorsRepo),
                 new DirectMessageReceived(),
                 new ErikPingReactionHelper(),
                 new GenericInteractionLocaleUpsert(usprefRepo),
                 new GroupBotAutocompletion(grpBotRepo),
-                new GroupRoleDeletionHandler(grpRepo),
+                new InfractionsAutocompletion(pnshRepo),
+                new LeaveGroupCommand.FakePISuggester(),
                 new LogTimeout(),
                 new MemberJoinUpsert(),
                 new MemberNickUpdateLogger(namesRepo, usersRepo),
-                new MemberRolesBackup(rolesRepo),
+                new MemberRolesBackup(rolesRepo, xpRepo),
                 new MessageBulkDeleteLogger(msgRepo),
                 new MessageCreatedLogger(msgRepo),
                 new MessageDeletedLogger(msgRepo),
                 new MessageReferenceIndicator(),
                 new MessageUpdatedLogger(msgRepo, updRepo),
                 new OficinaGroupAutocompletion(grpRepo),
+                new OutageCommandsDisclaimer(),
                 new SlashCommandsGateway(),
                 new SteamScamBlocker(),
                 new StudyRoleHandler(),
-                new SuppressMEE6Warns(),
                 new UnverifiedMembersRegisterBlocker(),
                 new UserGlobalNameUpdateLogger(namesRepo, usersRepo),
                 new UserNameUpdateLogger(namesRepo, usersRepo),
+                new UsersXPHandler(xpRepo, lvlRoleRepo),
                 new VoiceActivity(),
-                new WorkReminderHandler()
+                new WorkReminderHandler(),
+
+                // Moderation
+                new AutoModerator(policyRepo, blckWordsRepo, pnshRepo, modActRepo)
         );
     }
 }

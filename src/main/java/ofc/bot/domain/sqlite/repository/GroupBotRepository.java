@@ -19,7 +19,7 @@ public class GroupBotRepository {
 
     public List<GroupBot> findByName(String name, int limit) {
         return ctx.selectFrom(GROUP_BOTS)
-                .where(GROUP_BOTS.BOT_NAME.eq('%' + name + '%'))
+                .where(GROUP_BOTS.BOT_NAME.like('%' + name + '%'))
                 .limit(limit)
                 .fetch();
     }

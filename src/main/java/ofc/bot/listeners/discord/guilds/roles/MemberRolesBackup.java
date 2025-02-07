@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.domain.entity.FormerMemberRole;
 import ofc.bot.domain.sqlite.repository.FormerMemberRoleRepository;
+import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.util.Bot;
-import ofc.bot.util.content.Levels;
 import ofc.bot.util.content.Roles;
 import ofc.bot.util.content.Staff;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
@@ -26,12 +26,14 @@ import java.util.List;
 @DiscordEventHandler
 public class MemberRolesBackup extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemberRolesBackup.class);
-    private static final List<Levels> ACCEPTED_LEVELS = Levels.fromAbove(Levels.SABITO);
+    private static final long ANCHOR_LEVEL = 10;
     private static final long TARGET_GUILD = 582430782577049600L;
     private final FormerMemberRoleRepository rolesRepo;
+    private final UserXPRepository xpRepo;
 
-    public MemberRolesBackup(FormerMemberRoleRepository rolesRepo) {
+    public MemberRolesBackup(FormerMemberRoleRepository rolesRepo, UserXPRepository xpRepo) {
         this.rolesRepo = rolesRepo;
+        this.xpRepo = xpRepo;
     }
 
     @Override
@@ -39,8 +41,7 @@ public class MemberRolesBackup extends ListenerAdapter {
         Member member = event.getMember();
         Guild guild = event.getGuild();
 
-        if (member == null || guild.getIdLong() != TARGET_GUILD)
-            return;
+        if (member == null || guild.getIdLong() != TARGET_GUILD) return;
 
         Member self = guild.getSelfMember();
         boolean privileged = isPrivileged(member);
@@ -65,13 +66,11 @@ public class MemberRolesBackup extends ListenerAdapter {
         List<FormerMemberRole> savedRoles = new ArrayList<>(roles.size());
         for (Role r : roles) {
             FormerMemberRole rec = new FormerMemberRole(userId, guildId, r.getIdLong(), privileged, Bot.unixNow());
-
             savedRoles.add(rec);
         }
 
         try {
             int saveCount = rolesRepo.bulkSave(savedRoles);
-
             LOGGER.info("Successfully stored {} roles of @{}", saveCount, username);
         } catch (DataAccessException e) {
             LOGGER.error("Could not save {} roles of {}", roles.size(), userId, e);
@@ -93,17 +92,13 @@ public class MemberRolesBackup extends ListenerAdapter {
 
     /*
      * This method checks whether the given Member should have its roles backed up
-     * in the database according to their MEE6 level, or if Member#isBoosting() returns true.
+     * in the database according to their level, or if Member#isBoosting() returns true.
      */
     private boolean isMemberIncluded(Member member) {
-        return member.isBoosting() || hasExpectedLevel(member);
+        return member.isBoosting() || hasExpectedLevel(member.getIdLong());
     }
 
-    private boolean hasExpectedLevel(Member member) {
-        Guild guild = member.getGuild();
-        List<Role> roles = member.getRoles();
-
-        return ACCEPTED_LEVELS.stream()
-                .anyMatch(l -> roles.contains(l.role(guild)));
+    private boolean hasExpectedLevel(long userId) {
+        return xpRepo.findLevelByUserId(userId) >= ANCHOR_LEVEL;
     }
 }

@@ -9,7 +9,7 @@ import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.events.entities.BankTransactionEvent;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.interactions.buttons.AutoResponseType;
@@ -18,12 +18,13 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Bot;
+import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ButtonHandler(
-        scope = OficinaGroup.GROUP_CREATE_BUTTON_SCOPE,
+        scope = Scopes.Group.CREATE_GROUP,
         autoResponseType = AutoResponseType.THINKING
 )
 public class GroupCreationHandler implements BotButtonListener {
@@ -51,7 +52,6 @@ public class GroupCreationHandler implements BotButtonListener {
         }
 
         ctx.reply(Status.CREATING_GROUP);
-
         try {
             int color = ctx.get("group_color");
             Role groupRole = createRole(guild, group.getName(), color);
@@ -64,7 +64,7 @@ public class GroupCreationHandler implements BotButtonListener {
             group.setRoleId(roleId)
                     .setTimeCreated(timestamp)
                     .setLastUpdated(timestamp);
-            group = grpRepo.upsert(group);
+            grpRepo.upsert(group);
 
             dispatchGroupCreateEvent(group.getCurrency(), price, ownerId);
             return Status.GROUP_SUCCESSFULLY_CREATED.args(groupRole.getAsMention()).setEphm(true);

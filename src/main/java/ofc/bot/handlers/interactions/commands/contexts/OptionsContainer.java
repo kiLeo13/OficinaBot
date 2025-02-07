@@ -14,15 +14,15 @@ public interface OptionsContainer {
 
     boolean hasOptions();
 
-    <T> T getOption(String name, T fallback, Function<? super OptionMapping, ? extends T> resolver);
+    <T> T getOption(@NotNull String name, T fallback, @NotNull Function<? super OptionMapping, ? extends T> resolver);
 
     @Nullable
-    default <T> T getOption(String name, Function<? super OptionMapping, ? extends T> resolver) {
+    default <T> T getOption(@NotNull String name, @NotNull Function<? super OptionMapping, ? extends T> resolver) {
         return getOption(name, null, resolver);
     }
 
     @NotNull
-    default <T> List<T> collectOptions(Function<? super OptionMapping, T> resolver, String... names) {
+    default <T> List<T> collectOptions(@NotNull Function<? super OptionMapping, T> resolver, @NotNull String... names) {
         return Arrays.stream(names)
                 .map(name -> getOption(name, resolver))
                 .filter(Objects::nonNull)
@@ -30,21 +30,22 @@ public interface OptionsContainer {
     }
 
     @NotNull
-    default <T> T getSafeOption(String name, Function<? super OptionMapping, ? extends T> resolver) {
+    default <T> T getSafeOption(@NotNull String name, @NotNull Function<? super OptionMapping, ? extends T> resolver) {
         T data = getOption(name, resolver);
 
-        if (data == null) throw new IllegalStateException("Option \"" + name + "\" cannot be omitted or invalid");
+        if (data == null)
+            throw new IllegalStateException("Option \"" + name + "\" cannot be omitted or empty");
 
         return data;
     }
 
-    default <T extends Enum<T>> T getEnumOption(String name, T fallback, Class<T> type) {
+    default <T extends Enum<T>> T getEnumOption(@NotNull String name, T fallback, @NotNull Class<T> type) {
         T opt = getEnumOption(name, type);
         return opt == null ? fallback : opt;
     }
 
     @NotNull
-    default <T extends Enum<T>> T getSafeEnumOption(String name, Class<T> type) {
+    default <T extends Enum<T>> T getSafeEnumOption(@NotNull String name, @NotNull Class<T> type) {
         String opt = getSafeOption(name, OptionMapping::getAsString);
         T value = getEnumOption(name, type);
 
@@ -58,7 +59,7 @@ public interface OptionsContainer {
     }
 
     @Nullable
-    default <T extends Enum<T>> T getEnumOption(String name, Class<T> type) {
+    default <T extends Enum<T>> T getEnumOption(@NotNull String name, @NotNull Class<T> type) {
         String opt = getOption(name, OptionMapping::getAsString);
 
         if (opt == null) return null;

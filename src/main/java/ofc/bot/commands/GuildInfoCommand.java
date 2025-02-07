@@ -31,10 +31,11 @@ public class GuildInfoCommand extends SlashCommand {
         EmbedBuilder builder = new EmbedBuilder();
 
         long timeCreated = guild.getTimeCreated().toEpochSecond();
-        String creation = String.format("<t:%d>\n<t:%1$d:R>", timeCreated);
         Member owner = guild.retrieveOwner().complete();
+        String creation = String.format("<t:%d>\n<t:%1$d:R>", timeCreated);
         String ownerName = owner == null ? "Not found" : owner.getEffectiveName();
         String banner = guild.getBannerUrl() == null ? "" : guild.getBannerUrl() + "?size=2048";
+        String fmtMembers = String.format("👥 Membros (%d/%d)", guild.getMemberCount(), guild.getMaxMembers());
 
         List<GuildChannel> channels = guild.getChannels(true);
         List<TextChannel> textChannels = guild.getTextChannels();
@@ -63,7 +64,7 @@ public class GuildInfoCommand extends SlashCommand {
                         textChannels.size(),
                         threads.size()
                 ), true)
-                .addField("👥 Membros (" + guild.getMemberCount() + ")", "", false)
+                .addField(fmtMembers, "", false)
                 .setImage(banner)
                 .setFooter(guild.getName(), guild.getIconUrl())
                 .build();

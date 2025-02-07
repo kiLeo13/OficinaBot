@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import ofc.bot.domain.entity.UserNameUpdate;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.sqlite.repository.UserNameUpdateRepository;
 import ofc.bot.domain.viewmodels.NamesHistoryView;
@@ -15,12 +14,13 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Bot;
+import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@ButtonHandler(scope = UserNameUpdate.NAME_UPDATE_SCOPE, autoResponseType = AutoResponseType.DEFER_EDIT)
+@ButtonHandler(scope = Scopes.Misc.PAGINATE_NAME_UPDATE, autoResponseType = AutoResponseType.DEFER_EDIT)
 public class NamesPageUpdate implements BotButtonListener {
     private final UserNameUpdateRepository namesRepo;
 

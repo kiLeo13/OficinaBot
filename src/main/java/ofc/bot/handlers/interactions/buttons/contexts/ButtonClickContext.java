@@ -72,6 +72,10 @@ public class ButtonClickContext extends AcknowledgeableAction<ButtonInteraction>
         return this.buttonContext;
     }
 
+    public long getAuthorId() {
+        return this.buttonContext.getAuthorId();
+    }
+
     @NotNull
     public <T> T get(String key) {
         return this.buttonContext.get(key);

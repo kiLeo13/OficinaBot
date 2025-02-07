@@ -29,7 +29,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
         Guild guild = e.getGuild();
-        
+
         if (guild == null) return;
 
         String fullName = e.getFullCommandName();

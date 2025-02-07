@@ -11,13 +11,14 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 
 import java.time.Month;
 import java.util.List;
 
-@ButtonHandler(scope = Birthday.BUTTON_SCOPE, autoResponseType = AutoResponseType.DEFER_EDIT)
+@ButtonHandler(scope = Scopes.Misc.PAGINATE_BIRTHDAYS, autoResponseType = AutoResponseType.DEFER_EDIT)
 public class BirthdayPageUpdate implements BotButtonListener {
     private final BirthdayRepository bdayRepo;
 

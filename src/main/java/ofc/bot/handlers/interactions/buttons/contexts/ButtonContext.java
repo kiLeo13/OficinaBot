@@ -164,8 +164,7 @@ public class ButtonContext {
     }
 
     public long getAuthorId() {
-        Long authorId = find(AUTHOR_KEY);
-        return authorId == null ? 0 : authorId;
+        return getOrDefault(AUTHOR_KEY, 0L);
     }
 
     public Button getButton() {

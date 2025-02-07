@@ -11,7 +11,6 @@ public class Birthday extends UpdatableRecordImpl<Birthday> {
     private static final BirthdaysTable BIRTHDAYS = BirthdaysTable.BIRTHDAYS;
 
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM");
-    public static final String BUTTON_SCOPE = "BIRTHDAYS";
     public static final String ICON_URL = "https://cdn.discordapp.com/attachments/631974560605929493/1320446355226886244/calendar.png";
     public static final String BIRTHDAYS_FORMAT = "- %s  <@%d>\n";
 

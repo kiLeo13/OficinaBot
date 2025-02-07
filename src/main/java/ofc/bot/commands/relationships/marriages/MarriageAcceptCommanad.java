@@ -13,7 +13,7 @@ import ofc.bot.domain.sqlite.DB;
 import ofc.bot.domain.sqlite.repository.MarriageRepository;
 import ofc.bot.domain.sqlite.repository.MarriageRequestRepository;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
-import ofc.bot.events.entities.BankTransactionEvent;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;

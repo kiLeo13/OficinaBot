@@ -9,7 +9,7 @@ import ofc.bot.domain.entity.GroupBot;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
-import ofc.bot.events.entities.BankTransactionEvent;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.interactions.buttons.AutoResponseType;
@@ -17,6 +17,7 @@ import ofc.bot.handlers.interactions.buttons.BotButtonListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @ButtonHandler(
-        scope = OficinaGroup.GROUP_BOT_ADD_BUTTON_SCOPE,
+        scope = Scopes.Group.ADD_BOT,
         autoResponseType = AutoResponseType.THINKING
 )
 public class GroupBotAddHandler implements BotButtonListener {

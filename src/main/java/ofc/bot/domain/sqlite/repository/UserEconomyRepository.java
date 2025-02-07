@@ -69,6 +69,7 @@ public class UserEconomyRepository {
     public void updateCtx(DSLContext trsCtx, UserEconomy eco) {
         trsCtx.update(USERS_ECONOMY)
                 .set(eco)
+                .where(USERS_ECONOMY.USER_ID.eq(eco.getUserId()))
                 .execute();
     }
 

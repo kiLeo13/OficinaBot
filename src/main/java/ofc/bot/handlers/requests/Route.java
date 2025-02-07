@@ -2,12 +2,13 @@ package ofc.bot.handlers.requests;
 
 import com.google.gson.Gson;
 import net.dv8tion.jda.api.utils.data.DataObject;
-import ofc.bot.handlers.requests.exceptions.HttpRequestException;
+import net.dv8tion.jda.internal.utils.Checks;
+import ofc.bot.handlers.requests.requester.Requester;
+import ofc.bot.handlers.requests.requester.impl.DefaultRequester;
 import okhttp3.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -16,8 +17,6 @@ import java.util.function.Function;
 import static ofc.bot.handlers.requests.Method.*;
 
 public final class Route {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Route.class);
-    private static final OkHttpClient client = new OkHttpClient();
     private final Method method;
     private final String route;
 
@@ -38,6 +37,13 @@ public final class Route {
         public static final Route GET_IP_INFO = new Route(GET, "http://ip-api.com/json/%s");
     }
 
+    public static class Images {
+        private static final String BASE = "https://api.mathxplains.com.br";
+
+        public static final Route CREATE_RANK_CARD  = new Route(POST, BASE, "/levels/cards");
+        public static final Route CREATE_ROLES_CARD = new Route(POST, BASE, "/levels/roles");
+    }
+
     public static class Games {
         public static final Route GET_EPICSTORE_FREE_GAMES = new Route(GET, "https://free-epic-games.p.rapidapi.com/free");
     }
@@ -45,6 +51,10 @@ public final class Route {
     public Route(Method method, String route) {
         this.method = method;
         this.route = route;
+    }
+
+    public Route(Method method, String base, String path) {
+        this(method, base + path);
     }
 
     public static Route get(String route) {
@@ -55,30 +65,11 @@ public final class Route {
         return new RequestBuilder(this.method, String.format(this.route, params));
     }
 
-    private static RequestMapper request(boolean warnFailure, Request req) throws HttpRequestException {
-        Call call = client.newCall(req);
-        try (Response resp = call.execute()) {
-            ResponseBody body = resp.body();
-            byte[] bytes = body == null ? new byte[0] : body.bytes();
-            int code = resp.code();
-
-            if (!resp.isSuccessful() && warnFailure) {
-                String strBody = new String(bytes);
-                LOGGER.warn("Request to \"{}\" was not successful, code: {}, reason: {}", req.url(), code, strBody);
-            }
-
-            return new RequestMapper(bytes, code);
-        } catch (IOException e) {
-            throw new HttpRequestException(e);
-        }
-    }
-
     public static class RequestBuilder {
         private static final Gson GSON = new Gson();
         private final Method method;
         private final HttpUrl.Builder urlBuilder;
         private final Map<String, String> headers;
-        private boolean warnIfFail = true;
         private String body;
         private String contentType;
 
@@ -100,13 +91,14 @@ public final class Route {
             return this;
         }
 
-        public RequestBuilder warnIfFail(boolean flag) {
-            this.warnIfFail = flag;
-            return this;
-        }
+        public RequestBuilder setBody(@Nullable DataObject body) {
+            if (body == null) {
+                this.body = null;
+                return this;
+            }
 
-        public RequestBuilder setBody(DataObject body) {
             this.body = body.toString();
+            setContentType("application/json");
             return this;
         }
 
@@ -131,7 +123,27 @@ public final class Route {
             return this;
         }
 
+        @NotNull
         public RequestMapper send() {
+            return send(DefaultRequester.getRequester());
+        }
+
+        @NotNull
+        public RequestMapper send(@NotNull Requester requester) {
+            Checks.notNull(requester, "Requester");
+            return requester.makeRequest(this::build);
+        }
+
+        public <T> T send(Function<RequestMapper, T> resolver) {
+            return resolver.apply(this.send());
+        }
+
+        public <T> T send(Requester requester, BiFunction<RequestMapper, Integer, T> resolver) {
+            RequestMapper mapper = this.send(requester);
+            return resolver.apply(mapper, mapper.getStatusCode());
+        }
+
+        private Request build() {
             Request.Builder req = new Request.Builder()
                     .url(this.urlBuilder.build());
 
@@ -141,16 +153,7 @@ public final class Route {
             if (!this.headers.isEmpty())
                 headers.forEach(req::addHeader);
 
-            return request(warnIfFail, req.build());
-        }
-
-        public <T> T send(Function<RequestMapper, T> resolver) {
-            return resolver.apply(this.send());
-        }
-
-        public <T> T send(BiFunction<RequestMapper, Integer, T> resolver) {
-            RequestMapper mapper = this.send();
-            return resolver.apply(mapper, mapper.getStatusCode());
+            return req.build();
         }
     }
 }

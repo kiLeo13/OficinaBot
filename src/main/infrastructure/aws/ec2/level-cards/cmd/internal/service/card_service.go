@@ -5,13 +5,22 @@ import (
 	"github.com/playwright-community/playwright-go"
 	"math/rand/v2"
 	"os"
+	"sort"
 	"strings"
 )
 
 var (
-	viewport = &playwright.Size{Width: 934, Height: 282}
-	pw       *playwright.Playwright
-	chromium playwright.Browser
+	levelCardViewport = &playwright.Size{Width: 934, Height: 282}
+	pw                *playwright.Playwright
+	chromium          playwright.Browser
+)
+
+const (
+	MaxLevelRoleLength = 100
+
+	LevelCardPath      = "./static/templates/levels/cards/template.html"
+	LevelsRolesPath    = "./static/templates/levels/roles/template.html"
+	LevelsRolesRowPath = "./static/templates/levels/roles/role_row.html"
 )
 
 func InitializePlaywrightService(playwright *playwright.Playwright) {
@@ -39,20 +48,38 @@ type LevelDataDTO struct {
 	XpNext       int    `json:"xp_next"`
 	ThemeColor   int    `json:"theme_color"`
 	OnlineStatus string `json:"online_status"`
+	StatusColor  *Color
+}
+
+type LevelRoleDTO struct {
+	Name  string `json:"name"`
+	Color int    `json:"color"`
+	Level int    `json:"level"`
+}
+
+type GuildDTO struct {
+	Name    string `json:"name"`
+	IconUrl string `json:"icon_url"`
+}
+
+type LevelsRolesData struct {
+	LevelsRoles     []*LevelRoleDTO `json:"levels"`
+	Guild           *GuildDTO       `json:"guild"`
+	BackgroundColor int             `json:"background_color"`
 }
 
 func GenerateLevelCard(ld *LevelDataDTO) ([]byte, *APIError) {
-	if err := checkFields(ld); err != nil {
+	if err := checkLevelData(ld); err != nil {
 		return nil, err
 	}
 
-	color := OnlineColors[ld.OnlineStatus]
-	html, err := getHTML(color, ld)
+	ld.StatusColor = OnlineColors[ld.OnlineStatus]
+	html, err := getLevelCardTemplate(ld)
 	if err != nil {
 		return nil, err
 	}
 
-	page, perr := chromium.NewPage(getPageOptions())
+	page, perr := chromium.NewPage(getPageOptions(levelCardViewport))
 	if perr != nil {
 		fmt.Printf("Could not create page\n%s", perr)
 		return nil, ErrorInternalServer
@@ -72,99 +99,102 @@ func GenerateLevelCard(ld *LevelDataDTO) ([]byte, *APIError) {
 	return img, nil
 }
 
-func getHTML(statusColor *Color, ld *LevelDataDTO) (string, *APIError) {
-	template, err := os.ReadFile("./static/templates/template.html")
+func GenerateLevelsRoles(lrd *LevelsRolesData) ([]byte, *APIError) {
+	if err := checkLevelRoles(lrd); err != nil {
+		return nil, err
+	}
+
+	html, err := getLevelsRolesTemplate(lrd)
+	if err != nil {
+		return nil, err
+	}
+
+	page, perr := chromium.NewPage(getPageOptions(nil))
+	if perr != nil {
+		fmt.Printf("Could not create page\n%s", perr)
+		return nil, ErrorInternalServer
+	}
+	defer page.Close()
+
+	if err := page.SetContent(html, getPageLoadOptions()); err != nil {
+		fmt.Printf("Could not set page content\n%s", err)
+		return nil, ErrorInternalServer
+	}
+
+	img, serr := page.Screenshot(getScreenshotOptions())
+	if serr != nil {
+		fmt.Printf("Could not take screenshot\n%s", serr)
+		return nil, ErrorInternalServer
+	}
+	return img, nil
+}
+
+func getLevelsRolesTemplate(lrd *LevelsRolesData) (string, *APIError) {
+	lrs := lrd.LevelsRoles
+	bgColor := FromRGB(lrd.BackgroundColor)
+	rowTemplate, err := os.ReadFile(LevelsRolesRowPath)
+	if err != nil {
+		fmt.Printf("Could not read levels roles row\n%s", err)
+		return "", ErrorInternalServer
+	}
+
+	// Sorting array
+	sort.Slice(lrd.LevelsRoles, func(i, j int) bool {
+		return lrd.LevelsRoles[i].Level < lrd.LevelsRoles[j].Level
+	})
+
+	// Formatting each row of roles
+	var htmlRows strings.Builder
+	for _, lr := range lrs {
+		color := FromRGB(lr.Color)
+		html := string(rowTemplate)
+		html = strings.ReplaceAll(html, "{{name}}", lr.Name)
+		html = strings.ReplaceAll(html, "{{color}}", color.ToHtmlRGB())
+		html = strings.ReplaceAll(html, "{{color-bg}}", color.ToHtmlRGBA(0.3))
+		html = strings.ReplaceAll(html, "{{level}}", fmt.Sprintf("%02d", lr.Level))
+		htmlRows.WriteString(html)
+	}
+
+	formatter := func(html string) string {
+		html = strings.ReplaceAll(html, "'{{background.color}}'", bgColor.ToHtmlRGB())
+		html = strings.ReplaceAll(html, "{{rows}}", htmlRows.String())
+		html = strings.ReplaceAll(html, "{{guild.name}}", lrd.Guild.Name)
+		html = strings.ReplaceAll(html, "{{guild.icon}}", lrd.Guild.IconUrl)
+		return html
+	}
+	return getHTML(LevelsRolesPath, formatter)
+}
+
+func getLevelCardTemplate(ld *LevelDataDTO) (string, *APIError) {
+	progress := float32(ld.Xp) * 100 / float32(ld.XpNext)
+	themeColor := FromRGB(ld.ThemeColor).ToHtmlRGB()
+	backImg := rand.IntN(9) + 1
+	color := ld.StatusColor
+
+	formatter := func(html string) string {
+		html = strings.ReplaceAll(html, "'{{online.color}}'", color.ToHtmlRGB())
+		html = strings.ReplaceAll(html, "'{{online.shadow}}'", color.ToHtmlRGBA(0.5))
+		html = strings.ReplaceAll(html, "'{{progress.bar.percent}}'", fmt.Sprintf("%.2f%%", progress))
+		html = strings.ReplaceAll(html, "'{{theme.color}}'", themeColor)
+		html = strings.ReplaceAll(html, "{{username}}", ld.Username)
+		html = strings.ReplaceAll(html, "{{avatar.url}}", ld.AvatarUrl)
+		html = strings.ReplaceAll(html, "{{rank}}", fmt.Sprintf("%d", ld.Rank))
+		html = strings.ReplaceAll(html, "{{level}}", fmt.Sprintf("%d", ld.Level))
+		html = strings.ReplaceAll(html, "{{background.image}}", fmt.Sprintf("background-%d.png", backImg))
+		html = strings.ReplaceAll(html, "{{xp.now}}", HumanizeNumber(ld.Xp))
+		html = strings.ReplaceAll(html, "{{xp.next}}", HumanizeNumber(ld.XpNext))
+		return html
+	}
+	return getHTML(LevelCardPath, formatter)
+}
+
+func getHTML(filePath string, formatter func(html string) string) (string, *APIError) {
+	template, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Printf("Could not read template file\n%s", err)
 		return "", ErrorInternalServer
 	}
-	progress := float32(ld.Xp) * 100 / float32(ld.XpNext)
-	themeColor := FromRGB(ld.ThemeColor).ToHtmlRGB()
-	backImg := rand.IntN(9) + 1
-
 	html := string(template)
-	html = strings.ReplaceAll(html, "'{{online.color}}'", statusColor.ToHtmlRGB())
-	html = strings.ReplaceAll(html, "'{{online.shadow}}'", statusColor.ToHtmlRGBA(0.5))
-	html = strings.ReplaceAll(html, "'{{progress.bar.percent}}'", fmt.Sprintf("%.2f%%", progress))
-	html = strings.ReplaceAll(html, "'{{theme.color}}'", themeColor)
-	html = strings.ReplaceAll(html, "{{username}}", ld.Username)
-	html = strings.ReplaceAll(html, "{{avatar.url}}", ld.AvatarUrl)
-	html = strings.ReplaceAll(html, "{{rank}}", fmt.Sprintf("%d", ld.Rank))
-	html = strings.ReplaceAll(html, "{{level}}", fmt.Sprintf("%d", ld.Level))
-	html = strings.ReplaceAll(html, "{{background.image}}", fmt.Sprintf("background-%d.png", backImg))
-	html = strings.ReplaceAll(html, "{{xp.now}}", HumanizeNumber(ld.Xp))
-	html = strings.ReplaceAll(html, "{{xp.next}}", HumanizeNumber(ld.XpNext))
+	html = formatter(html)
 	return html, nil
-}
-
-func checkFields(ld *LevelDataDTO) *APIError {
-	if strings.TrimSpace(ld.Username) == "" {
-		return ErrorMissingFields("username")
-	}
-
-	if !IsColorValid(ld.ThemeColor) {
-		return ErrorInvalidValue("theme_color", ld.ThemeColor, fmt.Sprintf("0 - %d", MaxColorValue))
-	}
-
-	// Validating numbers
-	if err := validateNumber(ld.Rank, "rank"); err != nil {
-		return err
-	}
-	if err := validateNumber(ld.Level, "level"); err != nil {
-		return err
-	}
-	if err := validateNumber(ld.Xp, "xp"); err != nil {
-		return err
-	}
-	if err := validateNumber(ld.XpNext, "xp_next"); err != nil || ld.XpNext == 0 {
-		return ErrorCannotBeZero("xp_next", ld.XpNext)
-	}
-	if ld.Xp > ld.XpNext {
-		return ErrorXpGreaterThanNext
-	}
-
-	_, ok := OnlineColors[ld.OnlineStatus]
-	if !ok {
-		return ErrorInvalidValue("online_status", ld.OnlineStatus, getOnlineStatusKeys())
-	}
-	return nil
-}
-
-func validateNumber(value int, fieldName string) *APIError {
-	if value < 0 {
-		return ErrorValueMustBePositive(fieldName, value)
-	}
-	return nil
-}
-
-func getOnlineStatusKeys() []string {
-	keys := make([]string, 0, len(OnlineColors))
-	for key := range OnlineColors {
-		keys = append(keys, key)
-	}
-	return keys
-}
-
-func getLaunchOptions() playwright.BrowserTypeLaunchOptions {
-	return playwright.BrowserTypeLaunchOptions{
-		Args: []string{"--headless"},
-	}
-}
-
-func getPageOptions() playwright.BrowserNewPageOptions {
-	return playwright.BrowserNewPageOptions{
-		Viewport: viewport,
-	}
-}
-
-func getPageLoadOptions() playwright.PageSetContentOptions {
-	return playwright.PageSetContentOptions{
-		WaitUntil: playwright.WaitUntilStateLoad,
-	}
-}
-
-func getScreenshotOptions() playwright.PageScreenshotOptions {
-	return playwright.PageScreenshotOptions{
-		Type: playwright.ScreenshotTypePng,
-	}
 }

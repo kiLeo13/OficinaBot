@@ -2,7 +2,7 @@ package ofc.bot.listeners.oficina;
 
 import ofc.bot.domain.sqlite.repository.BankTransactionRepository;
 import ofc.bot.events.EventListener;
-import ofc.bot.events.entities.BankTransactionEvent;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.util.content.annotations.listeners.ApplicationEventHandler;
 import org.jetbrains.annotations.NotNull;
 

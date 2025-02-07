@@ -5,15 +5,18 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import ofc.bot.commands.economy.LeaderboardCommand;
 import ofc.bot.domain.entity.*;
+import ofc.bot.domain.entity.enums.GroupPermission;
 import ofc.bot.domain.viewmodels.*;
 import ofc.bot.handlers.economy.CurrencyType;
+import ofc.bot.handlers.paginations.PaginationItem;
 import ofc.bot.util.Bot;
 
 import java.awt.*;
 import java.time.Month;
 import java.time.format.TextStyle;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 /**
  * Utility class for embeds used in multiple classes.
@@ -22,7 +25,7 @@ import java.util.*;
  * system, then the {@code embed()} method will remain in the same class.
  */
 public final class EmbedFactory {
-    private static final Color MARRIAGE_EMBED_COLOR = new Color(255, 0, 127);
+    private static final Color DANGER_RED = new Color(255, 50, 50);
 
     private EmbedFactory() {}
 
@@ -37,6 +40,31 @@ public final class EmbedFactory {
                 .setDescription("## " + monthName + "\n\n" + (empty ? "*Nenhum aniversariante.*" : formattedBirthdays))
                 .setColor(Bot.Colors.DISCORD)
                 .setFooter(guild.getName(), guild.getIconUrl())
+                .build();
+    }
+
+    public static MessageEmbed embedInfractions(
+            User user, Guild guild, PaginationItem<MemberPunishment> infrs, long moderatorId
+    ) {
+        EmbedBuilder builder = new EmbedBuilder();
+        MemberPunishment infr = infrs.get(0);
+        boolean active = infr.isActive();
+        String modMention = String.format("<@%d>", moderatorId);
+        String infrCreation = String.format("<t:%d>", infr.getTimeCreated());
+        String resultsFound = String.format("Resultados encontrados: `%s`.", Bot.fmtNum(infrs.getRowCount()));
+        String pages = String.format("%s/%s", Bot.fmtNum(infrs.getPageIndex() + 1), Bot.fmtNum(infrs.getPageCount()));
+        String delAuthorMention = Bot.ifNull(infr.getDeletionAuthorMention(), "Ninguém");
+
+        return builder
+                .setAuthor(user.getEffectiveName(), null, user.getAvatarUrl())
+                .setColor(Bot.Colors.DEFAULT)
+                .setDescription(resultsFound)
+                .addField("👑 Moderador", modMention, true)
+                .addField("📅 Punido em", infrCreation, true)
+                .addField("📌 Ativo", active ? "Sim" : "Não", true)
+                .addField("🚫 Removido por", delAuthorMention, true)
+                .addField("📖 Motivo", infr.getReason(), false)
+                .setFooter(pages, guild.getIconUrl())
                 .build();
     }
 
@@ -56,33 +84,21 @@ public final class EmbedFactory {
         return builder.build();
     }
 
-    public static MessageEmbed embedMarriages(Guild guild, User target, MarriagesView data) {
+    public static MessageEmbed embedLevels(Guild guild, LevelView user, PaginationItem<LevelView> levels) {
         EmbedBuilder builder = new EmbedBuilder();
 
-        int currentPage = data.page();
-        int maxPages = data.maxPages();
-        String name = target.getEffectiveName();
-        String avatar = target.getEffectiveAvatarUrl();
-        String strfPage = Bot.fmtNum(currentPage);
-        String strfMaxPages = Bot.fmtNum(maxPages);
-
+        int page = levels.getPage();
+        String fmtPages = String.format("Pág %s/%s", Bot.fmtNum(page), Bot.fmtNum(levels.getPageCount()));
+        String userRow = String.format(UserXP.LEADERBOARD_ROW_FORMAT, user.rank(), user.displayIdentifier(), Bot.humanizeNum(user.level()));
+        
         return builder
-                .setAuthor(name, null, avatar)
-                .setDescription("Casamentos de `" + target.getEffectiveName() + "`.\n\n" + formatUsers(target.getIdLong(), data.marriages()))
-                .setColor(MARRIAGE_EMBED_COLOR)
-                .setFooter("Pág " + strfPage + "/" + strfMaxPages, guild.getIconUrl())
+                .setAuthor("Levels Leaderboard - Global", null, guild.getIconUrl())
+                .setDescription("📊 Placar global de níveis.\n\n" + formatLevelUsers(levels))
+                .appendDescription("\n\n")
+                .appendDescription(userRow)
+                .setColor(Bot.Colors.DEFAULT)
+                .setFooter(fmtPages)
                 .build();
-    }
-
-    private static String formatUsers(long issuerId, List<MarriageView> marriages) {
-        StringBuilder builder = new StringBuilder();
-
-        for (MarriageView mr : marriages) {
-            AppUser selected = mr.partner(issuerId);
-            String text = String.format("- %s (<t:%d>)\n", selected.getDisplayName(), mr.createdAt());
-            builder.append(text);
-        }
-        return builder.toString().strip();
     }
 
     public static MessageEmbed embedUsernameUpdates(NamesHistoryView namesHistoryDTO, Guild guild, User target) {
@@ -133,9 +149,36 @@ public final class EmbedFactory {
                 buyer,
                 group,
                 buyer.getUser().getEffectiveAvatarUrl(),
-                "a compra deste canal",
+                null,
+                "Deseja confirmar a compra deste canal?",
                 price,
                 Map.of("📚 Tipo", Bot.upperFirst(type.name().toLowerCase()))
+        );
+    }
+
+    public static MessageEmbed embedInvoicePayment(Member buyer, OficinaGroup group, int amount) {
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                buyer.getUser().getEffectiveAvatarUrl(),
+                null,
+                "Deseja confirmar o pagamento da fatura?",
+                amount,
+                Bot.map()
+        );
+    }
+
+    public static MessageEmbed embedGroupPermissionAdd(
+            Member buyer, OficinaGroup group, GroupPermission perm, int amount
+    ) {
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                buyer.getUser().getEffectiveAvatarUrl(),
+                null,
+                "Deseja confirmar a adição desta permissão?",
+                amount,
+                Bot.map("\uD83D\uDC6E Permissão", perm.getDisplay())
         );
     }
 
@@ -144,7 +187,8 @@ public final class EmbedFactory {
                 buyer,
                 group,
                 newMember.getUser().getEffectiveAvatarUrl(),
-                "a adição deste membro",
+                null,
+                "Deseja confirmar a adição deste membro?",
                 price,
                 Map.of("👤 Membro", newMember.getAsMention())
         );
@@ -155,7 +199,8 @@ public final class EmbedFactory {
                 buyer,
                 group,
                 member.getUser().getEffectiveAvatarUrl(),
-                "a remoção deste membro",
+                null,
+                "Deseja confirmar a remoção deste membro?",
                 0,
                 Map.of("👤 Membro", member.getAsMention())
         );
@@ -167,7 +212,7 @@ public final class EmbedFactory {
                 group,
                 buyer.getUser().getEffectiveAvatarUrl(),
                 color,
-                "a compra deste grupo",
+                "Deseja confirmar a compra deste grupo?",
                 group.getAmountPaid(),
                 Map.of("🎨 Cor", Bot.fmtColorHex(color))
         );
@@ -178,10 +223,34 @@ public final class EmbedFactory {
                 owner,
                 group,
                 owner.getUser().getEffectiveAvatarUrl(),
-                new Color(255, 50, 50).getRGB(),
-                "a deleção deste grupo",
+                DANGER_RED.getRGB(),
+                "Deseja confirmar a deleção deste grupo?",
                 refund,
                 Map.of()
+        );
+    }
+
+    public static MessageEmbed embedGroupMessagePin(Member buyer, OficinaGroup group, String messageUrl, int price) {
+        return embedGroupPurchaseConfirmation(
+                buyer,
+                group,
+                buyer.getUser().getEffectiveAvatarUrl(),
+                null,
+                "Deseja fixar esta mensagem?",
+                price,
+                Bot.map("📖 Mensagem", messageUrl)
+        );
+    }
+
+    public static MessageEmbed embedGroupMessageUnpin(Member owner, OficinaGroup group, String messageUrl) {
+        return embedGroupSellConfirmation(
+                owner,
+                group,
+                owner.getUser().getEffectiveAvatarUrl(),
+                DANGER_RED.getRGB(),
+                "Deseja desfixar esta mensagem?",
+                0,
+                Bot.map("📖 Mensagem", messageUrl)
         );
     }
 
@@ -190,7 +259,8 @@ public final class EmbedFactory {
                 buyer,
                 group,
                 buyer.getUser().getEffectiveAvatarUrl(),
-                "a adição deste bot",
+                null,
+                "Deseja confirmar a adição deste bot?",
                 price,
                 Map.of("🤖 Bot", bot.getBotMention())
         );
@@ -206,7 +276,8 @@ public final class EmbedFactory {
                 buyer,
                 group,
                 buyer.getUser().getEffectiveAvatarUrl(),
-                "a modificação deste grupo",
+                null,
+                "Deseja confirmar a modificação deste grupo?",
                 price,
                 Map.of("🎈 Modificações", itemsList.toString())
         );
@@ -227,18 +298,11 @@ public final class EmbedFactory {
 
     private static MessageEmbed embedGroupPurchaseConfirmation(
             Member buyer, OficinaGroup group, String thumbUrl,
-            String act, int price, Map<String, Object> fields
-    ) {
-        return embedGroupPurchaseConfirmation(buyer, group, thumbUrl, null, act, price, fields);
-    }
-
-    private static MessageEmbed embedGroupPurchaseConfirmation(
-            Member buyer, OficinaGroup group, String thumbUrl,
             Integer color, String act, int price, Map<String, Object> fields
     ) {
         int embedColor = color == null ? group.resolveColor() : color;
         Map<String, Object> fieldsMap = new LinkedHashMap<>();
-        fieldsMap.put("💰 Preço", Bot.fmtMoney(price));
+        fieldsMap.put("💰 Valor", Bot.fmtMoney(price));
         fieldsMap.putAll(fields);
         return embedGroupConfirmation(
                 buyer, group, thumbUrl, act, embedColor, fieldsMap
@@ -257,7 +321,7 @@ public final class EmbedFactory {
 
         builder
                 .setTitle(groupName)
-                .setDescription("Deseja confirmar " + act + "?")
+                .setDescription(act)
                 .setThumbnail(thumbUrl)
                 .setColor(color)
                 .setFooter(guildName, guild.getIconUrl())
@@ -283,7 +347,7 @@ public final class EmbedFactory {
     private static String formatUsernameUpdates(List<UserNameUpdate> names) {
         return Bot.format(names, (update) -> {
             String value = update.getNewValue();
-            String name = value == null ? "*removed*" : escapeUsernameUpdateFormattings(value);
+            String name = value == null ? "*removed*" : escapeUsernameSpecialChars(value);
             long timestamp = update.getTimeCreated();
 
             return switch (update.getScope()) {
@@ -294,7 +358,7 @@ public final class EmbedFactory {
         });
     }
 
-    private static String escapeUsernameUpdateFormattings(String name) {
+    private static String escapeUsernameSpecialChars(String name) {
         return name
                 .replace("*", "\\*")
                 .replace("_", "\\_")
@@ -306,6 +370,23 @@ public final class EmbedFactory {
                 birthdays,
                 (b) -> String.format(Birthday.BIRTHDAYS_FORMAT, b.getPrettyBirthday(), b.getUserId())
         ).strip();
+    }
+
+    private static String formatLevelUsers(PaginationItem<LevelView> levels) {
+        StringBuilder builder = new StringBuilder();
+        List<LevelView> entities = levels.getEntities();
+        int offset = levels.getOffset();
+        int pos = 1;
+
+        for (LevelView user : entities) {
+            int itemPos = offset + pos++;
+            String row = String.format(
+                    UserXP.LEADERBOARD_ROW_FORMAT,
+                    itemPos, user.displayIdentifier(), Bot.humanizeNum(user.level())
+            );
+            builder.append(row).append("\n");
+        }
+        return builder.toString().strip();
     }
 
     private static String formatLeaderboardUsers(List<LeaderboardUser> users, int page) {

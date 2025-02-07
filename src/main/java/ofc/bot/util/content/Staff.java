@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public enum Staff {
-    GENERAL( "691178135596695593",  Scope.NONE),
-    HASHIRAS("1048808588375773234", Scope.NONE),
+    GENERAL(         "691178135596695593",  Scope.NONE),
+    ALMIRANTES_FROTA("1048808588375773234", Scope.NONE),
 
     /* Mov Call */
     MOV_CALL_CO_LEADER(  "691167801783877653", Scope.MOV_CALL),

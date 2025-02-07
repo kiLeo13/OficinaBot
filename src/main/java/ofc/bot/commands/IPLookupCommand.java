@@ -24,14 +24,13 @@ public class IPLookupCommand extends SlashCommand {
 
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
-        ctx.ack();
-
         String ipInput = ctx.getSafeOption("ip", OptionMapping::getAsString);
         Guild guild = ctx.getGuild();
 
         if (!Pattern.matches(REGEX, ipInput))
             return Status.INVALID_IP_ADDRESS_FORMAT.args(ipInput);
 
+        ctx.ack();
         IPData ipData = getIpData(ipInput);
 
         if (ipData == null)
@@ -71,7 +70,8 @@ public class IPLookupCommand extends SlashCommand {
     private IPData getIpData(String ip) {
         IPData value = Route.IPs.GET_IP_INFO
                 .create(ip)
-                .send(map -> map.json(IPData.class));
+                .send()
+                .json(IPData.class);
 
         return value.status.equals("success")
                 ? value

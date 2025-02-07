@@ -1,6 +1,9 @@
 package service
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/playwright-community/playwright-go"
+)
 
 const (
 	Thousand = 1_000
@@ -47,5 +50,29 @@ func HumanizeNumber(value int) string {
 		return fmt.Sprintf("%.2fK", num/Thousand)
 	default:
 		return fmt.Sprintf("%d", value)
+	}
+}
+
+func getLaunchOptions() playwright.BrowserTypeLaunchOptions {
+	return playwright.BrowserTypeLaunchOptions{
+		Args: []string{"--headless"},
+	}
+}
+
+func getPageOptions(viewport *playwright.Size) playwright.BrowserNewPageOptions {
+	return playwright.BrowserNewPageOptions{
+		Viewport: viewport,
+	}
+}
+
+func getPageLoadOptions() playwright.PageSetContentOptions {
+	return playwright.PageSetContentOptions{
+		WaitUntil: playwright.WaitUntilStateLoad,
+	}
+}
+
+func getScreenshotOptions() playwright.PageScreenshotOptions {
+	return playwright.PageScreenshotOptions{
+		Type: playwright.ScreenshotTypePng,
 	}
 }
