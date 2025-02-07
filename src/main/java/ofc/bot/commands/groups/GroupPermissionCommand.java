@@ -42,6 +42,9 @@ public class GroupPermissionCommand extends SlashSubcommand {
         if (group == null)
             return Status.YOU_DO_NOT_OWN_A_GROUP;
 
+        if (group.getTextChannel() == null)
+            return Status.YOUR_GROUP_DOES_NOT_HAVE_TEXT_CHANNEL;
+
         boolean isGranted = permissionManager.isGranted(perm, group);
         if (isGranted)
             return Status.GROUP_PERMISSION_ALREADY_GRANTED;
