@@ -3,6 +3,7 @@ package ofc.bot.listeners.discord.interactions.buttons.pagination;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import ofc.bot.commands.levels.LevelsCommand;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.domain.viewmodels.LevelView;
 import ofc.bot.handlers.interactions.buttons.AutoResponseType;
@@ -32,7 +33,7 @@ public class LevelsPageUpdate implements BotButtonListener {
         int pageIndex = ctx.get("page_index");
         long authorId = ctx.getAuthorId();
         Guild guild = ctx.getGuild();
-        PaginationItem<LevelView> pageItem = Paginators.viewLevels(pageIndex);
+        PaginationItem<LevelView> pageItem = Paginators.viewLevels(LevelsCommand.PAGE_SIZE, pageIndex);
 
         if (pageItem.isEmpty())
             return Status.LEADERBOARD_IS_EMPTY;

@@ -27,6 +27,7 @@ import java.util.List;
         permission = Permission.MANAGE_SERVER
 )
 public class InfractionsCommand extends SlashCommand {
+    public static final int PAGE_SIZE = 1;
 
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
@@ -35,7 +36,7 @@ public class InfractionsCommand extends SlashCommand {
         long targetId = target.getIdLong();
         long issuerId = ctx.getUserId();
         long guildId = guild.getIdLong();
-        PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(targetId, guildId, 0);
+        PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(targetId, guildId, PAGE_SIZE, 0);
 
         if (infrs.isEmpty())
             return Status.USER_HAS_NO_INFRACTIONS;

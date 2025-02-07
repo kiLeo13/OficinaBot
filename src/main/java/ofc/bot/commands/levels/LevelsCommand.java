@@ -22,7 +22,7 @@ import java.util.List;
 
 @DiscordCommand(name = "levels", description = "Mostra o placar de líderes de nível.")
 public class LevelsCommand extends SlashCommand {
-    public static final int MAX_USERS_PER_PAGE = 10;
+    public static final int PAGE_SIZE = 10;
     private final UserXPRepository xpRepo;
 
     public LevelsCommand(UserXPRepository xpRepo) {
@@ -34,7 +34,7 @@ public class LevelsCommand extends SlashCommand {
         int pageIndex = ctx.getOption("page", 1, OptionMapping::getAsInt) - 1;
         long userId = ctx.getUserId();
         Guild guild = ctx.getGuild();
-        PaginationItem<LevelView> pageItem = Paginators.viewLevels(pageIndex);
+        PaginationItem<LevelView> pageItem = Paginators.viewLevels(PAGE_SIZE, pageIndex);
 
         if (!pageItem.exists(pageIndex))
             return Status.PAGE_DOES_NOT_EXIST.args(pageItem.lastPageIndex() + 1);
