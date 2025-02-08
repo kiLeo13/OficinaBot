@@ -1,6 +1,5 @@
 package ofc.bot.commands.levels;
 
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.utils.data.DataArray;
@@ -20,10 +19,7 @@ import java.awt.*;
 import java.util.Base64;
 import java.util.List;
 
-@DiscordCommand(
-        name = "levels-roles", description = "Mostra o cargo para cada nível.",
-        cooldown = 5, permission = Permission.MANAGE_SERVER
-)
+@DiscordCommand(name = "levels-roles", description = "Mostra o cargo para cada nível.", cooldown = 10)
 public class LevelsRolesCommand extends SlashCommand {
     private static final Color BACKGROUND_COLOR = new Color(45, 44, 60);
     private final LevelRoleRepository lvlRoleRepo;
