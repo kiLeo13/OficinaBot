@@ -10,7 +10,6 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.SQLDataType;
 
 import static ofc.bot.domain.tables.UsersTable.USERS;
-import static org.jooq.impl.DSL.foreignKey;
 
 public class BankTransactionsTable extends InitializableTable<BankTransaction> {
     public static final BankTransactionsTable BANK_TRANSACTIONS = new BankTransactionsTable();
