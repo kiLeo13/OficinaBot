@@ -71,8 +71,9 @@ func getPageLoadOptions() playwright.PageSetContentOptions {
 	}
 }
 
-func getScreenshotOptions() playwright.PageScreenshotOptions {
+func getScreenshotOptions(fullPage bool) playwright.PageScreenshotOptions {
 	return playwright.PageScreenshotOptions{
-		Type: playwright.ScreenshotTypePng,
+		Type:     playwright.ScreenshotTypePng,
+		FullPage: playwright.Bool(fullPage),
 	}
 }

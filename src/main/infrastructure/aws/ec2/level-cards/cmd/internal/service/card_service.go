@@ -91,7 +91,7 @@ func GenerateLevelCard(ld *LevelDataDTO) ([]byte, *APIError) {
 		return nil, ErrorInternalServer
 	}
 
-	img, serr := page.Screenshot(getScreenshotOptions())
+	img, serr := page.Screenshot(getScreenshotOptions(false))
 	if serr != nil {
 		fmt.Printf("Could not take screenshot\n%s", serr)
 		return nil, ErrorInternalServer
@@ -109,7 +109,7 @@ func GenerateLevelsRoles(lrd *LevelsRolesData) ([]byte, *APIError) {
 		return nil, err
 	}
 
-	page, perr := chromium.NewPage(getPageOptions(nil))
+	page, perr := chromium.NewPage()
 	if perr != nil {
 		fmt.Printf("Could not create page\n%s", perr)
 		return nil, ErrorInternalServer
@@ -121,7 +121,7 @@ func GenerateLevelsRoles(lrd *LevelsRolesData) ([]byte, *APIError) {
 		return nil, ErrorInternalServer
 	}
 
-	img, serr := page.Screenshot(getScreenshotOptions())
+	img, serr := page.Screenshot(getScreenshotOptions(true))
 	if serr != nil {
 		fmt.Printf("Could not take screenshot\n%s", serr)
 		return nil, ErrorInternalServer
