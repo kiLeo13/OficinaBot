@@ -1,10 +1,11 @@
 package ofc.bot.handlers.paginations;
 
+import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.MemberPunishment;
-import ofc.bot.domain.sqlite.repository.MemberPunishmentRepository;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
-import ofc.bot.domain.sqlite.repository.UserXPRepository;
+import ofc.bot.domain.entity.enums.TransactionType;
+import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.domain.viewmodels.LevelView;
+import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.util.Bot;
 
 import java.util.List;
@@ -12,12 +13,29 @@ import java.util.List;
 public final class Paginators {
     private Paginators() {}
 
-    public static PaginationItem<MemberPunishment> viewInfractions(long userId, long guildId, int pageSize, int pageIndex) {
+    public static PaginationItem<BankTransaction> viewTransactions(
+            long userId, int pageIndex, int pageSize, List<CurrencyType> currencies, List<TransactionType> types) {
+        BankTransactionRepository bankTrRepo = RepositoryFactory.getBankTransactionRepository();
+        int offset = pageIndex * pageSize;
+        int rowCount = bankTrRepo.countUserTransactions(userId, currencies, types);
+        int maxPages = Bot.calcMaxPages(rowCount, pageSize);
+        List<BankTransaction> transactions = bankTrRepo.findUserTransactions(userId, currencies, types, pageSize, offset);
+
+        return new PaginationItem<>(
+                transactions,
+                pageIndex,
+                offset,
+                maxPages,
+                rowCount
+        );
+    }
+
+    public static PaginationItem<MemberPunishment> viewInfractions(long targetId, long guildId, int pageSize, int pageIndex) {
         MemberPunishmentRepository pnshRepo = RepositoryFactory.getMemberPunishmentRepository();
         int offset = pageIndex * pageSize;
-        int rowCount = pnshRepo.countByUserAndGuildId(userId, guildId);
+        int rowCount = pnshRepo.countByUserAndGuildId(targetId, guildId);
         int maxPages = Bot.calcMaxPages(rowCount, pageSize);
-        List<MemberPunishment> punishments = pnshRepo.findByUserAndGuildId(userId, guildId, pageSize, offset);
+        List<MemberPunishment> punishments = pnshRepo.findByUserAndGuildId(targetId, guildId, pageSize, offset);
 
         return new PaginationItem<>(
                 punishments,
