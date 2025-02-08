@@ -47,6 +47,7 @@ public enum Status implements InteractionResult {
     ROLES_SUCCESSFULLY_BACKED_UP(               State.OK, "Foram devolvidos `%d` cargos com sucesso para `%s`."),
     POLL_CLOSED(                                State.OK, "Enquete `%s` foi fechada com sucesso."),
     POLL_REOPENED(                              State.OK, "Enquete `%s` foi reaberta com sucesso."),
+    MEMBER_SUCCESSFULLY_BANNED(                 State.OK, "Membro %s banido com sucesso!"),
     ALL_STAFF_LIST_MESSAGES_UPDATED(            State.OK, "Todas as mensagens encontradas foram editadas."),
     MESSAGES_SUCCESSFULLY_DELETED(              State.OK, "`%02d` mensagens foram apagadas com sucesso em `%s`."),
     GROUP_SUCCESSFULLY_DELETED(                 State.OK, "Seu grupo `%s` foi apagado com sucesso."),
@@ -87,15 +88,19 @@ public enum Status implements InteractionResult {
     USER_IS_NOT_MARRIED_TO_TARGET(              State.FAILURE, "Você não está casado(a) com %s"),
     INFRACTION_NOT_FOUND(                       State.FAILURE, "Infração não encontrada."),
     MEMBER_NOT_FOUND(                           State.FAILURE, "Membro não encontrado."),
+    EMPTY_BANK_STATEMENT(                       State.FAILURE, "Seu extrato está vazio."),
     FAKE_PI_JOKE(                               State.FAILURE, "Kkkkkkkkkkkkkkkkkkkkkkkkk sério mesmo que você " +
             "achou que eu iria sugerir o valor certo de PI para encurtar seu caminho? " +
             "Sendo que a ideia de pedir essa confirmação é literalmente para dificultar a sua decisão " +
             "e evitar que você cometa erros. Aiai 😘"),
     CANNOT_LEAVE_YOUR_OWN_GROUP(                State.FAILURE, "Você não pode sair do seu próprio grupo."),
     USER_NOT_FOUND(                             State.FAILURE, "Usuário não encontrado."),
+    BOT_CANNOT_BAN_PROVIDED_MEMBER(             State.FAILURE, "Eu não posso banir este usuário."),
     GROUP_PERMISSION_ALREADY_GRANTED(           State.FAILURE, "Esta permissão já está habilitada."),
     COMMAND_IS_ALREADY_OPERATING(               State.FAILURE, "Este comando já está em execução! Por favor, aguarde!"),
     GROUP_NAMES_CANNOT_CONTAIN_EMOJIS(          State.FAILURE, "Nomes de grupos não podem ter emojis."),
+    INVALID_DURATION_PROVIDED(                  State.FAILURE, "Duração inválida."),
+    INVALID_DELETION_TIMEFRAME(                 State.FAILURE, "Período inválido para deleção de histórico! Máximo: `%s`, fornecido: `%s`."),
     PAGE_DOES_NOT_EXIST(                        State.FAILURE, "A página fornecida não existe! Max: `%d`."),
     MEMBER_NOT_IN_GUILD(                        State.FAILURE, "O membro fornecido não está no servidor."),
     INVALID_COLOR_PROVIDED(                     State.FAILURE, "A cor fornecida é inválida."),
