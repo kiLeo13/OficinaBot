@@ -32,6 +32,8 @@ import ofc.bot.listeners.discord.interactions.autocomplete.OficinaGroupAutocompl
 import ofc.bot.listeners.discord.interactions.buttons.WorkReminderHandler;
 import ofc.bot.listeners.discord.interactions.buttons.groups.*;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.*;
+import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.DeleteInfraction;
+import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.InfractionsPageUpdate;
 import ofc.bot.listeners.discord.interactions.dm.DirectMessageReceived;
 import ofc.bot.listeners.discord.interactions.modals.ChangelogCreationHandler;
 import ofc.bot.listeners.discord.logs.VoiceActivity;
@@ -98,6 +100,7 @@ public final class EntityInitializerManager {
     }
 
     public static void registerButtons() {
+        MemberPunishmentRepository pnshRepo = RepositoryFactory.getMemberPunishmentRepository();
         MarriageRequestRepository mreqRepo = RepositoryFactory.getMarriageRequestRepository();
         UserNameUpdateRepository namesRepo = RepositoryFactory.getUserNameUpdateRepository();
         EntityPolicyRepository policyRepo = RepositoryFactory.getEntityPolicyRepository();
@@ -107,6 +110,11 @@ public final class EntityInitializerManager {
         UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
 
         ButtonInteractionGateway.registerButtons(
+                // Infractions
+                new DeleteInfraction(pnshRepo),
+                new InfractionsPageUpdate(),
+
+                // Pagination
                 new BirthdayPageUpdate(bdayRepo),
                 new LeaderboardOffsetUpdate(ecoRepo),
                 new LevelsPageUpdate(xpRepo),

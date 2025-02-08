@@ -17,6 +17,8 @@ import ofc.bot.commands.groups.member.RemoveGroupMemberCommand;
 import ofc.bot.commands.levels.LevelsCommand;
 import ofc.bot.commands.levels.LevelsRolesCommand;
 import ofc.bot.commands.levels.RankCommand;
+import ofc.bot.commands.moderation.BanCommand;
+import ofc.bot.commands.moderation.InfractionsCommand;
 import ofc.bot.commands.moderation.WarnCommand;
 import ofc.bot.commands.relationships.DivorceCommand;
 import ofc.bot.commands.relationships.MarryCommand;
@@ -59,7 +61,6 @@ public final class CommandsInitializer {
         MarriageRepository marrRepo = RepositoryFactory.getMarriageRepository();
         UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
         UserRepository userRepo = RepositoryFactory.getUserRepository();
-
 
         // Birhday
         SlashCommand birthday = new EmptySlashCommand("birthday", "Gerencia os aniversários.", Permission.MANAGE_SERVER)
@@ -130,6 +131,8 @@ public final class CommandsInitializer {
                 new RankCommand(xpRepo, lvlRoleRepo),
 
                 // Moderation
+                new BanCommand(),
+                new InfractionsCommand(),
                 new WarnCommand(pnshRepo, modActRepo),
 
                 // Relationships

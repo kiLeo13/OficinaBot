@@ -55,26 +55,34 @@ public final class ButtonContextFactory {
         return List.of(prevButton.getButton(), nextButton.getButton());
     }
 
-    public static List<Button> createInfractionsButtons(long userId, int pageIndex, boolean hasNext) {
+    public static List<Button> createInfractionsButtons(
+            int infrId, boolean isActive, long targetId, int pageIndex, boolean hasNext) {
         boolean hasPrevious = pageIndex > 0;
 
         ButtonContext prev = ButtonContext.primary("Previous")
                 .setScope(Scopes.Punishments.VIEW_INFRACTIONS)
+                .setPermission(Permission.MESSAGE_MANAGE)
                 .put("page_index", pageIndex - 1)
+                .put("target_id", targetId)
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.primary("Next")
                 .setScope(Scopes.Punishments.VIEW_INFRACTIONS)
+                .setPermission(Permission.MESSAGE_MANAGE)
                 .put("page_index", pageIndex + 1)
+                .put("target_id", targetId)
                 .setEnabled(hasNext);
 
         ButtonContext delete = ButtonContext.danger(Emoji.fromUnicode("🗑"))
                 .setScope(Scopes.Punishments.DELETE_INFRACTION)
-                .put("user_id", userId)
-                .setEnabled(userId != 0);
+                .setPermission(Permission.MANAGE_SERVER)
+                .put("page_index", pageIndex)
+                .put("infraction_id", infrId)
+                .put("target_id", targetId)
+                .setEnabled(isActive);
 
         BUTTON_MANAGER.save(prev, next, delete);
-        return List.of(prev.getButton(), next.getButton());
+        return List.of(prev.getButton(), next.getButton(), delete.getButton());
     }
 
     public static List<Button> createLeaderboardButtons(int pageIndex, boolean hasNext) {

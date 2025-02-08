@@ -22,6 +22,7 @@ public class MemberPunishmentRepository {
     public MemberPunishment findById(int id) {
         return ctx.selectFrom(MEMBERS_PUNISHMENTS)
                 .where(MEMBERS_PUNISHMENTS.ID.eq(id))
+                .and(MEMBERS_PUNISHMENTS.ACTIVE.eq(true))
                 .fetchOne();
     }
 

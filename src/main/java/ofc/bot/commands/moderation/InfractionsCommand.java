@@ -34,7 +34,6 @@ public class InfractionsCommand extends SlashCommand {
         Guild guild = ctx.getGuild();
         User target = ctx.getSafeOption("user", OptionMapping::getAsUser);
         long targetId = target.getIdLong();
-        long issuerId = ctx.getUserId();
         long guildId = guild.getIdLong();
         PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(targetId, guildId, PAGE_SIZE, 0);
 
@@ -42,9 +41,10 @@ public class InfractionsCommand extends SlashCommand {
             return Status.USER_HAS_NO_INFRACTIONS;
 
         MemberPunishment infr = infrs.get(0);
-        long btnUserId = infr.isActive() ? targetId : 0;
-        List<Button> btns = ButtonContextFactory.createInfractionsButtons(btnUserId, infrs.getPageIndex(), infrs.hasMore());
-        MessageEmbed embed = EmbedFactory.embedInfractions(target, guild, infrs, issuerId);
+        boolean active = infr.isActive();
+        List<Button> btns = ButtonContextFactory.createInfractionsButtons(
+                infr.getId(), active, targetId, infrs.getPageIndex(), infrs.hasMore());
+        MessageEmbed embed = EmbedFactory.embedInfractions(target, guild, infrs, infr.getModeratorId());
 
         return ctx.create()
                 .setEmbeds(embed)
