@@ -106,6 +106,10 @@ public final class Bot {
         return Main.getApi().retrieveUserById(userId);
     }
 
+    public static String parseDuration(Duration duration) {
+        return parsePeriod(duration.getSeconds());
+    }
+
     public static String parsePeriod(long seconds) {
         if (seconds <= 0)
             return "0s";
