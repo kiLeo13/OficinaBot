@@ -17,9 +17,7 @@ import ofc.bot.commands.groups.member.RemoveGroupMemberCommand;
 import ofc.bot.commands.levels.LevelsCommand;
 import ofc.bot.commands.levels.LevelsRolesCommand;
 import ofc.bot.commands.levels.RankCommand;
-import ofc.bot.commands.moderation.BanCommand;
-import ofc.bot.commands.moderation.InfractionsCommand;
-import ofc.bot.commands.moderation.WarnCommand;
+import ofc.bot.commands.moderation.*;
 import ofc.bot.commands.relationships.DivorceCommand;
 import ofc.bot.commands.relationships.MarryCommand;
 import ofc.bot.commands.relationships.UpdateMarriageCreationCommand;
@@ -134,6 +132,7 @@ public final class CommandsInitializer {
                 // Moderation
                 new BanCommand(),
                 new InfractionsCommand(),
+                new UnbanCommand(),
                 new WarnCommand(pnshRepo, modActRepo),
 
                 // Relationships

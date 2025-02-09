@@ -48,6 +48,7 @@ public enum Status implements InteractionResult {
     POLL_CLOSED(                                State.OK, "Enquete `%s` foi fechada com sucesso."),
     POLL_REOPENED(                              State.OK, "Enquete `%s` foi reaberta com sucesso."),
     MEMBER_SUCCESSFULLY_BANNED(                 State.OK, "Membro %s banido com sucesso!"),
+    MEMBER_SUCCESSFULLY_UNBANNED(               State.OK, "Membro %s desbanido com sucesso!"),
     ALL_STAFF_LIST_MESSAGES_UPDATED(            State.OK, "Todas as mensagens encontradas foram editadas."),
     MESSAGES_SUCCESSFULLY_DELETED(              State.OK, "`%02d` mensagens foram apagadas com sucesso em `%s`."),
     GROUP_SUCCESSFULLY_DELETED(                 State.OK, "Seu grupo `%s` foi apagado com sucesso."),
