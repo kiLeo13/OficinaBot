@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.GroupPermission;
 import ofc.bot.domain.entity.enums.NameScope;
+import ofc.bot.domain.entity.enums.TransactionType;
+import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.buttons.ButtonManager;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
@@ -55,8 +57,33 @@ public final class ButtonContextFactory {
         return List.of(prevButton.getButton(), nextButton.getButton());
     }
 
-    public static List<Button> createInfractionsButtons(
-            int infrId, boolean isActive, long targetId, int pageIndex, boolean hasNext) {
+    public static List<Button> createTransactionsButtons(long userId, List<CurrencyType> currencies,
+                                                         List<TransactionType> actions,
+                                                         int pageIndex, boolean hasNext) {
+        boolean hasPrevious = pageIndex > 0;
+
+        ButtonContext prev = ButtonContext.primary("Previous")
+                .setScope(Scopes.Economy.VIEW_TRANSACTIONS)
+                .put("page_index", pageIndex - 1)
+                .put("user_id", userId)
+                .put("currencies", currencies)
+                .put("actions", actions)
+                .setEnabled(hasPrevious);
+
+        ButtonContext next = ButtonContext.primary("Next")
+                .setScope(Scopes.Economy.VIEW_TRANSACTIONS)
+                .put("page_index", pageIndex + 1)
+                .put("user_id", userId)
+                .put("currencies", currencies)
+                .put("actions", actions)
+                .setEnabled(hasNext);
+
+        BUTTON_MANAGER.save(prev, next);
+        return List.of(prev.getButton(), next.getButton());
+    }
+
+    public static List<Button> createInfractionsButtons(int infrId, boolean isActive,
+                                                        long targetId, int pageIndex, boolean hasNext) {
         boolean hasPrevious = pageIndex > 0;
 
         ButtonContext prev = ButtonContext.primary("Previous")
@@ -89,12 +116,12 @@ public final class ButtonContextFactory {
         boolean hasPrevious = pageIndex > 0;
 
         ButtonContext prev = ButtonContext.primary("Previous")
-                .setScope(Scopes.Misc.PAGINATE_LEADERBOARD)
+                .setScope(Scopes.Economy.VIEW_LEADERBOARD)
                 .put("page_index", pageIndex - 1)
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.primary("Next")
-                .setScope(Scopes.Misc.PAGINATE_LEADERBOARD)
+                .setScope(Scopes.Economy.VIEW_LEADERBOARD)
                 .put("page_index", pageIndex + 1)
                 .setEnabled(hasNext);
 

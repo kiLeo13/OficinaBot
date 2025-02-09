@@ -120,6 +120,7 @@ public final class EntityInitializerManager {
                 new LevelsPageUpdate(xpRepo),
                 new NamesPageUpdate(namesRepo),
                 new ProposalListPagination(mreqRepo),
+                new TransactionsPagination(),
 
                 // Groups' commands confirmation handlers
                 new GroupBotAddHandler(),

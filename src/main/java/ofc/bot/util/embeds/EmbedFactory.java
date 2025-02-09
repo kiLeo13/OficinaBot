@@ -6,17 +6,19 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import ofc.bot.commands.economy.LeaderboardCommand;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.GroupPermission;
+import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.viewmodels.*;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.paginations.PaginationItem;
 import ofc.bot.util.Bot;
+import ofc.bot.util.OficinaEmbed;
 
 import java.awt.*;
-import java.time.Month;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility class for embeds used in multiple classes.
@@ -25,6 +27,7 @@ import java.util.Map;
  * system, then the {@code embed()} method will remain in the same class.
  */
 public final class EmbedFactory {
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final Color DANGER_RED = new Color(255, 50, 50);
 
     private EmbedFactory() {}
@@ -43,26 +46,41 @@ public final class EmbedFactory {
                 .build();
     }
 
+    public static MessageEmbed embedTransactions(User user, Guild guild, PaginationItem<BankTransaction> trs) {
+        OficinaEmbed builder = new OficinaEmbed();
+        String title = String.format("Transações de %s", user.getEffectiveName());
+        String resultsFound = String.format("Resultados encontrados: `%s`.", Bot.fmtNum(trs.getRowCount()));
+        String pages = String.format("Pág. %s/%s", Bot.fmtNum(trs.getPage()), Bot.fmtNum(trs.getPageCount()));
+
+        return builder
+                .setAuthor(title, null, user.getEffectiveAvatarUrl())
+                .setColor(Bot.Colors.DEFAULT)
+                .setDesc(resultsFound)
+                .appendDescription(formatTransactions(trs.getEntities()))
+                .setFooter(pages, guild.getIconUrl())
+                .build();
+    }
+
     public static MessageEmbed embedInfractions(
             User user, Guild guild, PaginationItem<MemberPunishment> infrs, long moderatorId
     ) {
-        EmbedBuilder builder = new EmbedBuilder();
+        OficinaEmbed builder = new OficinaEmbed();
         MemberPunishment infr = infrs.get(0);
         boolean active = infr.isActive();
         String modMention = String.format("<@%d>", moderatorId);
         String infrCreation = String.format("<t:%d>", infr.getTimeCreated());
         String resultsFound = String.format("Resultados encontrados: `%s`.", Bot.fmtNum(infrs.getRowCount()));
-        String pages = String.format("%s/%s", Bot.fmtNum(infrs.getPageIndex() + 1), Bot.fmtNum(infrs.getPageCount()));
+        String pages = String.format("Pág. %s/%s", Bot.fmtNum(infrs.getPage()), Bot.fmtNum(infrs.getPageCount()));
         String delAuthorMention = Bot.ifNull(infr.getDeletionAuthorMention(), "Ninguém");
 
         return builder
                 .setAuthor(user.getEffectiveName(), null, user.getAvatarUrl())
                 .setColor(Bot.Colors.DEFAULT)
-                .setDescription(resultsFound)
-                .addField("👑 Moderador", modMention, true)
-                .addField("📅 Punido em", infrCreation, true)
-                .addField("📌 Ativo", active ? "Sim" : "Não", true)
-                .addField("🚫 Removido por", delAuthorMention, true)
+                .setDesc(resultsFound)
+                .addField("👑 Moderador", modMention)
+                .addField("📅 Punido em", infrCreation)
+                .addField("📌 Ativo", active ? "Sim" : "Não")
+                .addFieldIf(!active, "🚫 Removido por", delAuthorMention)
                 .addField("📖 Motivo", infr.getReason(), false)
                 .setFooter(pages, guild.getIconUrl())
                 .build();
@@ -218,18 +236,6 @@ public final class EmbedFactory {
         );
     }
 
-    public static MessageEmbed embedGroupDelete(Member owner, OficinaGroup group, int refund) {
-        return embedGroupSellConfirmation(
-                owner,
-                group,
-                owner.getUser().getEffectiveAvatarUrl(),
-                DANGER_RED.getRGB(),
-                "Deseja confirmar a deleção deste grupo?",
-                refund,
-                Map.of()
-        );
-    }
-
     public static MessageEmbed embedGroupMessagePin(Member buyer, OficinaGroup group, String messageUrl, int price) {
         return embedGroupPurchaseConfirmation(
                 buyer,
@@ -331,6 +337,49 @@ public final class EmbedFactory {
         return builder.build();
     }
 
+    @SuppressWarnings("DataFlowIssue")
+    private static String formatTransactions(List<BankTransaction> trs) {
+        TransactionEntryBuilder builder = new TransactionEntryBuilder();
+
+        builder.addSeparator();
+        for (BankTransaction tr : trs) {
+            long amount = tr.getAmount();
+            CurrencyType currency = tr.getCurrencyType();
+            TransactionType action = tr.getAction();
+            AppUser user = tr.retrieveUser();
+            AppUser receiver = tr.retrieveReceiver();
+            LocalDateTime timestamp = LocalDateTime.ofEpochSecond(tr.getTimeCreated(), 0, ZoneOffset.ofHours(-3));
+            String fmtTimestamp = timestamp.format(DATE_TIME_FORMATTER);
+            String recName = receiver == null ? null : receiver.getName();
+            String comment = Bot.ifNull(tr.getComment(), "--");
+
+            builder.addF("\uD83C\uDF10 ID: #%d | \uD83D\uDD52 %s (GMT -3)", tr.getId(), fmtTimestamp)
+                    .addF("\uD83C\uDF88 Tipo: %s", action.getName())
+                    .addF("\uD83E\uDD11 %s: %s", resolveUserAlias(action), user.getName())
+                    .addFIf(receiver != null, "\uD83D\uDC64 Recebente: %s", recName)
+                    .addF("\uD83D\uDCC3 Nota: %s", comment)
+                    .addF("\uD83D\uDCB0 Valor: %s (%s)", Bot.fmtMoney(amount), currency.getName())
+                    .addSeparator();
+        }
+        return builder.build();
+    }
+
+    private static String resolveUserAlias(TransactionType action) {
+        return switch (action) {
+            case FEE_PAID,
+                 INVOICE_PAID -> "Pagador";
+            case CHAT_MONEY,
+                 WORK_EXECUTED,
+                 MARRIAGE_CREATED,
+                 DAILY_COLLECTED -> "Membro";
+            case BALANCE_SET,
+                 BALANCE_UPDATED -> "Moderador";
+            case ITEM_BOUGHT -> "Comprador";
+            case ITEM_SOLD -> "Vendedor";
+            case MONEY_TRANSFERRED -> "Remetente";
+        };
+    }
+
     private static String formatProposals(List<MarriageRequest> requests, String type) {
         return Bot.format(requests, (req) -> {
             long timestamp = req.getTimeCreated();
@@ -410,5 +459,29 @@ public final class EmbedFactory {
     private static String getMonthDisplay(Month month) {
         String rawDisplay = month.getDisplayName(TextStyle.FULL, Bot.defaultLocale());
         return Bot.upperFirst(rawDisplay);
+    }
+
+    private static final class TransactionEntryBuilder {
+        private final List<String> fields = new ArrayList<>();
+
+        TransactionEntryBuilder addSeparator() {
+            return addF("---------------------------------------------");
+        }
+
+        TransactionEntryBuilder addF(String format, Object... args) {
+            this.fields.add(String.format(format, args));
+            return this;
+        }
+
+        TransactionEntryBuilder addFIf(boolean cond, String format, Object... args) {
+            if (cond) {
+                addF(format, args);
+            }
+            return this;
+        }
+
+        String build() {
+            return String.format("```yml\n%s\n```", String.join("\n", fields)).strip();
+        }
     }
 }

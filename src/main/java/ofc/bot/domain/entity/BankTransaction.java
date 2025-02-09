@@ -2,6 +2,8 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
+import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.UserRepository;
 import ofc.bot.domain.tables.BankTransactionsTable;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.util.Bot;
@@ -19,12 +21,15 @@ public class BankTransaction extends TableRecordImpl<BankTransaction> {
         super(BANK_TRANSACTIONS);
     }
 
-    public BankTransaction(long userId, @Nullable Long receiverId, long amount, @NotNull CurrencyType currencyType, @NotNull TransactionType action, @Nullable StoreItemType product, long createdAt) {
+    public BankTransaction(long userId, @Nullable Long receiverId, long amount,
+                           @Nullable String comment, @NotNull CurrencyType currencyType,
+                           @NotNull TransactionType action, @Nullable StoreItemType product, long createdAt) {
         this();
         set(BANK_TRANSACTIONS.USER_ID, userId);
         set(BANK_TRANSACTIONS.RECEIVER_ID, receiverId);
         set(BANK_TRANSACTIONS.CURRENCY, currencyType.toString());
         set(BANK_TRANSACTIONS.AMOUNT, amount);
+        set(BANK_TRANSACTIONS.COMMENT, comment);
         set(BANK_TRANSACTIONS.ACTION, action.toString());
         set(BANK_TRANSACTIONS.PRODUCT, product == null ? null : product.toString());
         set(BANK_TRANSACTIONS.CREATED_AT, createdAt);
@@ -39,24 +44,49 @@ public class BankTransaction extends TableRecordImpl<BankTransaction> {
             LOGGER.warn("ITEM_SOLD operation of item \"{}\" has negative amount ({}), maybe {} was intended?", getProduct(), amount, -amount);
     }
 
-    public BankTransaction(long userId, @Nullable Long receiverId, long amount, @NotNull CurrencyType currencyType, @NotNull TransactionType action, @Nullable StoreItemType product) {
-        this(userId, receiverId, amount, currencyType, action, product, Bot.unixNow());
+    public BankTransaction(long userId, @Nullable Long receiverId,
+                           long amount, @Nullable String comment, @NotNull CurrencyType currencyType,
+                           @NotNull TransactionType action, @Nullable StoreItemType product) {
+        this(userId, receiverId, amount, comment, currencyType, action, product, Bot.unixNow());
     }
 
-    public BankTransaction(long userId, @Nullable Long receiverId, long amount, @NotNull CurrencyType currencyType, @NotNull TransactionType action) {
-        this(userId, receiverId, amount, currencyType, action, null);
+    public BankTransaction(long userId, @Nullable Long receiverId,
+                           long amount, @Nullable String comment, @NotNull CurrencyType currencyType,
+                           @NotNull TransactionType action) {
+        this(userId, receiverId, amount, comment, currencyType, action, null);
     }
 
-    public BankTransaction(long userId, long amount, @NotNull CurrencyType currencyType, @NotNull TransactionType action, @Nullable StoreItemType product, long createdAt) {
-        this(userId, null, amount, currencyType, action, product, createdAt);
+    public BankTransaction(long userId, @Nullable Long receiverId,
+                           long amount, @NotNull CurrencyType currencyType,
+                           @NotNull TransactionType action) {
+        this(userId, receiverId, amount, null, currencyType, action, null);
     }
 
-    public BankTransaction(long userId, long amount, @NotNull CurrencyType currencyType, @NotNull TransactionType action, @Nullable StoreItemType product) {
-        this(userId, null, amount, currencyType, action, product, Bot.unixNow());
+    public BankTransaction(long userId, long amount,
+                           @Nullable String comment, @NotNull CurrencyType currencyType,
+                           @NotNull TransactionType action, @Nullable StoreItemType product, long createdAt) {
+        this(userId, null, amount, comment, currencyType, action, product, createdAt);
     }
 
-    public BankTransaction(long userId, long amount, @NotNull CurrencyType currencyType, @NotNull TransactionType action) {
-        this(userId, amount, currencyType, action, null);
+    public BankTransaction(long userId, long amount,
+                           @Nullable String comment, @NotNull CurrencyType currencyType,
+                           @NotNull TransactionType action, @Nullable StoreItemType product) {
+        this(userId, null, amount, comment, currencyType, action, product, Bot.unixNow());
+    }
+
+    public BankTransaction(long userId, long amount, @NotNull CurrencyType currencyType,
+                           @NotNull TransactionType action, @Nullable StoreItemType product) {
+        this(userId, amount, null, currencyType, action, product);
+    }
+
+    public BankTransaction(long userId, long amount, @Nullable String comment,
+                           @NotNull CurrencyType currencyType, @NotNull TransactionType action) {
+        this(userId, amount, comment, currencyType, action, null);
+    }
+
+    public BankTransaction(long userId, long amount, @NotNull CurrencyType currencyType,
+                           @NotNull TransactionType action) {
+        this(userId, amount, null, currencyType, action);
     }
 
     public int getId() {
@@ -82,7 +112,11 @@ public class BankTransaction extends TableRecordImpl<BankTransaction> {
 
     public TransactionType getAction() {
         String action = get(BANK_TRANSACTIONS.ACTION);
-        return action == null ? null : TransactionType.fromName(action);
+        return TransactionType.valueOf(action);
+    }
+
+    public String getComment() {
+        return get(BANK_TRANSACTIONS.COMMENT);
     }
 
     /**
@@ -110,9 +144,32 @@ public class BankTransaction extends TableRecordImpl<BankTransaction> {
         return this;
     }
 
+    @NotNull
+    public AppUser retrieveUser() {
+        UserRepository userRepo = RepositoryFactory.getUserRepository();
+        AppUser user = userRepo.findById(getUserId());
+        if (user == null)
+            throw new IllegalStateException("For some unknown reason, the user " + getUserId() +
+                    " does not seem to be in our database, wtf???");
+        return user;
+    }
+
     public BankTransaction setReceiverId(long receiverId) {
         set(BANK_TRANSACTIONS.RECEIVER_ID, receiverId);
         return this;
+    }
+
+    @Nullable
+    public AppUser retrieveReceiver() {
+        Long recId = getReceiverId();
+        if (recId == null) return null;
+
+        UserRepository userRepo = RepositoryFactory.getUserRepository();
+        AppUser user = userRepo.findById(recId);
+        if (user == null)
+            throw new IllegalStateException("For some unknown reason, the user " + getUserId() +
+                    " does not seem to be in our database, wtf???");
+        return user;
     }
 
     public BankTransaction setAmount(long amount) {
@@ -122,6 +179,11 @@ public class BankTransaction extends TableRecordImpl<BankTransaction> {
 
     public BankTransaction setAction(TransactionType action) {
         set(BANK_TRANSACTIONS.ACTION, action.toString());
+        return this;
+    }
+
+    public BankTransaction setComment(String comment) {
+        set(BANK_TRANSACTIONS.COMMENT, comment);
         return this;
     }
 

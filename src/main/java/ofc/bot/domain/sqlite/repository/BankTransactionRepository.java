@@ -4,6 +4,7 @@ import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.tables.BankTransactionsTable;
+import ofc.bot.handlers.economy.CurrencyType;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
@@ -27,6 +28,32 @@ public class BankTransactionRepository {
                 .set(bankTrs.intoMap())
                 .onDuplicateKeyIgnore()
                 .execute();
+    }
+
+    public int countUserTransactions(long userId, List<CurrencyType> currencies, List<TransactionType> actions) {
+        List<String> sqlCurrencies = currencies.stream().map(CurrencyType::name).toList();
+        List<String> sqlActions = actions.stream().map(TransactionType::name).toList();
+        return ctx.fetchCount(BANK_TRANSACTIONS,
+                BANK_TRANSACTIONS.USER_ID.eq(userId)
+                        .or(BANK_TRANSACTIONS.RECEIVER_ID.eq(userId))
+                        .and(BANK_TRANSACTIONS.CURRENCY.in(sqlCurrencies))
+                        .and(BANK_TRANSACTIONS.ACTION.in(sqlActions))
+        );
+    }
+
+    public List<BankTransaction> findUserTransactions(
+            long userId, List<CurrencyType> currencies, List<TransactionType> actions, int limit, int offset
+    ) {
+        List<String> sqlCurrencies = currencies.stream().map(CurrencyType::name).toList();
+        List<String> sqlActions = actions.stream().map(TransactionType::name).toList();
+        return ctx.selectFrom(BANK_TRANSACTIONS)
+                .where(BANK_TRANSACTIONS.USER_ID.eq(userId).or(BANK_TRANSACTIONS.RECEIVER_ID.eq(userId)))
+                .and(BANK_TRANSACTIONS.CURRENCY.in(sqlCurrencies))
+                .and(BANK_TRANSACTIONS.ACTION.in(sqlActions))
+                .orderBy(BANK_TRANSACTIONS.CREATED_AT.desc())
+                .offset(offset)
+                .limit(limit)
+                .fetch();
     }
 
     /**

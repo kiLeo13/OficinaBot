@@ -1,25 +1,30 @@
 package ofc.bot.commands.economy;
 
-import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import ofc.bot.domain.sqlite.repository.BankTransactionRepository;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import ofc.bot.domain.entity.BankTransaction;
+import ofc.bot.domain.entity.enums.TransactionType;
+import ofc.bot.handlers.economy.CurrencyType;
+import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
+import ofc.bot.handlers.paginations.PaginationItem;
+import ofc.bot.handlers.paginations.Paginators;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
 @DiscordCommand(name = "transactions", description = "Mostra o histórico de transações.")
 public class TransactionsCommand extends SlashCommand {
-    private final BankTransactionRepository bankTrRepo;
-
-    public TransactionsCommand(BankTransactionRepository bankTrRepo) {
-        this.bankTrRepo = bankTrRepo;
-    }
+    public static final int PAGE_SIZE = 5;
 
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
@@ -27,11 +32,24 @@ public class TransactionsCommand extends SlashCommand {
         int pageIndex = ctx.getOption("page", 1, OptionMapping::getAsInt) - 1;
         boolean hasChatMoney = ctx.getOption("include-chatmoney", false, OptionMapping::getAsBoolean);
         boolean crossEconomy = ctx.getOption("cross-economy", true, OptionMapping::getAsBoolean);
+        Guild guild = ctx.getGuild();
+        User user = ctx.getUser();
+        List<TransactionType> actions = getTypes(hasChatMoney);
+        List<CurrencyType> currencies = getCurrencies(crossEconomy);
+        PaginationItem<BankTransaction> trs = Paginators.viewTransactions(
+                userId, pageIndex, PAGE_SIZE, currencies, actions);
 
+        if (trs.isEmpty())
+            return Status.EMPTY_BANK_STATEMENT;
 
+        MessageEmbed embed = EmbedFactory.embedTransactions(user, guild, trs);
+        List<Button> btns = ButtonContextFactory.createTransactionsButtons(
+                userId, currencies, actions, pageIndex, trs.hasMore());
 
-        MessageEmbed embed = embed();
-        return ctx.replyEmbeds(embed);
+        return ctx.create()
+                .setEmbeds(embed)
+                .setActionRow(btns)
+                .send();
     }
 
     @Override
@@ -44,8 +62,13 @@ public class TransactionsCommand extends SlashCommand {
         );
     }
 
-    private MessageEmbed embed() {
-        EmbedBuilder builder = new EmbedBuilder();
-        return builder.build();
+    private List<TransactionType> getTypes(boolean includesChatMoney) {
+        return includesChatMoney
+                ? TransactionType.allExcept()
+                : TransactionType.allExcept(TransactionType.CHAT_MONEY);
+    }
+
+    private List<CurrencyType> getCurrencies(boolean crossEconomy) {
+        return crossEconomy ? List.of(CurrencyType.values()) : List.of(CurrencyType.OFICINA);
     }
 }

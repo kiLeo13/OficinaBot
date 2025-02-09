@@ -122,6 +122,7 @@ public final class CommandsInitializer {
                 new LeaderboardCommand(ecoRepo),
                 new PayCommand(ecoRepo, userRepo),
                 new SetMoneyCommand(ecoRepo),
+                new TransactionsCommand(),
                 new UpdateMoneyCommand(ecoRepo),
                 new WorkCommand(ecoRepo),
 

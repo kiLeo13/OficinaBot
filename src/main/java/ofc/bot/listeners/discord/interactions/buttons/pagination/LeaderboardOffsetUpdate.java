@@ -16,7 +16,7 @@ import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@ButtonHandler(scope = Scopes.Misc.PAGINATE_LEADERBOARD, autoResponseType = AutoResponseType.DEFER_EDIT)
+@ButtonHandler(scope = Scopes.Economy.VIEW_LEADERBOARD, autoResponseType = AutoResponseType.DEFER_EDIT)
 public class LeaderboardOffsetUpdate implements BotButtonListener {
     private final UserEconomyRepository ecoRepo;
 
