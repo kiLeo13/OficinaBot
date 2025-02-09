@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import ofc.bot.commands.economy.LeaderboardCommand;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.GroupPermission;
+import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.viewmodels.*;
 import ofc.bot.handlers.economy.CurrencyType;
@@ -337,7 +338,6 @@ public final class EmbedFactory {
         return builder.build();
     }
 
-    @SuppressWarnings("DataFlowIssue")
     private static String formatTransactions(List<BankTransaction> trs) {
         TransactionEntryBuilder builder = new TransactionEntryBuilder();
 
@@ -352,9 +352,12 @@ public final class EmbedFactory {
             String fmtTimestamp = timestamp.format(DATE_TIME_FORMATTER);
             String recName = receiver == null ? null : receiver.getName();
             String comment = Bot.ifNull(tr.getComment(), "--");
+            StoreItemType product = tr.getProduct();
+            String productName = product == null ? null : product.getName();
 
             builder.addF("\uD83C\uDF10 ID: #%d | \uD83D\uDD52 %s (GMT -3)", tr.getId(), fmtTimestamp)
                     .addF("\uD83C\uDF88 Tipo: %s", action.getName())
+                    .addFIf(product != null, "\uD83E\uDDE9 Item: %s", productName)
                     .addF("\uD83E\uDD11 %s: %s", resolveUserAlias(action), user.getName())
                     .addFIf(receiver != null, "\uD83D\uDC64 Recebente: %s", recName)
                     .addF("\uD83D\uDCC3 Nota: %s", comment)
