@@ -161,7 +161,8 @@ public final class CommandsInitializer {
                 new MovieInstructionsCommand(),
                 new RoleAmongUsCommand(),
                 new RoleInfoCommand(),
-                new RoleMembersCommand()
+                new RoleMembersCommand(),
+                new ToggleEventsCommand()
         );
 
         SlashCommandsRegistryManager.register(cmds);
