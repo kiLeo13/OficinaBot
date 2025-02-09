@@ -67,6 +67,10 @@ public class PaginationItem<T>{
         return this.pageCount - 1;
     }
 
+    public int getLastPage() {
+        return this.pageCount;
+    }
+
     public boolean exists(int pageIndex) {
         return pageIndex <= lastPageIndex();
     }
