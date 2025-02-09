@@ -42,6 +42,9 @@ public class TransactionsCommand extends SlashCommand {
         if (trs.isEmpty())
             return Status.EMPTY_BANK_STATEMENT;
 
+        if (!trs.exists(pageIndex))
+            return Status.PAGE_DOES_NOT_EXIST.args(trs.getLastPage());
+
         MessageEmbed embed = EmbedFactory.embedTransactions(user, guild, trs);
         List<Button> btns = ButtonContextFactory.createTransactionsButtons(
                 userId, currencies, actions, pageIndex, trs.hasMore());
