@@ -8,6 +8,8 @@ import org.jooq.DSLContext;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.jooq.impl.DSL.noCondition;
+
 /**
  * Repository for {@link MemberPunishment} entity.
  */
@@ -46,12 +48,13 @@ public class MemberPunishmentRepository {
     }
 
     public List<MemberPunishment> findByUserAndGuildId(
-            long userId, long guildId, int limit, int offset
+            long userId, long guildId, int limit, int offset, boolean showInactive
     ) {
+        var activeCond = showInactive ? noCondition() : MEMBERS_PUNISHMENTS.ACTIVE.eq(true);
         return ctx.selectFrom(MEMBERS_PUNISHMENTS)
                 .where(MEMBERS_PUNISHMENTS.USER_ID.eq(userId))
                 .and(MEMBERS_PUNISHMENTS.GUILD_ID.eq(guildId))
-                .and(MEMBERS_PUNISHMENTS.ACTIVE.eq(true))
+                .and(activeCond)
                 .orderBy(MEMBERS_PUNISHMENTS.CREATED_AT.desc())
                 .offset(offset)
                 .limit(limit)

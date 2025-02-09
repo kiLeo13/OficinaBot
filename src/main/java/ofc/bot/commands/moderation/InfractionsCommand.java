@@ -33,9 +33,11 @@ public class InfractionsCommand extends SlashCommand {
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         Guild guild = ctx.getGuild();
         User target = ctx.getSafeOption("user", OptionMapping::getAsUser);
+        boolean showInactive = ctx.getOption("show-inactive", false, OptionMapping::getAsBoolean);
         long targetId = target.getIdLong();
         long guildId = guild.getIdLong();
-        PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(targetId, guildId, PAGE_SIZE, 0);
+        PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(
+                targetId, guildId, PAGE_SIZE, 0, showInactive);
 
         if (infrs.isEmpty())
             return Status.USER_HAS_NO_INFRACTIONS;
@@ -43,7 +45,7 @@ public class InfractionsCommand extends SlashCommand {
         MemberPunishment infr = infrs.get(0);
         boolean active = infr.isActive();
         List<Button> btns = ButtonContextFactory.createInfractionsButtons(
-                infr.getId(), active, targetId, infrs.getPageIndex(), infrs.hasMore());
+                infr.getId(), active, targetId, infrs.getPageIndex(), showInactive, infrs.hasMore());
         MessageEmbed embed = EmbedFactory.embedInfractions(target, guild, infrs, infr.getModeratorId());
 
         return ctx.create()
@@ -55,7 +57,8 @@ public class InfractionsCommand extends SlashCommand {
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.USER, "user", "O usuário que deseja ver as infrações.", true)
+                new OptionData(OptionType.USER, "user", "O usuário que deseja ver as infrações.", true),
+                new OptionData(OptionType.BOOLEAN, "show-inactive", "Mostrar até infrações já apagadas? (Padrão: False).")
         );
     }
 }

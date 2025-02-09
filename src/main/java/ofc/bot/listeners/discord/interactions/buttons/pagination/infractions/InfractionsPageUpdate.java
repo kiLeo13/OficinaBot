@@ -25,12 +25,13 @@ public class InfractionsPageUpdate implements BotButtonListener {
 
     @Override
     public InteractionResult onClick(ButtonClickContext ctx) {
+        boolean showInactive = ctx.get("show_inactive");
         int pageIndex = ctx.get("page_index");
         long targetId = ctx.get("target_id");
         long guildId = ctx.getGuildId();
         Guild guild = ctx.getGuild();
         PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(
-                targetId, guildId, InfractionsCommand.PAGE_SIZE, pageIndex);
+                targetId, guildId, InfractionsCommand.PAGE_SIZE, pageIndex, showInactive);
 
         if (infrs.isEmpty())
             return Status.USER_HAS_NO_INFRACTIONS;
@@ -38,7 +39,7 @@ public class InfractionsPageUpdate implements BotButtonListener {
         MemberPunishment infr = infrs.get(0);
         boolean active = infr.isActive();
         List<Button> btns = ButtonContextFactory.createInfractionsButtons(
-                infr.getId(), active, targetId, pageIndex, infrs.hasMore());
+                infr.getId(), active, targetId, pageIndex, showInactive, infrs.hasMore());
 
         Bot.fetchUser(targetId).queue(target -> {
             long infrModeratorId = infr.getModeratorId();

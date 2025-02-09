@@ -37,6 +37,7 @@ public class DeleteInfraction implements BotButtonListener {
         long targetId = ctx.get("target_id");
         int pageIndex = ctx.get("page_index"); // Current page
         int infrId = ctx.get("infraction_id");
+        boolean showInactive = ctx.get("show_inactive");
         Guild guild = ctx.getGuild();
         MemberPunishment infr = pnshRepo.findById(infrId);
 
@@ -57,7 +58,7 @@ public class DeleteInfraction implements BotButtonListener {
         Bot.fetchUser(targetId).queue(target -> {
             int newPageIndex = Math.max(pageIndex - 1, 0);
             PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(
-                    targetId, guildId, InfractionsCommand.PAGE_SIZE, newPageIndex);
+                    targetId, guildId, InfractionsCommand.PAGE_SIZE, newPageIndex, showInactive);
 
             if (infrs.isEmpty()) {
                 ctx.reply(Status.USER_HAS_NO_INFRACTIONS);
@@ -68,7 +69,7 @@ public class DeleteInfraction implements BotButtonListener {
             boolean active = updatedIfr.isActive();
             MessageEmbed embed = EmbedFactory.embedInfractions(target, guild, infrs, issuerId);
             List<Button> btns = ButtonContextFactory.createInfractionsButtons(
-                    updatedIfr.getId(), active, targetId, newPageIndex, infrs.hasMore());
+                    updatedIfr.getId(), active, targetId, newPageIndex, showInactive, infrs.hasMore());
 
             ctx.create()
                     .setEmbeds(embed)

@@ -83,7 +83,8 @@ public final class ButtonContextFactory {
     }
 
     public static List<Button> createInfractionsButtons(int infrId, boolean isActive,
-                                                        long targetId, int pageIndex, boolean hasNext) {
+                                                        long targetId, int pageIndex,
+                                                        boolean showInactive, boolean hasNext) {
         boolean hasPrevious = pageIndex > 0;
 
         ButtonContext prev = ButtonContext.primary("Previous")
@@ -91,6 +92,7 @@ public final class ButtonContextFactory {
                 .setPermission(Permission.MESSAGE_MANAGE)
                 .put("page_index", pageIndex - 1)
                 .put("target_id", targetId)
+                .put("show_inactive", showInactive)
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.primary("Next")
@@ -98,6 +100,7 @@ public final class ButtonContextFactory {
                 .setPermission(Permission.MESSAGE_MANAGE)
                 .put("page_index", pageIndex + 1)
                 .put("target_id", targetId)
+                .put("show_inactive", showInactive)
                 .setEnabled(hasNext);
 
         ButtonContext delete = ButtonContext.danger(Emoji.fromUnicode("🗑"))
@@ -106,6 +109,7 @@ public final class ButtonContextFactory {
                 .put("page_index", pageIndex)
                 .put("infraction_id", infrId)
                 .put("target_id", targetId)
+                .put("show_inactive", showInactive)
                 .setEnabled(isActive);
 
         BUTTON_MANAGER.save(prev, next, delete);
