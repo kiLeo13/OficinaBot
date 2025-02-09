@@ -101,6 +101,7 @@ public enum Status implements InteractionResult {
     BOT_CANNOT_BAN_PROVIDED_MEMBER(             State.FAILURE, "Eu não posso banir este usuário."),
     BOT_CANNOT_TIMEOUT_PROVIDED_MEMBER(         State.FAILURE, "Eu não posso silenciar este usuário."),
     BOT_CANNOT_REMOVE_TIMEOUT_OF_MEMBER(        State.FAILURE, "Eu não posso remover o timeout deste usuário."),
+    MEMBER_IS_NOT_TIMED_OUT(                    State.FAILURE, "Este membro não está silenciado."),
     GROUP_PERMISSION_ALREADY_GRANTED(           State.FAILURE, "Esta permissão já está habilitada."),
     COMMAND_IS_ALREADY_OPERATING(               State.FAILURE, "Este comando já está em execução! Por favor, aguarde!"),
     GROUP_NAMES_CANNOT_CONTAIN_EMOJIS(          State.FAILURE, "Nomes de grupos não podem ter emojis."),

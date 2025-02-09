@@ -33,6 +33,9 @@ public class UnmuteCommand extends SlashCommand {
         if (!self.canInteract(member))
             return Status.BOT_CANNOT_REMOVE_TIMEOUT_OF_MEMBER;
 
+        if (!member.isTimedOut())
+            return Status.MEMBER_IS_NOT_TIMED_OUT;
+
         member.removeTimeout().reason(reason).queue(v -> {
             ctx.reply(Status.TIMEOUT_REMOVED_SUCCESSFULLY.args(member.getAsMention()));
         }, (err) -> {
