@@ -34,4 +34,8 @@ public class UserRepository {
                 .set(user)
                 .execute();
     }
+
+    public AppUser findById(long id) {
+        return ctx.fetchOne(USERS, USERS.ID.eq(id));
+    }
 }
