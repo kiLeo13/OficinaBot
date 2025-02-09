@@ -132,7 +132,9 @@ public final class CommandsInitializer {
                 // Moderation
                 new BanCommand(),
                 new InfractionsCommand(),
+                new MuteCommand(),
                 new UnbanCommand(),
+                new UnmuteCommand(),
                 new WarnCommand(pnshRepo, modActRepo),
 
                 // Relationships
