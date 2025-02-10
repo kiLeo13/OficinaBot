@@ -3,6 +3,7 @@ package ofc.bot.commands.moderation;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -28,7 +29,7 @@ public class BanCommand extends SlashCommand {
 
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
-        Member target = ctx.getOption("member", OptionMapping::getAsMember);
+        User target = ctx.getOption("user", OptionMapping::getAsUser);
         String reason = ctx.getSafeOption("reason", OptionMapping::getAsString);
         String fmtDuration = ctx.getOption("duration", "", OptionMapping::getAsString);
         String fmtDelTimeframe = ctx.getOption("history-deletion", "", OptionMapping::getAsString);
@@ -38,7 +39,8 @@ public class BanCommand extends SlashCommand {
         if (target == null)
             return Status.MEMBER_NOT_FOUND;
 
-        if (!self.canInteract(target))
+        Member memberTarget = guild.getMember(target);
+        if (memberTarget != null && !self.canInteract(memberTarget))
             return Status.BOT_CANNOT_BAN_PROVIDED_MEMBER;
 
         OficinaDuration delTimeframe;
@@ -54,7 +56,7 @@ public class BanCommand extends SlashCommand {
             return Status.INVALID_DELETION_TIMEFRAME.args(
                     Bot.parseDuration(MAX_DELETION_TIMEFRAME), Bot.parsePeriod(delTimeframe.getSeconds()));
 
-        target.ban((int) delTimeframe.getMillis(), TimeUnit.MILLISECONDS).reason(reason).queue(v -> {
+        guild.ban(target, (int) delTimeframe.getMillis(), TimeUnit.MILLISECONDS).reason(reason).queue(v -> {
             ctx.reply(Status.MEMBER_SUCCESSFULLY_BANNED.args(target.getAsMention()));
         }, (err) -> {
             LOGGER.error("Could not ban member {}", target.getId(), err);
@@ -66,7 +68,7 @@ public class BanCommand extends SlashCommand {
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.USER, "member", "O membro a ser banido", true),
+                new OptionData(OptionType.USER, "user", "O usuário a ser banido", true),
                 new OptionData(OptionType.STRING, "reason", "O motivo do banimento.", true)
                         .setRequiredLength(5, 400),
 
