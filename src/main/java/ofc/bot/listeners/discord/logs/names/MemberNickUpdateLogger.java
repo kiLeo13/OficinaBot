@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
  */
 @DiscordEventHandler
 public class MemberNickUpdateLogger extends ListenerAdapter {
-    private static final long TARGET_GUILD = 582430782577049600L;
     private static final Logger LOGGER = LoggerFactory.getLogger(MemberNickUpdateLogger.class);
     private final UserNameUpdateRepository namesRepo;
     private final UserRepository usersRepo;
@@ -39,7 +38,6 @@ public class MemberNickUpdateLogger extends ListenerAdapter {
         AuditLogChange change = entry.getChangeByKey("nick");
 
         if (entry.getType() != ActionType.MEMBER_UPDATE || change == null) return;
-        if (guild.getIdLong() != TARGET_GUILD) return;
 
         String newValue = change.getNewValue();
         String oldValue = change.getOldValue();
@@ -47,6 +45,8 @@ public class MemberNickUpdateLogger extends ListenerAdapter {
         long targetId = entry.getTargetIdLong();
         long moderatorId = entry.getUserIdLong();
         long guildId = guild.getIdLong();
+
+        if (targetId == 742729586659295283L) return;
 
         Bot.fetchUser(targetId).queue(target -> {
             UserNameUpdate editMapping = new UserNameUpdate(

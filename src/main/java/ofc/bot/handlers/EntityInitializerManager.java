@@ -75,6 +75,7 @@ public final class EntityInitializerManager {
     public static void initializeCronJobs() {
         try {
             SchedulerRegistryManager.initializeSchedulers(
+                    new NickTimeUpdate(),
                     new QueryCountPrinter(),
                     new ExpiredBackupsRemover(),
                     new SadMonday(),
