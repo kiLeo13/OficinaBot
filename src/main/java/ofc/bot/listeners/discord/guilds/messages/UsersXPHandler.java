@@ -5,8 +5,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.domain.entity.UserXP;
-import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
-import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.handlers.LevelManager;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 
@@ -22,8 +20,8 @@ public class UsersXPHandler extends ListenerAdapter {
     private static final Random RANDOM = new Random();
     private final LevelManager levelManager;
 
-    public UsersXPHandler(UserXPRepository xpRepo, LevelRoleRepository lvlRoleRepo) {
-        levelManager = new LevelManager(xpRepo, lvlRoleRepo);
+    public UsersXPHandler() {
+        levelManager = LevelManager.getManager();
     }
 
     @Override

@@ -7,17 +7,24 @@ import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.entity.UserXP;
 import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
+import ofc.bot.domain.sqlite.repository.RepositoryFactory;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.util.content.Channels;
 import org.jetbrains.annotations.NotNull;
 
 public final class LevelManager {
+    private static LevelManager instance;
     private final UserXPRepository xpRepo;
     private final LevelRoleRepository lvlRoleRepo;
 
-    public LevelManager(UserXPRepository xpRepo, LevelRoleRepository lvlRoleRepo) {
-        this.xpRepo = xpRepo;
-        this.lvlRoleRepo = lvlRoleRepo;
+    private LevelManager() {
+        this.xpRepo = RepositoryFactory.getUserXPRepository();
+        this.lvlRoleRepo = RepositoryFactory.getLevelRoleRepository();
+    }
+
+    public static LevelManager getManager() {
+        if (instance == null) instance = new LevelManager();
+        return instance;
     }
 
     public synchronized void addXp(@NotNull Member member, int xp) {

@@ -3,9 +3,6 @@ package ofc.bot.jobs.income;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import ofc.bot.Main;
-import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
-import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.handlers.LevelManager;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.Job;
@@ -26,9 +23,7 @@ public class VoiceXPHandler implements Job {
     private final LevelManager levelManager;
 
     public VoiceXPHandler() {
-        UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
-        LevelRoleRepository lvlRoleRepo = RepositoryFactory.getLevelRoleRepository();
-        this.levelManager = new LevelManager(xpRepo, lvlRoleRepo);
+        this.levelManager = LevelManager.getManager();
     }
 
     @Override

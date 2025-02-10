@@ -160,7 +160,6 @@ public final class EntityInitializerManager {
         BlockedWordRepository blckWordsRepo = RepositoryFactory.getBlockedWordRepository();
         DiscordMessageRepository msgRepo = RepositoryFactory.getDiscordMessageRepository();
         OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
-        LevelRoleRepository lvlRoleRepo = RepositoryFactory.getLevelRoleRepository();
         UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
         GroupBotRepository grpBotRepo = RepositoryFactory.getGroupBotRepository();
         UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
@@ -198,7 +197,7 @@ public final class EntityInitializerManager {
                 new UnverifiedMembersRegisterBlocker(),
                 new UserGlobalNameUpdateLogger(namesRepo, usersRepo),
                 new UserNameUpdateLogger(namesRepo, usersRepo),
-                new UsersXPHandler(xpRepo, lvlRoleRepo),
+                new UsersXPHandler(),
                 new VoiceActivity(),
                 new WorkReminderHandler(),
 
