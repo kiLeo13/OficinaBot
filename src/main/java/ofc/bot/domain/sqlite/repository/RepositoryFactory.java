@@ -4,7 +4,6 @@ import ofc.bot.domain.sqlite.DB;
 import org.jooq.DSLContext;
 
 public final class RepositoryFactory {
-    private static AnnouncedGameRepository announcedGameRepository;
     private static AutomodActionRepository automodActionRepository;
     private static BankTransactionRepository bankTransactionRepository;
     private static BirthdayRepository birthdayRepository;
@@ -29,11 +28,6 @@ public final class RepositoryFactory {
     private static UserXPRepository userXPRepository;
 
     private RepositoryFactory() {}
-
-    public static AnnouncedGameRepository getAnnouncedGameRepository() {
-        if (announcedGameRepository == null) announcedGameRepository = new AnnouncedGameRepository(getDSLContext());
-        return announcedGameRepository;
-    }
 
     public static AutomodActionRepository getAutomodActionRepository() {
         if (automodActionRepository == null) automodActionRepository = new AutomodActionRepository(getDSLContext());

@@ -82,7 +82,6 @@ public final class EntityInitializerManager {
                     new SadSunday(),
                     new BirthdayReminder(),
                     new ColorRoleRemotionHandler(),
-                    new EpicGamesPromotionAdvertiser(),
                     new HappyNewYearAnnouncement(),
                     new ToddyMedicineReminder(),
 

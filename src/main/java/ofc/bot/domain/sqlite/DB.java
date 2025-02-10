@@ -44,7 +44,6 @@ public final class DB {
 
     private static List<InitializableTable<?>> getTables() {
         return List.of(
-                AnnouncedGamesTable.ANNOUNCED_GAMES,
                 AutomodActionsTable.AUTOMOD_ACTIONS,
                 BankTransactionsTable.BANK_TRANSACTIONS,
                 BirthdaysTable.BIRTHDAYS,
