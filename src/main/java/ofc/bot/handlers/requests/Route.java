@@ -29,10 +29,6 @@ public final class Route {
         public static final Route UPDATE_BALANCE = new Route(PATCH, BASE_URL + "guilds/%s/users/%s");
     }
 
-    public static class MEE6 {
-        public static final Route GET_LEADERBOARD = new Route(GET, "https://mee6.xyz/api/plugins/levels/leaderboard/%s");
-    }
-
     public static class IPs {
         public static final Route GET_IP_INFO = new Route(GET, "http://ip-api.com/json/%s");
     }
@@ -42,10 +38,6 @@ public final class Route {
 
         public static final Route CREATE_RANK_CARD  = new Route(POST, BASE, "/levels/cards");
         public static final Route CREATE_ROLES_CARD = new Route(POST, BASE, "/levels/roles");
-    }
-
-    public static class Games {
-        public static final Route GET_EPICSTORE_FREE_GAMES = new Route(GET, "https://free-epic-games.p.rapidapi.com/free");
     }
 
     public Route(Method method, String route) {
