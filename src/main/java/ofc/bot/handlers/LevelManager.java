@@ -3,23 +3,29 @@ package ofc.bot.handlers;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.entity.UserXP;
+import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
 import ofc.bot.domain.sqlite.repository.RepositoryFactory;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.util.content.Channels;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Set;
+
 public final class LevelManager {
     private static LevelManager instance;
     private final UserXPRepository xpRepo;
     private final LevelRoleRepository lvlRoleRepo;
+    private final Set<Long> policyCache;
 
     private LevelManager() {
         this.xpRepo = RepositoryFactory.getUserXPRepository();
         this.lvlRoleRepo = RepositoryFactory.getLevelRoleRepository();
+        this.policyCache = RepositoryFactory.getEntityPolicyRepository().findSetByType(PolicyType.BLOCK_XP_GAINS);
     }
 
     public static LevelManager getManager() {
@@ -27,11 +33,16 @@ public final class LevelManager {
         return instance;
     }
 
-    public synchronized void addXp(@NotNull Member member, int xp) {
+    public synchronized void addXp(@NotNull Member member, @NotNull GuildChannel channel, int xp) {
         Checks.notNull(member, "Member");
+        Checks.notNull(channel, "Channel");
         Checks.positive(xp, "Xp");
         Guild guild = member.getGuild();
         long userId = member.getIdLong();
+        long chanId = channel.getIdLong();
+
+        if (isExcluded(member, chanId)) return;
+
         UserXP userXp = xpRepo.findByUserId(userId, UserXP.fromUserId(userId));
         int xpMod = userXp.getXp() + xp;
         int oldLevel = userXp.getLevel();
@@ -65,5 +76,11 @@ public final class LevelManager {
             // but its not necessary, removing the old role is enough.
             guild.removeRoleFromMember(member, oldLvlRole.toRole()).queue();
         }
+    }
+
+    private boolean isExcluded(Member member, long chanId) {
+        return policyCache.contains(chanId) || member.getRoles()
+                .stream()
+                .anyMatch(r -> policyCache.contains(r.getIdLong()));
     }
 }

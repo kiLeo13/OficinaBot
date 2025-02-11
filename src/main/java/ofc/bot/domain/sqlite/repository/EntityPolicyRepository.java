@@ -7,6 +7,7 @@ import org.jooq.DSLContext;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Repository for {@link EntityPolicy} entity.
@@ -40,6 +41,13 @@ public class EntityPolicyRepository {
         );
     }
 
+    public Set<Long> findSetByType(PolicyType type) {
+        return findByTypes(type)
+                .stream()
+                .map(ep -> ep.getResource(Long::parseLong))
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
     public Map<PolicyType, Set<Long>> mapSetByType(List<PolicyType> types) {
         if (types == null || types.isEmpty())
             return Map.of();
@@ -57,6 +65,10 @@ public class EntityPolicyRepository {
             map.put(type, ids);
         }
         return Collections.unmodifiableMap(map);
+    }
+
+    public List<EntityPolicy> findByTypes(PolicyType... types) {
+        return findByTypes(List.of(types));
     }
 
     public List<EntityPolicy> findByTypes(List<PolicyType> types) {

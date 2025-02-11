@@ -2,6 +2,7 @@ package ofc.bot.jobs.income;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import ofc.bot.Main;
 import ofc.bot.handlers.LevelManager;
 import ofc.bot.util.content.annotations.jobs.CronJob;
@@ -27,6 +28,7 @@ public class VoiceXPHandler implements Job {
     }
 
     @Override
+    @SuppressWarnings("DataFlowIssue")
     public void execute(JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("Looking for members to receive XP for voice-channel presence...");
         List<Guild> guilds = Main.getApi().getGuilds();
@@ -41,8 +43,9 @@ public class VoiceXPHandler implements Job {
 
         for (Member member : members) {
             int xp = RANDOM.nextInt(MIN_VALUE, MAX_VALUE + 1);
+            GuildChannel chan = member.getVoiceState().getChannel();
 
-            levelManager.addXp(member, xp);
+            levelManager.addXp(member, chan, xp);
         }
     }
 }

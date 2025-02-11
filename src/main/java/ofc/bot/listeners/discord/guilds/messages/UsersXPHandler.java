@@ -2,6 +2,7 @@ package ofc.bot.listeners.discord.guilds.messages;
 
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.domain.entity.UserXP;
@@ -28,12 +29,13 @@ public class UsersXPHandler extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent e) {
         User user = e.getAuthor();
         Member member = e.getMember();
+        GuildChannel channel = e.getGuildChannel();
         long userId = user.getIdLong();
 
         if (user.isBot() || member == null || !isAllowed(userId)) return;
 
         int xpMod = RANDOM.nextInt(UserXP.MIN_CYCLE, UserXP.MAX_CYCLE + 1);
-        levelManager.addXp(member, xpMod);
+        levelManager.addXp(member, channel, xpMod);
     }
 
     private boolean isAllowed(long userId) {

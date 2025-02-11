@@ -12,6 +12,7 @@ public enum PolicyType {
     EXEMPT_MARRIAGE_FEE(        of(USER), "Insentar das Taxas de Casamento."),
     HIDE_BIRTHDAY_AGE(          of(USER), "Ocultar a data de Nascimento."),
     HIDE_FROM_STAFF_LIST(       of(USER), "Ocultar da Lista de Staffs."),
+    BLOCK_XP_GAINS(             of(ROLE, CHANNEL), "Bloqueie os ganhos de XP."),
     BYPASS_WORD_BLOCKER(        of(ROLE, CHANNEL), "Ignorar na moderação de palavras bloqueadas."),
     BYPASS_MASS_EMOJI_BLOCKER(  of(ROLE, CHANNEL), "Ignorar na moderação de excesso de emojis."),
     BYPASS_MASS_MENTION_BLOCKER(of(ROLE, CHANNEL), "Ignorar na moderação de marcações em excesso."),
