@@ -27,6 +27,8 @@ public class UsersXPHandler extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent e) {
+        if (!e.isFromGuild()) return;
+
         User user = e.getAuthor();
         Member member = e.getMember();
         GuildChannel channel = e.getGuildChannel();
