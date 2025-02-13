@@ -35,8 +35,8 @@ public class NickTimeUpdate implements Job {
             return;
         }
 
-        LocalTime time = ZonedDateTime.now(ZoneId.of("Europe/Lisbon")).toLocalTime();
-        String name = String.format("\uD83C\uDF51 Agora são %s em Portugal \uD83C\uDF52", time.format(TIME_FORMATTER));
+        LocalTime time = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalTime();
+        String name = String.format("\uD83C\uDF51 Agora são %s na Coreia \uD83C\uDF52", time.format(TIME_FORMATTER));
         guild.retrieveMemberById(userId)
                 .flatMap(m -> m.modifyNickname(name))
                 .queue(null, err -> LOGGER.error("Could not complete operation", err));
