@@ -96,7 +96,6 @@ public class UserinfoCommand extends SlashCommand {
                 .setThumbnail(user.getEffectiveAvatarUrl())
                 .setColor(color)
                 .addField("📅 Criação da Conta", String.format("<t:%d>\n<t:%1$d:R>", creation), true)
-                .addField("🌐 User ID", "`" + target.getIdLong() + "`", true)
                 .addField("🌟 Entrou no Servidor", String.format("<t:%d>", joined), true)
                 .addField(UserEconomy.SYMBOL + " Saldo", "$" + Bot.fmtNum(balance), true)
                 .setFooter(footer, guild.getIconUrl());
@@ -150,7 +149,7 @@ public class UserinfoCommand extends SlashCommand {
 
         return roles.isEmpty()
                 ? Color.GRAY
-                : roles.get(0).getColor();
+                : roles.getFirst().getColor();
     }
 
     private String getTitle(User user) {
