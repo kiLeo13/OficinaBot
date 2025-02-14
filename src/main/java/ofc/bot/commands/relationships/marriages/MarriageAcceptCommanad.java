@@ -120,7 +120,7 @@ public class MarriageAcceptCommanad extends SlashSubcommand {
         mreqRepo.delete(req);
 
         Marriage marr = Marriage.fromUsers(req.getRequesterId(), req.getTargetId());
-        marrRepo.save(marr);
+        marrRepo.upsert(marr);
     }
 
     private void sendCelebrationMessage(MessageChannel channel, long spouse, long anotherSpouse) {

@@ -42,19 +42,6 @@ public class MarriageRepository {
         );
     }
 
-    public List<MarriageView> viewByUserId(long userId) {
-        return viewByUserId(userId, -1);
-    }
-
-    public int countWithExclusions(long userId, List<Long> exclIds) {
-        return ctx.fetchCount(
-                MARRIAGES,
-                MARRIAGES.REQUESTER_ID.notIn(exclIds)
-                        .and(MARRIAGES.TARGET_ID.notIn(exclIds))
-                        .and(MARRIAGES.TARGET_ID.eq(userId).or(MARRIAGES.REQUESTER_ID.eq(userId)))
-        );
-    }
-
     @SuppressWarnings("DataFlowIssue")
     public List<MarriageView> viewByUserId(long userId, int limit) {
         Table<AppUser> req = USERS.as("req");
@@ -90,10 +77,12 @@ public class MarriageRepository {
      *
      * @param mr The marriage record to persist.
      */
-    public void save(Marriage mr) {
+    public void upsert(Marriage mr) {
+        mr.changed(MARRIAGES.CREATED_AT, false);
         ctx.insertInto(MARRIAGES)
                 .set(mr.intoMap())
-                .onDuplicateKeyIgnore()
+                .onDuplicateKeyUpdate()
+                .set(mr)
                 .execute();
     }
 

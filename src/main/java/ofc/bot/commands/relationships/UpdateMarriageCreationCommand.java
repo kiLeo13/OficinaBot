@@ -65,7 +65,7 @@ public class UpdateMarriageCreationCommand extends SlashCommand {
                     .setMarriedAt(epochMarrDate)
                     .tickUpdate();
 
-            marrRepo.save(relationship);
+            marrRepo.upsert(relationship);
 
             return ctx.create()
                     .setContentFormat("Data do casamento de %s com %s com atualizada com sucesso para <t:%d:d>.",
