@@ -18,8 +18,13 @@ public class CreateChangelogEntryCommand extends SlashCommand {
         TextInput content = TextInput.create("content", "Content", TextInputStyle.PARAGRAPH)
                 .setMaxLength(Message.MAX_CONTENT_LENGTH)
                 .build();
+        TextInput attachments = TextInput.create("attachments", "Attachments", TextInputStyle.PARAGRAPH)
+                .setRequired(false)
+                .build();
+
         Modal modal = Modal.create("changelog-entry", "✈️ New Changelog Entry")
                 .addActionRow(content)
+                .addActionRow(attachments)
                 .build();
 
         return ctx.replyModal(modal);
