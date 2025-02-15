@@ -3,7 +3,7 @@ package ofc.bot.jobs;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import ofc.bot.Main;
-import ofc.bot.internal.data.BotData;
+import ofc.bot.internal.data.BotProperties;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -11,7 +11,9 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.*;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @CronJob(expression = "0 * * ? * * *")
@@ -21,7 +23,7 @@ public class NickTimeUpdate implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        String userId = BotData.get("nick.user");
+        String userId = BotProperties.fetch("nick.user");
         JDA api = Main.getApi();
         Guild guild = api.getGuildById(582430782577049600L);
 
@@ -35,8 +37,8 @@ public class NickTimeUpdate implements Job {
             return;
         }
 
-        String zoneId = BotData.get("zone.id");
-        String username = BotData.get("nick.user.name.format");
+        String zoneId = BotProperties.fetch("zone.id");
+        String username = BotProperties.fetch("nick.user.name.format");
         if (zoneId == null || username == null) {
             LOGGER.warn("Zone id or Username not found");
             return;
