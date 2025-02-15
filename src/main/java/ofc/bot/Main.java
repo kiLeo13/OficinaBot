@@ -50,6 +50,7 @@ public final class Main {
         }
 
         // Registers
+        EntityInitializerManager.initServices();
         EntityInitializerManager.registerListeners();
         EntityInitializerManager.registerSlashCommands();
         EntityInitializerManager.registerButtons();

@@ -9,6 +9,7 @@ import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.events.impl.BankTransactionEvent;
+import ofc.bot.handlers.cache.PolicyService;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.groups.permissions.GroupPermissionManager;
 import ofc.bot.handlers.interactions.buttons.AutoResponseType;
@@ -22,6 +23,7 @@ import ofc.bot.util.content.annotations.listeners.ButtonHandler;
 @ButtonHandler(scope = Scopes.Group.ADD_PERMISSION, autoResponseType = AutoResponseType.THINKING)
 public class GroupPermissionAddHandler implements BotButtonListener {
     private final GroupPermissionManager permissionManager;
+    private final PolicyService policyService = PolicyService.getService();
 
     public GroupPermissionAddHandler(EntityPolicyRepository policyRepo) {
         this.permissionManager = new GroupPermissionManager(policyRepo);
@@ -48,6 +50,12 @@ public class GroupPermissionAddHandler implements BotButtonListener {
             chargeAction.rollback();
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
         }
+
+        if (!perm.isDiscord()) {
+            // Invalidate all the cache to keep it up-to-date with the new policies set.
+            policyService.invalidate();
+        }
+
         ctx.disable();
         dispatchPermissionAddEvent(ownerId, currency, price);
         return Status.GROUP_PERMISSION_GRANTED_SUCESSFULLY.args(perm.getDisplay());

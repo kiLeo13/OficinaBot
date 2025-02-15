@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.domain.entity.BlockedWord;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.sqlite.repository.*;
+import ofc.bot.handlers.cache.PolicyService;
 import ofc.bot.handlers.moderation.PunishmentData;
 import ofc.bot.handlers.moderation.PunishmentManager;
 import ofc.bot.handlers.moderation.Reason;
@@ -52,7 +53,7 @@ public class AutoModerator extends ListenerAdapter {
     public static final int MAX_MENTIONS = 5;
 
     /* Cache, Managers and some nice non-static stuff */
-    private final Map<PolicyType, Set<Long>> policyCache;
+    private final PolicyService policyCache = PolicyService.getService();
     private final Map<Long, List<BlockedWord>> blockedWordsCache;
     private final Set<String> allowedDomainsCache;
     private final PunishmentManager punishmentManager;
@@ -61,7 +62,6 @@ public class AutoModerator extends ListenerAdapter {
             EntityPolicyRepository policyRepo, BlockedWordRepository blckWordsRepo,
             MemberPunishmentRepository pnshRepo, AutomodActionRepository modActRepo
     ) {
-        this.policyCache = policyRepo.mapSetByType(PolicyType.getAutomods());
         this.blockedWordsCache = loadBlockedWords(blckWordsRepo);
         this.allowedDomainsCache = loadAllowedDomains(policyRepo);
         this.punishmentManager = new PunishmentManager(pnshRepo, modActRepo);
@@ -216,7 +216,7 @@ public class AutoModerator extends ListenerAdapter {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isExcluded(PolicyType type, Member member, long chanId) {
-        Set<Long> ids = policyCache.getOrDefault(type, Set.of());
+        Set<Long> ids = policyCache.get(type);
         return ids.contains(chanId) || member.getRoles()
                 .stream()
                 .anyMatch(r -> ids.contains(r.getIdLong()));

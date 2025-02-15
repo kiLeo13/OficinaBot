@@ -5,6 +5,7 @@ import ofc.bot.Main;
 import ofc.bot.commands.groups.LeaveGroupCommand;
 import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.events.eventbus.EventBus;
+import ofc.bot.handlers.cache.PolicyService;
 import ofc.bot.handlers.interactions.buttons.ButtonInteractionGateway;
 import ofc.bot.handlers.interactions.commands.SlashCommandsGateway;
 import ofc.bot.handlers.interactions.commands.slash.CommandsInitializer;
@@ -97,6 +98,11 @@ public final class EntityInitializerManager {
         } catch (SchedulerException e) {
             LOGGER.error("Could not initialize schedulers", e);
         }
+    }
+
+    public static void initServices() {
+        EntityPolicyRepository policyRepo = RepositoryFactory.getEntityPolicyRepository();
+        PolicyService.setPolicyRepo(policyRepo);
     }
 
     public static void registerButtons() {
