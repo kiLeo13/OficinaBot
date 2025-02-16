@@ -51,7 +51,8 @@ public class SchedulerRegistryManager {
         CronJob jobAnnotation = jobClass.getDeclaredAnnotation(CronJob.class);
 
         if (jobAnnotation == null)
-            throw new IllegalArgumentException("Job class " + jobClass.getName() + " must be annotated with CronJob");
+            throw new IllegalArgumentException(
+                    "Job class " + jobClass.getName() + " must be annotated with " + CronJob.class.getName());
 
         String identity = jobAnnotation.identity();
         String name = identity.isBlank()
