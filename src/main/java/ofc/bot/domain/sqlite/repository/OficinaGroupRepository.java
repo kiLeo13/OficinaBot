@@ -1,28 +1,29 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
 import ofc.bot.domain.tables.OficinaGroupsTable;
 import ofc.bot.util.Bot;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 import java.util.List;
 
 /**
- * Repository for {@link ofc.bot.domain.entity.OficinaGroup OficinaGroup} entity.
+ * Repository for {@link OficinaGroup} entity.
  */
-public class OficinaGroupRepository {
+public class OficinaGroupRepository extends Repository<OficinaGroup> {
     private static final OficinaGroupsTable OFICINA_GROUPS = OficinaGroupsTable.OFICINA_GROUPS;
-    private final DSLContext ctx;
 
     public OficinaGroupRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public OficinaGroup findByRoleId(long roleId) {
-        return ctx.selectFrom(OFICINA_GROUPS)
-                .where(OFICINA_GROUPS.ROLE_ID.eq(roleId))
-                .fetchOne();
+    @NotNull
+    @Override
+    public InitializableTable<OficinaGroup> getTable() {
+        return OFICINA_GROUPS;
     }
 
     public OficinaGroup findByOwnerId(long userId) {
@@ -69,16 +70,9 @@ public class OficinaGroupRepository {
                 .execute();
     }
 
-    public void upsert(OficinaGroup group) {
-        group.changed(OFICINA_GROUPS.CREATED_AT, false);
-        ctx.insertInto(OFICINA_GROUPS)
-                .set(group.intoMap())
-                .onDuplicateKeyUpdate()
-                .set(group)
-                .execute();
-    }
-
     public void delete(OficinaGroup group) {
-        ctx.executeDelete(group, OFICINA_GROUPS.ID.eq(group.getId()));
+        ctx.deleteFrom(OFICINA_GROUPS)
+                .where(OFICINA_GROUPS.ID.eq(group.getId()))
+                .execute();
     }
 }

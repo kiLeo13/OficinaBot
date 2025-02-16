@@ -4,11 +4,10 @@ import ofc.bot.domain.entity.enums.ResourceType;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.tables.EntitiesPoliciesTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
 
 import java.util.function.Function;
 
-public class EntityPolicy extends TableRecordImpl<EntityPolicy> {
+public class EntityPolicy extends OficinaRecord<EntityPolicy> {
     private static final EntitiesPoliciesTable ENTITIES_POLICIES = EntitiesPoliciesTable.ENTITIES_POLICIES;
 
     public EntityPolicy() {

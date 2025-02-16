@@ -2,11 +2,11 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.CustomUserinfoTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
-public class CustomUserinfo extends TableRecordImpl<CustomUserinfo> {
+public class CustomUserinfo extends OficinaRecord<CustomUserinfo> {
     private static final CustomUserinfoTable CUSTOM_USERINFO = CustomUserinfoTable.CUSTOM_USERINFO;
 
     public static final String MARRIAGE_FORMAT = "💕 %s (<t:%d:d>)\n";
@@ -85,24 +85,9 @@ public class CustomUserinfo extends TableRecordImpl<CustomUserinfo> {
         return this;
     }
 
-    public CustomUserinfo setTimeCreated(long createdAt) {
-        set(CUSTOM_USERINFO.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public CustomUserinfo setLastUpdated(long updateAt) {
         set(CUSTOM_USERINFO.UPDATED_AT, updateAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public CustomUserinfo tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }

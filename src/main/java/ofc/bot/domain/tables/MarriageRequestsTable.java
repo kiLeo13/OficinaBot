@@ -10,7 +10,6 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.SQLDataType;
 
 import static ofc.bot.domain.tables.UsersTable.USERS;
-import static org.jooq.impl.DSL.foreignKey;
 
 public class MarriageRequestsTable extends InitializableTable<MarriageRequest> {
     public static final MarriageRequestsTable MARRIAGE_REQUESTS = new MarriageRequestsTable();

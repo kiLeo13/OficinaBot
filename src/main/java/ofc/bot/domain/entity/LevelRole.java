@@ -3,9 +3,8 @@ package ofc.bot.domain.entity;
 import net.dv8tion.jda.api.entities.Role;
 import ofc.bot.Main;
 import ofc.bot.domain.tables.LevelsRolesTable;
-import org.jooq.impl.TableRecordImpl;
 
-public class LevelRole extends TableRecordImpl<LevelRole> {
+public class LevelRole extends OficinaRecord<LevelRole> {
     private static final LevelsRolesTable LEVELS_ROLES = LevelsRolesTable.LEVELS_ROLES;
 
     public LevelRole() {

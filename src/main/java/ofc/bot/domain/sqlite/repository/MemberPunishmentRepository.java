@@ -1,8 +1,10 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.MemberPunishment;
 import ofc.bot.domain.tables.MembersPunishmentsTable;
 import ofc.bot.util.Bot;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 import java.util.List;
@@ -13,12 +15,17 @@ import static org.jooq.impl.DSL.noCondition;
 /**
  * Repository for {@link MemberPunishment} entity.
  */
-public class MemberPunishmentRepository {
+public class MemberPunishmentRepository extends Repository<MemberPunishment> {
     private static final MembersPunishmentsTable MEMBERS_PUNISHMENTS = MembersPunishmentsTable.MEMBERS_PUNISHMENTS;
-    private final DSLContext ctx;
 
     public MemberPunishmentRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
+    }
+
+    @NotNull
+    @Override
+    public InitializableTable<MemberPunishment> getTable() {
+        return MEMBERS_PUNISHMENTS;
     }
 
     public MemberPunishment findById(int id) {
@@ -26,15 +33,6 @@ public class MemberPunishmentRepository {
                 .where(MEMBERS_PUNISHMENTS.ID.eq(id))
                 .and(MEMBERS_PUNISHMENTS.ACTIVE.eq(true))
                 .fetchOne();
-    }
-
-    public void upsert(MemberPunishment punishment) {
-        punishment.changed(MEMBERS_PUNISHMENTS.CREATED_AT, false);
-        ctx.insertInto(MEMBERS_PUNISHMENTS)
-                .set(punishment.intoMap())
-                .onDuplicateKeyUpdate()
-                .set(punishment)
-                .execute();
     }
 
     public List<MemberPunishment> findByUserAndGuildId(long userId, long guildId, int limit) {

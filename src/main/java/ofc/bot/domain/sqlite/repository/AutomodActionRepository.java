@@ -1,18 +1,25 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.AutomodAction;
 import ofc.bot.domain.tables.AutomodActionsTable;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 /**
  * Repository for {@link AutomodAction} entity.
  */
-public class AutomodActionRepository {
+public class AutomodActionRepository extends Repository<AutomodAction> {
     private static final AutomodActionsTable AUTOMOD_ACTIONS = AutomodActionsTable.AUTOMOD_ACTIONS;
-    private final DSLContext ctx;
 
     public AutomodActionRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
+    }
+
+    @NotNull
+    @Override
+    public InitializableTable<AutomodAction> getTable() {
+        return AUTOMOD_ACTIONS;
     }
 
     public AutomodAction findLastByThreshold(int threshold) {

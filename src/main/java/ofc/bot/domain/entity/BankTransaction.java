@@ -2,18 +2,17 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.domain.sqlite.repository.UserRepository;
 import ofc.bot.domain.tables.BankTransactionsTable;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jooq.impl.TableRecordImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BankTransaction extends TableRecordImpl<BankTransaction> {
+public class BankTransaction extends OficinaRecord<BankTransaction> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BankTransaction.class);
     private static final BankTransactionsTable BANK_TRANSACTIONS = BankTransactionsTable.BANK_TRANSACTIONS;
 
@@ -146,7 +145,7 @@ public class BankTransaction extends TableRecordImpl<BankTransaction> {
 
     @NotNull
     public AppUser retrieveUser() {
-        UserRepository userRepo = RepositoryFactory.getUserRepository();
+        UserRepository userRepo = Repositories.getUserRepository();
         AppUser user = userRepo.findById(getUserId());
         if (user == null)
             throw new IllegalStateException("For some unknown reason, the user " + getUserId() +
@@ -164,7 +163,7 @@ public class BankTransaction extends TableRecordImpl<BankTransaction> {
         Long recId = getReceiverId();
         if (recId == null) return null;
 
-        UserRepository userRepo = RepositoryFactory.getUserRepository();
+        UserRepository userRepo = Repositories.getUserRepository();
         AppUser user = userRepo.findById(recId);
         if (user == null)
             throw new IllegalStateException("For some unknown reason, the user " + getUserId() +
@@ -184,11 +183,6 @@ public class BankTransaction extends TableRecordImpl<BankTransaction> {
 
     public BankTransaction setComment(String comment) {
         set(BANK_TRANSACTIONS.COMMENT, comment);
-        return this;
-    }
-
-    public BankTransaction setTimeCreated(long timeCreated) {
-        set(BANK_TRANSACTIONS.CREATED_AT, timeCreated);
         return this;
     }
 }

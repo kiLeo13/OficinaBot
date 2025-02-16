@@ -1,8 +1,10 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.MarriageRequest;
 import ofc.bot.domain.viewmodels.ProposalsView;
 import ofc.bot.util.Bot;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 
@@ -11,14 +13,19 @@ import java.util.List;
 import static ofc.bot.domain.tables.MarriageRequestsTable.MARRIAGE_REQUESTS;
 
 /**
- * Repository for {@link ofc.bot.domain.entity.MarriageRequest MarriageRequest} entity.
+ * Repository for {@link MarriageRequest} entity.
  */
-public class MarriageRequestRepository {
+public class MarriageRequestRepository extends Repository<MarriageRequest> {
     private static final int MAX_USERS_PER_PAGE = 10;
-    private final DSLContext ctx;
 
     public MarriageRequestRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
+    }
+
+    @NotNull
+    @Override
+    public InitializableTable<MarriageRequest> getTable() {
+        return MARRIAGE_REQUESTS;
     }
 
     public boolean isPending(long reqId, long tarId) {
@@ -39,7 +46,7 @@ public class MarriageRequestRepository {
     }
 
     public ProposalsView viewProposals(String type, long userId, int pageIndex) {
-        MarriageRequestRepository mreqRepo = RepositoryFactory.getMarriageRequestRepository();
+        MarriageRequestRepository mreqRepo = Repositories.getMarriageRequestRepository();
         Condition condition = "out".equals(type)
                 ? MARRIAGE_REQUESTS.REQUESTER_ID.eq(userId)
                 : MARRIAGE_REQUESTS.TARGET_ID.eq(userId);
@@ -59,30 +66,10 @@ public class MarriageRequestRepository {
         ctx.executeDelete(req, MARRIAGE_REQUESTS.ID.eq(req.getId()));
     }
 
-    public MarriageRequest findByUserIds(long spouse1, long spouse2) {
-        return ctx.selectFrom(MARRIAGE_REQUESTS)
-                .where(MARRIAGE_REQUESTS.REQUESTER_ID.eq(spouse1).and(MARRIAGE_REQUESTS.TARGET_ID.eq(spouse2)))
-                .or(MARRIAGE_REQUESTS.REQUESTER_ID.eq(spouse2).and(MARRIAGE_REQUESTS.TARGET_ID.eq(spouse1)))
-                .fetchOne();
-    }
-
     public MarriageRequest findByStrictIds(long requesterId, long targetId) {
         return ctx.selectFrom(MARRIAGE_REQUESTS)
                 .where(MARRIAGE_REQUESTS.REQUESTER_ID.eq(requesterId))
                 .and(MARRIAGE_REQUESTS.TARGET_ID.eq(targetId))
                 .fetchOne();
-    }
-
-    /**
-     * This method attempts to insert a new row to the
-     * database, if the insertion collides, nothing happens.
-     *
-     * @param req The marriage request to be inserted.
-     */
-    public void save(MarriageRequest req) {
-        ctx.insertInto(MARRIAGE_REQUESTS)
-                .set(req.intoMap())
-                .onDuplicateKeyIgnore()
-                .execute();
     }
 }

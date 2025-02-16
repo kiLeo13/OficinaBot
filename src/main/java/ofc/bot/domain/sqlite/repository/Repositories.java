@@ -3,7 +3,7 @@ package ofc.bot.domain.sqlite.repository;
 import ofc.bot.domain.sqlite.DB;
 import org.jooq.DSLContext;
 
-public final class RepositoryFactory {
+public final class Repositories {
     private static AutomodActionRepository automodActionRepository;
     private static BankTransactionRepository bankTransactionRepository;
     private static BirthdayRepository birthdayRepository;
@@ -12,6 +12,7 @@ public final class RepositoryFactory {
     private static CustomUserinfoRepository customUserinfoRepository;
     private static DiscordMessageRepository discordMessageRepository;
     private static DiscordMessageUpdateRepository discordMessageUpdateRepository;
+    private static EntityPolicyRepository entityPolicyRepository;
     private static FormerMemberRoleRepository formerMemberRoleRepository;
     private static GroupBotRepository groupBotRepository;
     private static LevelRoleRepository levelRoleRepository;
@@ -20,14 +21,14 @@ public final class RepositoryFactory {
     private static MemberEmojiRepository memberEmojiRepository;
     private static MemberPunishmentRepository memberPunishmentRepository;
     private static OficinaGroupRepository oficinaGroupRepository;
+    private static TempBanRepository tempBanRepository;
     private static UserEconomyRepository userEconomyRepository;
-    private static EntityPolicyRepository entityPolicyRepository;
     private static UserNameUpdateRepository userNameUpdateRepository;
     private static UserPreferenceRepository userPreferenceRepository;
     private static UserRepository userRepository;
     private static UserXPRepository userXPRepository;
 
-    private RepositoryFactory() {}
+    private Repositories() {}
 
     public static AutomodActionRepository getAutomodActionRepository() {
         if (automodActionRepository == null) automodActionRepository = new AutomodActionRepository(getDSLContext());
@@ -107,6 +108,11 @@ public final class RepositoryFactory {
     public static OficinaGroupRepository getOficinaGroupRepository() {
         if (oficinaGroupRepository == null) oficinaGroupRepository = new OficinaGroupRepository(getDSLContext());
         return oficinaGroupRepository;
+    }
+
+    public static TempBanRepository getTempBanRepository() {
+        if (tempBanRepository == null) tempBanRepository = new TempBanRepository(getDSLContext());
+        return tempBanRepository;
     }
 
     public static UserEconomyRepository getUserEconomyRepository() {

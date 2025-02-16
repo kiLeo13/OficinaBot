@@ -4,9 +4,8 @@ import net.dv8tion.jda.api.entities.Member;
 import ofc.bot.domain.tables.MembersPunishmentsTable;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
-import org.jooq.impl.TableRecordImpl;
 
-public class MemberPunishment extends TableRecordImpl<MemberPunishment> {
+public class MemberPunishment extends OficinaRecord<MemberPunishment> {
     private static final MembersPunishmentsTable MEMBERS_PUNISHMENTS = MembersPunishmentsTable.MEMBERS_PUNISHMENTS;
 
     public MemberPunishment() {
@@ -83,19 +82,9 @@ public class MemberPunishment extends TableRecordImpl<MemberPunishment> {
         return this;
     }
 
+    @NotNull
     public MemberPunishment setLastUpdated(long updatedAt) {
         set(MEMBERS_PUNISHMENTS.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public MemberPunishment tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }

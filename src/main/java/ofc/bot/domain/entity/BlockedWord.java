@@ -1,9 +1,8 @@
 package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.BlockedWordsTable;
-import org.jooq.impl.TableRecordImpl;
 
-public class BlockedWord extends TableRecordImpl<BlockedWord> {
+public class BlockedWord extends OficinaRecord<BlockedWord> {
     private static final BlockedWordsTable BLOCKED_WORDS = BlockedWordsTable.BLOCKED_WORDS;
 
     public BlockedWord() {
@@ -34,6 +33,7 @@ public class BlockedWord extends TableRecordImpl<BlockedWord> {
         return get(BLOCKED_WORDS.CREATED_AT);
     }
 
+    @Override
     public long getLastUpdated() {
         return get(BLOCKED_WORDS.UPDATED_AT);
     }

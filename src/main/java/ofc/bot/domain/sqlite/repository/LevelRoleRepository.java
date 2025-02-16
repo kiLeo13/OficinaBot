@@ -1,24 +1,25 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.tables.LevelsRolesTable;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
-
-import java.util.List;
 
 /**
  * Repository for {@link LevelRole} entity.
  */
-public class LevelRoleRepository {
+public class LevelRoleRepository extends Repository<LevelRole> {
     private static final LevelsRolesTable LEVELS_ROLES = LevelsRolesTable.LEVELS_ROLES;
-    private final DSLContext ctx;
 
     public LevelRoleRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public List<LevelRole> findAll() {
-        return ctx.fetch(LEVELS_ROLES);
+    @NotNull
+    @Override
+    public InitializableTable<LevelRole> getTable() {
+        return LEVELS_ROLES;
     }
 
     public LevelRole findLastByLevel(int level) {

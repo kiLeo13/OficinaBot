@@ -5,11 +5,11 @@ import net.dv8tion.jda.api.entities.MessageReference;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
 import ofc.bot.domain.tables.DiscordMessagesTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DiscordMessage extends TableRecordImpl<DiscordMessage> {
+public class DiscordMessage extends OficinaRecord<DiscordMessage> {
     private static final DiscordMessagesTable DISCORD_MESSAGES = DiscordMessagesTable.DISCORD_MESSAGES;
 
     public static final long TARGET_GUILD = 582430782577049600L;
@@ -139,24 +139,9 @@ public class DiscordMessage extends TableRecordImpl<DiscordMessage> {
         return this;
     }
 
-    public DiscordMessage setTimeCreated(long createdAt) {
-        set(DISCORD_MESSAGES.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public DiscordMessage setLastUpdated(long updatedAt) {
         set(DISCORD_MESSAGES.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public DiscordMessage tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }

@@ -2,9 +2,8 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.entity.enums.BotCategory;
 import ofc.bot.domain.tables.GroupBotsTable;
-import org.jooq.impl.TableRecordImpl;
 
-public class GroupBot extends TableRecordImpl<GroupBot> {
+public class GroupBot extends OficinaRecord<GroupBot> {
     private static final GroupBotsTable GROUP_BOTS = GroupBotsTable.GROUP_BOTS;
 
     public GroupBot() {

@@ -1,5 +1,6 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.FormerMemberRole;
 import ofc.bot.domain.tables.FormerMembersRolesTable;
 import ofc.bot.util.Bot;
@@ -7,21 +8,25 @@ import org.jetbrains.annotations.NotNull;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.jooq.impl.DSL.noCondition;
 
 /**
- * Repository for {@link ofc.bot.domain.entity.FormerMemberRole FormerMemberRole} entity.
+ * Repository for {@link FormerMemberRole} entity.
  */
-public class FormerMemberRoleRepository {
+public class FormerMemberRoleRepository extends Repository<FormerMemberRole> {
     private static final FormerMembersRolesTable FORMER_MEMBERS_ROLES = FormerMembersRolesTable.FORMER_MEMBERS_ROLES;
-    private final DSLContext ctx;
 
     public FormerMemberRoleRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
+    }
+
+    @NotNull
+    @Override
+    public InitializableTable<FormerMemberRole> getTable() {
+        return FORMER_MEMBERS_ROLES;
     }
 
     /**
@@ -69,30 +74,5 @@ public class FormerMemberRoleRepository {
                 .where(FORMER_MEMBERS_ROLES.USER_ID.eq(userId))
                 .and(FORMER_MEMBERS_ROLES.GUILD_ID.eq(guildId))
                 .execute();
-    }
-
-    /**
-     * Batch inserts all roles records provided in the list.
-     *
-     * @param roles the roles backup to be saved to the database.
-     */
-    public int bulkSave(@NotNull List<FormerMemberRole> roles) {
-        if (roles.isEmpty()) return 0;
-        var batch = ctx.batch(
-                ctx.insertInto(FORMER_MEMBERS_ROLES)
-                        .columns(FORMER_MEMBERS_ROLES.PRIVILEGED, FORMER_MEMBERS_ROLES.USER_ID,
-                                FORMER_MEMBERS_ROLES.GUILD_ID, FORMER_MEMBERS_ROLES.ROLE_ID,
-                                FORMER_MEMBERS_ROLES.CREATED_AT)
-                        .values((Integer) null, null, null, null, null)
-        );
-
-        roles.forEach(role -> batch.bind(
-                role.isPrivileged() ? 1 : 0,
-                role.getUserId(),
-                role.getGuildId(),
-                role.getRoleId(),
-                role.getTimeCreated()
-        ));
-        return Arrays.stream(batch.execute()).sum();
     }
 }

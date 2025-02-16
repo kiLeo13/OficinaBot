@@ -1,23 +1,24 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.BlockedWord;
 import ofc.bot.domain.tables.BlockedWordsTable;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
-
-import java.util.List;
 
 /**
  * Repository for {@link BlockedWord} entity.
  */
-public class BlockedWordRepository {
+public class BlockedWordRepository extends Repository<BlockedWord> {
     private static final BlockedWordsTable BLOCKED_WORDS = BlockedWordsTable.BLOCKED_WORDS;
-    private final DSLContext ctx;
 
     public BlockedWordRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public List<BlockedWord> findAll() {
-        return ctx.fetch(BLOCKED_WORDS);
+    @NotNull
+    @Override
+    public InitializableTable<BlockedWord> getTable() {
+        return BLOCKED_WORDS;
     }
 }

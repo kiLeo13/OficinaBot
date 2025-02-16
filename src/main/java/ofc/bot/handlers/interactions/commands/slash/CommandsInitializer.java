@@ -42,23 +42,23 @@ public final class CommandsInitializer {
      * sends them to Discord.
      */
     public static void initializeSlashCommands() {
-        FormerMemberRoleRepository bckpRepo = RepositoryFactory.getFormerMemberRoleRepository();
-        BankTransactionRepository bankTrRepo = RepositoryFactory.getBankTransactionRepository();
-        MemberPunishmentRepository pnshRepo = RepositoryFactory.getMemberPunishmentRepository();
-        CustomUserinfoRepository csinfoRepo = RepositoryFactory.getCustomUserinfoRepository();
-        MarriageRequestRepository mreqRepo = RepositoryFactory.getMarriageRequestRepository();
-        UserNameUpdateRepository namesRepo = RepositoryFactory.getUserNameUpdateRepository();
-        AutomodActionRepository modActRepo = RepositoryFactory.getAutomodActionRepository();
-        EntityPolicyRepository policyRepo = RepositoryFactory.getEntityPolicyRepository();
-        OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
-        LevelRoleRepository lvlRoleRepo = RepositoryFactory.getLevelRoleRepository();
-        MemberEmojiRepository emjRepo = RepositoryFactory.getMemberEmojiRepository();
-        UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
-        GroupBotRepository grpBotRepo = RepositoryFactory.getGroupBotRepository();
-        BirthdayRepository bdayRepo = RepositoryFactory.getBirthdayRepository();
-        MarriageRepository marrRepo = RepositoryFactory.getMarriageRepository();
-        UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
-        UserRepository userRepo = RepositoryFactory.getUserRepository();
+        var bckpRepo    = Repositories.getFormerMemberRoleRepository();
+        var bankTrRepo  = Repositories.getBankTransactionRepository();
+        var pnshRepo    = Repositories.getMemberPunishmentRepository();
+        var csinfoRepo  = Repositories.getCustomUserinfoRepository();
+        var mreqRepo    = Repositories.getMarriageRequestRepository();
+        var namesRepo   = Repositories.getUserNameUpdateRepository();
+        var modActRepo  = Repositories.getAutomodActionRepository();
+        var policyRepo  = Repositories.getEntityPolicyRepository();
+        var grpRepo     = Repositories.getOficinaGroupRepository();
+        var lvlRoleRepo = Repositories.getLevelRoleRepository();
+        var emjRepo     = Repositories.getMemberEmojiRepository();
+        var ecoRepo     = Repositories.getUserEconomyRepository();
+        var grpBotRepo  = Repositories.getGroupBotRepository();
+        var bdayRepo    = Repositories.getBirthdayRepository();
+        var marrRepo    = Repositories.getMarriageRepository();
+        var xpRepo      = Repositories.getUserXPRepository();
+        var userRepo    = Repositories.getUserRepository();
 
         // Birhday
         SlashCommand birthday = new EmptySlashCommand("birthday", "Gerencia os aniversários.", Permission.MANAGE_SERVER)

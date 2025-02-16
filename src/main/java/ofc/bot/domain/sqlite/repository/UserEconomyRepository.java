@@ -1,6 +1,7 @@
 package ofc.bot.domain.sqlite.repository;
 
 import ofc.bot.commands.economy.LeaderboardCommand;
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.sqlite.MapperFactory;
 import ofc.bot.domain.tables.UsersEconomyTable;
@@ -18,35 +19,21 @@ import java.util.List;
 import static org.jooq.impl.DSL.*;
 
 /**
- * Repository for {@link ofc.bot.domain.entity.UserEconomy UserEconomy} entity.
+ * Repository for {@link UserEconomy} entity.
  */
-public class UserEconomyRepository {
+public class UserEconomyRepository extends Repository<UserEconomy> {
     private static final BalanceView EMPTY_BALANCE_DATA = new BalanceView(0, 0, 0, 0, 0, 0, false);
     private static final UsersEconomyTable USERS_ECONOMY = UsersEconomyTable.USERS_ECONOMY;
     private static final UsersTable USERS = UsersTable.USERS;
-    private final DSLContext ctx;
 
     public UserEconomyRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    /**
-     * Attempts to save a new {@link UserEconomy} record to the database.
-     * If it collides, an UPDATE is performed, as always,
-     * excluding the {@code created_at} column.
-     *
-     * @param user the user economy to be "upsert".
-     * @return a new {@link UserEconomy} instance with the updated values.
-     */
-    public UserEconomy upsert(UserEconomy user) {
-        user.changed(USERS_ECONOMY.CREATED_AT, false); // To avoid updating this field
-        ctx.insertInto(USERS_ECONOMY)
-                .set(user.intoMap())
-                .onDuplicateKeyUpdate()
-                .set(user)
-                .execute();
-
-        return findByUserId(user.getUserId());
+    @NotNull
+    @Override
+    public InitializableTable<UserEconomy> getTable() {
+        return USERS_ECONOMY;
     }
 
     public long fetchBalanceByUserId(long userId) {

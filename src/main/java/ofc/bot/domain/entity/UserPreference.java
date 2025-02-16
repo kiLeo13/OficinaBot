@@ -3,9 +3,9 @@ package ofc.bot.domain.entity;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import ofc.bot.domain.tables.UsersPreferencesTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
-public class UserPreference extends TableRecordImpl<UserPreference> {
+public class UserPreference extends OficinaRecord<UserPreference> {
     private static final UsersPreferencesTable USERS_PREFERENCES = UsersPreferencesTable.USERS_PREFERENCES;
 
     public UserPreference() {
@@ -52,24 +52,9 @@ public class UserPreference extends TableRecordImpl<UserPreference> {
         return this;
     }
 
-    public UserPreference setTimeCreated(long createdAt) {
-        set(USERS_PREFERENCES.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public UserPreference setLastUpdated(long updatedAt) {
         set(USERS_PREFERENCES.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public UserPreference tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }

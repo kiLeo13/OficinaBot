@@ -1,10 +1,12 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.UserXP;
 import ofc.bot.domain.sqlite.MapperFactory;
 import ofc.bot.domain.tables.UsersTable;
 import ofc.bot.domain.tables.UsersXPTable;
 import ofc.bot.domain.viewmodels.LevelView;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -14,22 +16,18 @@ import java.util.List;
 /**
  * Repository for {@link UserXP} entity.
  */
-public class UserXPRepository {
+public class UserXPRepository extends Repository<UserXP> {
     private final UsersXPTable USERS_XP = UsersXPTable.USERS_XP;
     private final UsersTable USERS = UsersTable.USERS;
-    private final DSLContext ctx;
 
     public UserXPRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public void upsert(UserXP userXP) {
-        userXP.changed(USERS_XP.CREATED_AT, false);
-        ctx.insertInto(USERS_XP)
-                .set(userXP.intoMap())
-                .onDuplicateKeyUpdate()
-                .set(userXP)
-                .execute();
+    @NotNull
+    @Override
+    public InitializableTable<UserXP> getTable() {
+        return USERS_XP;
     }
 
     public int findRankByUserId(long userId) {

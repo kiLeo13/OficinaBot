@@ -1,5 +1,6 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
@@ -15,19 +16,17 @@ import static org.jooq.impl.DSL.noCondition;
 /**
  * Repository for {@link BankTransaction} entity.
  */
-public class BankTransactionRepository {
+public class BankTransactionRepository extends Repository<BankTransaction> {
     private static final BankTransactionsTable BANK_TRANSACTIONS = BankTransactionsTable.BANK_TRANSACTIONS;
-    private final DSLContext ctx;
 
     public BankTransactionRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public void save(BankTransaction bankTrs) {
-        ctx.insertInto(BANK_TRANSACTIONS)
-                .set(bankTrs.intoMap())
-                .onDuplicateKeyIgnore()
-                .execute();
+    @NotNull
+    @Override
+    public InitializableTable<BankTransaction> getTable() {
+        return BANK_TRANSACTIONS;
     }
 
     public int countUserTransactions(long userId, List<CurrencyType> currencies, List<TransactionType> actions) {

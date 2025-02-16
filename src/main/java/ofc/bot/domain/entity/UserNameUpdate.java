@@ -2,9 +2,9 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.tables.UserNamesUpdatesTable;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
-public class UserNameUpdate extends TableRecordImpl<UserNameUpdate> {
+public class UserNameUpdate extends OficinaRecord<UserNameUpdate> {
     private static final UserNamesUpdatesTable USERNAMES_UPDATES = UserNamesUpdatesTable.USERNAMES_UPDATES;
 
     public UserNameUpdate() {
@@ -93,5 +93,16 @@ public class UserNameUpdate extends TableRecordImpl<UserNameUpdate> {
 
     public long getTimeCreated() {
         return get(USERNAMES_UPDATES.CREATED_AT);
+    }
+
+    @Override
+    public long getLastUpdated() {
+        return 0;
+    }
+
+    @NotNull
+    @Override
+    public UserNameUpdate setLastUpdated(long timestamp) {
+        return null;
     }
 }

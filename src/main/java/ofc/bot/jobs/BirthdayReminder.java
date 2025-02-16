@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.domain.entity.Birthday;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.sqlite.repository.BirthdayRepository;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
 import ofc.bot.util.content.Channels;
 import ofc.bot.util.content.annotations.jobs.CronJob;
@@ -33,8 +33,8 @@ public class BirthdayReminder implements Job {
     private final BirthdayRepository bdayRepo;
 
     public BirthdayReminder() {
-        this.policyRepo = RepositoryFactory.getEntityPolicyRepository();
-        this.bdayRepo = RepositoryFactory.getBirthdayRepository();
+        this.policyRepo = Repositories.getEntityPolicyRepository();
+        this.bdayRepo = Repositories.getBirthdayRepository();
     }
 
     @Override

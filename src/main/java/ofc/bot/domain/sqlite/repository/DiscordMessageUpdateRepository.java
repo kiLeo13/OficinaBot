@@ -1,26 +1,24 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.DiscordMessageUpdate;
 import ofc.bot.domain.tables.DiscordMessageUpdatesTable;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 /**
- * Repository for {@link ofc.bot.domain.entity.DiscordMessageUpdate DiscordMessageUpdate} entity.
+ * Repository for {@link DiscordMessageUpdate} entity.
  */
-public class DiscordMessageUpdateRepository {
+public class DiscordMessageUpdateRepository extends Repository<DiscordMessageUpdate> {
     private static final DiscordMessageUpdatesTable DISCORD_MESSAGE_UPDATES = DiscordMessageUpdatesTable.DISCORD_MESSAGE_UPDATES;
-    private final DSLContext ctx;
 
     public DiscordMessageUpdateRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public void save(DiscordMessageUpdate upd) {
-        ctx.insertInto(DISCORD_MESSAGE_UPDATES)
-                .set(upd)
-                // Impossible, the id is an autoincrement and the table has no check constrains,
-                // I put this here anyway just to be safe.
-                .onDuplicateKeyIgnore()
-                .execute();
+    @NotNull
+    @Override
+    public InitializableTable<DiscordMessageUpdate> getTable() {
+        return DISCORD_MESSAGE_UPDATES;
     }
 }

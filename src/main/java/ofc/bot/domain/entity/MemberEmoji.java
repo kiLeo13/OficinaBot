@@ -1,10 +1,9 @@
 package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.MembersEmojisTable;
-import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
-public class MemberEmoji extends TableRecordImpl<MemberEmoji> {
+public class MemberEmoji extends OficinaRecord<MemberEmoji> {
     private static final MembersEmojisTable MEMBERS_EMOJIS = MembersEmojisTable.MEMBERS_EMOJIS;
 
     public MemberEmoji() {
@@ -37,24 +36,9 @@ public class MemberEmoji extends TableRecordImpl<MemberEmoji> {
         return this;
     }
 
-    public MemberEmoji setTimeCreated(long createdAt) {
-        set(MEMBERS_EMOJIS.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public MemberEmoji setLastUpdated(long updatedAt) {
         set(MEMBERS_EMOJIS.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public MemberEmoji tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }

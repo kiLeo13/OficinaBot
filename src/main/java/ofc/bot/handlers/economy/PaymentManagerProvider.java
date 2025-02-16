@@ -1,6 +1,6 @@
 package ofc.bot.handlers.economy;
 
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.handlers.economy.oficina.OficinaBankClient;
 import ofc.bot.handlers.economy.unb.UnbelievaBoatClient;
@@ -22,7 +22,7 @@ public final class PaymentManagerProvider {
 
     public static OficinaBankClient getOficinaBankClient() {
         if (ofc == null) {
-            UserEconomyRepository userEco = RepositoryFactory.getUserEconomyRepository();
+            UserEconomyRepository userEco = Repositories.getUserEconomyRepository();
             ofc = new OficinaBankClient(userEco);
         }
         return ofc;

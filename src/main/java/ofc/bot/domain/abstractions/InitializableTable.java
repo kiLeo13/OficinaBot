@@ -1,13 +1,13 @@
 package ofc.bot.domain.abstractions;
 
+import ofc.bot.domain.entity.OficinaRecord;
 import org.jetbrains.annotations.NotNull;
-import org.jooq.Record;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 
-public abstract class InitializableTable<R extends Record> extends TableImpl<R> {
+public abstract class InitializableTable<R extends OficinaRecord<?>> extends TableImpl<R> {
     protected final DataType<Long>   BIGINT = SQLDataType.BIGINT;
     protected final DataType<String>   CHAR = SQLDataType.CHAR;
     protected final DataType<Integer>   INT = SQLDataType.INTEGER;

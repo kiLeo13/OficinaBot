@@ -9,7 +9,7 @@ import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.entity.UserXP;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.util.content.Channels;
 import org.jetbrains.annotations.NotNull;
@@ -23,9 +23,9 @@ public final class LevelManager {
     private final Set<Long> policyCache;
 
     private LevelManager() {
-        this.xpRepo = RepositoryFactory.getUserXPRepository();
-        this.lvlRoleRepo = RepositoryFactory.getLevelRoleRepository();
-        this.policyCache = RepositoryFactory.getEntityPolicyRepository().findSetByType(PolicyType.BLOCK_XP_GAINS);
+        this.xpRepo = Repositories.getUserXPRepository();
+        this.lvlRoleRepo = Repositories.getLevelRoleRepository();
+        this.policyCache = Repositories.getEntityPolicyRepository().findSetByType(PolicyType.BLOCK_XP_GAINS);
     }
 
     public static LevelManager getManager() {

@@ -1,13 +1,12 @@
 package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.BirthdaysTable;
-import ofc.bot.util.Bot;
-import org.jooq.impl.UpdatableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Birthday extends UpdatableRecordImpl<Birthday> {
+public class Birthday extends OficinaRecord<Birthday> {
     private static final BirthdaysTable BIRTHDAYS = BirthdaysTable.BIRTHDAYS;
 
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM");
@@ -70,24 +69,9 @@ public class Birthday extends UpdatableRecordImpl<Birthday> {
         return this;
     }
 
-    public Birthday setTimeCreated(long createdAt) {
-        set(BIRTHDAYS.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public Birthday setLastUpdated(long updatedAt) {
         set(BIRTHDAYS.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public Birthday tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }

@@ -2,9 +2,9 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.ColorRolesStateTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
-public class ColorRoleState extends TableRecordImpl<ColorRoleState> {
+public class ColorRoleState extends OficinaRecord<ColorRoleState> {
     private static final ColorRolesStateTable COLOR_ROLES_STATES = ColorRolesStateTable.COLOR_ROLES_STATES;
 
     public ColorRoleState() {
@@ -60,24 +60,9 @@ public class ColorRoleState extends TableRecordImpl<ColorRoleState> {
         return this;
     }
 
-    public ColorRoleState setTimeCreated(long createdAt) {
-        set(COLOR_ROLES_STATES.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public ColorRoleState setLastUpdated(long updatedAt) {
         set(COLOR_ROLES_STATES.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public ColorRoleState tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }

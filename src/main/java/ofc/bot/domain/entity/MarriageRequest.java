@@ -2,9 +2,8 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.MarriageRequestsTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
 
-public class MarriageRequest extends TableRecordImpl<MarriageRequest> {
+public class MarriageRequest extends OficinaRecord<MarriageRequest> {
     private static final MarriageRequestsTable MARRIAGE_REQUESTS = MarriageRequestsTable.MARRIAGE_REQUESTS;
 
     public MarriageRequest() {
@@ -45,11 +44,6 @@ public class MarriageRequest extends TableRecordImpl<MarriageRequest> {
 
     public MarriageRequest setTargetId(long targetId) {
         set(MARRIAGE_REQUESTS.TARGET_ID, targetId);
-        return this;
-    }
-
-    public MarriageRequest setTimeCreated(long createdAt) {
-        set(MARRIAGE_REQUESTS.CREATED_AT, createdAt);
         return this;
     }
 }

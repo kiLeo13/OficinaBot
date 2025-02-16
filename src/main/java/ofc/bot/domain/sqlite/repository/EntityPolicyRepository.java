@@ -1,8 +1,10 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.EntityPolicy;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.tables.EntitiesPoliciesTable;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 import java.util.*;
@@ -12,19 +14,17 @@ import java.util.stream.Collectors;
 /**
  * Repository for {@link EntityPolicy} entity.
  */
-public class EntityPolicyRepository {
+public class EntityPolicyRepository extends Repository<EntityPolicy> {
     private static final EntitiesPoliciesTable ENTITIES_POLICIES = EntitiesPoliciesTable.ENTITIES_POLICIES;
-    private final DSLContext ctx;
 
     public EntityPolicyRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public void save(EntityPolicy excl) {
-        ctx.insertInto(ENTITIES_POLICIES)
-                .set(excl.intoMap())
-                .onConflictDoNothing()
-                .execute();
+    @NotNull
+    @Override
+    public InitializableTable<EntityPolicy> getTable() {
+        return ENTITIES_POLICIES;
     }
 
     public void deleteByPolicyAndResource(PolicyType type, Object resource) {
@@ -46,25 +46,6 @@ public class EntityPolicyRepository {
                 .stream()
                 .map(ep -> ep.getResource(Long::parseLong))
                 .collect(Collectors.toUnmodifiableSet());
-    }
-
-    public Map<PolicyType, Set<Long>> mapSetByType(List<PolicyType> types) {
-        if (types == null || types.isEmpty())
-            return Map.of();
-
-        Map<PolicyType, Set<Long>> map = new HashMap<>();
-        List<EntityPolicy> excls = findByTypes(types);
-
-        for (EntityPolicy excl : excls) {
-            PolicyType type = excl.getPolicyType();
-
-            Set<Long> ids = map.getOrDefault(type, new HashSet<>());
-            // We can safely convert to long here, as the resources of these types
-            // will always be a snowflake.
-            ids.add(excl.getResource(Long::parseLong));
-            map.put(type, ids);
-        }
-        return Collections.unmodifiableMap(map);
     }
 
     public List<EntityPolicy> findByTypes(PolicyType... types) {

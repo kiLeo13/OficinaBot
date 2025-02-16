@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.Main;
 import ofc.bot.commands.economy.WorkCommand;
 import ofc.bot.domain.entity.UserEconomy;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
@@ -84,7 +84,7 @@ public class WorkReminderHandler extends ListenerAdapter {
      * or 0 if the user has never run the work command before.
      */
     private long getNextWork(long userId) {
-        UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
+        UserEconomyRepository ecoRepo = Repositories.getUserEconomyRepository();
         UserEconomy econ = ecoRepo.findByUserId(userId);
         long lastWork = econ.getLastWorkAt();
 

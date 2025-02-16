@@ -8,7 +8,7 @@ import ofc.bot.Main;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -25,7 +25,7 @@ public class GroupsInvoiceHandler implements Job {
     private final OficinaGroupRepository grpRepo;
 
     public GroupsInvoiceHandler() {
-        this.grpRepo = RepositoryFactory.getOficinaGroupRepository();
+        this.grpRepo = Repositories.getOficinaGroupRepository();
     }
 
     @Override

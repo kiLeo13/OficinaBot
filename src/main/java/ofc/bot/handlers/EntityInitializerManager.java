@@ -20,6 +20,7 @@ import ofc.bot.jobs.weekdays.SadMonday;
 import ofc.bot.jobs.weekdays.SadSunday;
 import ofc.bot.listeners.discord.economy.ChatMoney;
 import ofc.bot.listeners.discord.guilds.BlockDumbCommands;
+import ofc.bot.listeners.discord.guilds.UnbanTempBanCleaner;
 import ofc.bot.listeners.discord.guilds.members.MemberJoinUpsert;
 import ofc.bot.listeners.discord.guilds.messages.*;
 import ofc.bot.listeners.discord.guilds.reactionroles.BotChangelogRoleHandler;
@@ -76,14 +77,15 @@ public final class EntityInitializerManager {
     public static void initializeCronJobs() {
         try {
             SchedulerRegistryManager.initializeSchedulers(
-                    new NickTimeUpdate(),
-                    new QueryCountPrinter(),
                     new ExpiredBackupsRemover(),
                     new SadMonday(),
                     new SadSunday(),
                     new BirthdayReminder(),
                     new ColorRoleRemotionHandler(),
+                    new ExpiredBanHandler(),
                     new HappyNewYearAnnouncement(),
+                    new NickTimeUpdate(),
+                    new QueryCountPrinter(),
                     new ToddyMedicineReminder(),
 
                     // Voice Income
@@ -101,19 +103,19 @@ public final class EntityInitializerManager {
     }
 
     public static void initServices() {
-        EntityPolicyRepository policyRepo = RepositoryFactory.getEntityPolicyRepository();
+        EntityPolicyRepository policyRepo = Repositories.getEntityPolicyRepository();
         PolicyService.setPolicyRepo(policyRepo);
     }
 
     public static void registerButtons() {
-        MemberPunishmentRepository pnshRepo = RepositoryFactory.getMemberPunishmentRepository();
-        MarriageRequestRepository mreqRepo = RepositoryFactory.getMarriageRequestRepository();
-        UserNameUpdateRepository namesRepo = RepositoryFactory.getUserNameUpdateRepository();
-        EntityPolicyRepository policyRepo = RepositoryFactory.getEntityPolicyRepository();
-        OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
-        UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
-        BirthdayRepository bdayRepo = RepositoryFactory.getBirthdayRepository();
-        UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
+        var pnshRepo   = Repositories.getMemberPunishmentRepository();
+        var mreqRepo   = Repositories.getMarriageRequestRepository();
+        var namesRepo  = Repositories.getUserNameUpdateRepository();
+        var policyRepo = Repositories.getEntityPolicyRepository();
+        var grpRepo    = Repositories.getOficinaGroupRepository();
+        var ecoRepo    = Repositories.getUserEconomyRepository();
+        var bdayRepo   = Repositories.getBirthdayRepository();
+        var xpRepo     = Repositories.getUserXPRepository();
 
         ButtonInteractionGateway.registerButtons(
                 // Infractions
@@ -146,7 +148,7 @@ public final class EntityInitializerManager {
     }
 
     private static void registerApplicationListeners() {
-        BankTransactionRepository bankTrRepo = RepositoryFactory.getBankTransactionRepository();
+        BankTransactionRepository bankTrRepo = Repositories.getBankTransactionRepository();
         EventBus eventBus = EventBus.getEventBus();
 
         eventBus.register(
@@ -155,22 +157,23 @@ public final class EntityInitializerManager {
     }
 
     private static void registerDiscordListeners() {
-        DiscordMessageUpdateRepository updRepo = RepositoryFactory.getDiscordMessageUpdateRepository();
-        FormerMemberRoleRepository rolesRepo = RepositoryFactory.getFormerMemberRoleRepository();
-        MemberPunishmentRepository pnshRepo = RepositoryFactory.getMemberPunishmentRepository();
-        UserPreferenceRepository usprefRepo = RepositoryFactory.getUserPreferenceRepository();
-        ColorRoleStateRepository colorsRepo = RepositoryFactory.getColorRoleStateRepository();
-        EntityPolicyRepository policyRepo = RepositoryFactory.getEntityPolicyRepository();
-        UserNameUpdateRepository namesRepo = RepositoryFactory.getUserNameUpdateRepository();
-        AutomodActionRepository modActRepo = RepositoryFactory.getAutomodActionRepository();
-        BlockedWordRepository blckWordsRepo = RepositoryFactory.getBlockedWordRepository();
-        DiscordMessageRepository msgRepo = RepositoryFactory.getDiscordMessageRepository();
-        OficinaGroupRepository grpRepo = RepositoryFactory.getOficinaGroupRepository();
-        UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
-        GroupBotRepository grpBotRepo = RepositoryFactory.getGroupBotRepository();
-        UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
-        UserRepository usersRepo = RepositoryFactory.getUserRepository();
         JDA api = Main.getApi();
+        var updRepo       = Repositories.getDiscordMessageUpdateRepository();
+        var rolesRepo     = Repositories.getFormerMemberRoleRepository();
+        var pnshRepo      = Repositories.getMemberPunishmentRepository();
+        var usprefRepo    = Repositories.getUserPreferenceRepository();
+        var colorsRepo    = Repositories.getColorRoleStateRepository();
+        var policyRepo    = Repositories.getEntityPolicyRepository();
+        var namesRepo     = Repositories.getUserNameUpdateRepository();
+        var modActRepo    = Repositories.getAutomodActionRepository();
+        var blckWordsRepo = Repositories.getBlockedWordRepository();
+        var msgRepo       = Repositories.getDiscordMessageRepository();
+        var grpRepo       = Repositories.getOficinaGroupRepository();
+        var ecoRepo       = Repositories.getUserEconomyRepository();
+        var grpBotRepo    = Repositories.getGroupBotRepository();
+        var tmpBanRepo    = Repositories.getTempBanRepository();
+        var xpRepo        = Repositories.getUserXPRepository();
+        var usersRepo     = Repositories.getUserRepository();
 
         api.addEventListener(
                 new AutoModLogger(),
@@ -190,6 +193,7 @@ public final class EntityInitializerManager {
                 new MemberJoinUpsert(),
                 new MemberNickUpdateLogger(namesRepo, usersRepo),
                 new MemberRolesBackup(rolesRepo, xpRepo),
+                new UnbanTempBanCleaner(tmpBanRepo),
                 new MessageBulkDeleteLogger(msgRepo),
                 new MessageCreatedLogger(msgRepo),
                 new MessageDeletedLogger(msgRepo),

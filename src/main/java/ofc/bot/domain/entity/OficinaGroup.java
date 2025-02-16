@@ -12,9 +12,8 @@ import ofc.bot.Main;
 import ofc.bot.domain.entity.enums.RentStatus;
 import ofc.bot.domain.tables.OficinaGroupsTable;
 import ofc.bot.handlers.economy.CurrencyType;
-import ofc.bot.util.Bot;
 import ofc.bot.util.content.Staff;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.time.LocalDate;
@@ -22,7 +21,7 @@ import java.util.List;
 
 import static net.dv8tion.jda.api.Permission.*;
 
-public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
+public class OficinaGroup extends OficinaRecord<OficinaGroup> {
     private static final OficinaGroupsTable GROUPS = OficinaGroupsTable.OFICINA_GROUPS;
 
     public static final List<Permission> PERMS_ALLOW_TEXT_CHANNEL;
@@ -374,25 +373,15 @@ public class OficinaGroup extends TableRecordImpl<OficinaGroup> {
         return this;
     }
 
-    public OficinaGroup setTimeCreated(long createdAt) {
-        set(GROUPS.CREATED_AT, createdAt);
+    public OficinaGroup setTimeCreated(long timestamp) {
+        set(GROUPS.CREATED_AT, timestamp);
         return this;
     }
 
-    public OficinaGroup setLastUpdated(long updatedAt) {
-        set(GROUPS.UPDATED_AT, updatedAt);
+    @NotNull
+    public OficinaGroup setLastUpdated(long timestamp) {
+        set(GROUPS.UPDATED_AT, timestamp);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public OficinaGroup tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 
     public synchronized long calcRawRent(List<Member> members) {

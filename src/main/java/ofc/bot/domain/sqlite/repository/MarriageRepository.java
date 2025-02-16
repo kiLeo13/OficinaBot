@@ -1,25 +1,32 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.AppUser;
 import ofc.bot.domain.entity.Marriage;
 import ofc.bot.domain.sqlite.MapperFactory;
 import ofc.bot.domain.tables.MarriagesTable;
 import ofc.bot.domain.tables.UsersTable;
 import ofc.bot.domain.viewmodels.MarriageView;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
 
 import java.util.List;
 
 /**
- * Repository for {@link ofc.bot.domain.entity.Marriage Marriage} entity.
+ * Repository for {@link Marriage} entity.
  */
-public class MarriageRepository {
+public class MarriageRepository extends Repository<Marriage> {
     private static final MarriagesTable MARRIAGES = MarriagesTable.MARRIAGES;
     private static final UsersTable USERS = UsersTable.USERS;
-    private final DSLContext ctx;
 
     public MarriageRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
+    }
+
+    @NotNull
+    @Override
+    public InitializableTable<Marriage> getTable() {
+        return MARRIAGES;
     }
 
     public Marriage findByUserIds(long spouse1, long spouse2) {
@@ -69,21 +76,6 @@ public class MarriageRepository {
                 .limit(limit)
                 .fetch();
         return rels.map(MapperFactory::mapMarriage);
-    }
-
-    /**
-     * This method attempts to insert a new marriage record to the database,
-     * if it collides (for some unknown reason), nothing happens.
-     *
-     * @param mr The marriage record to persist.
-     */
-    public void upsert(Marriage mr) {
-        mr.changed(MARRIAGES.CREATED_AT, false);
-        ctx.insertInto(MARRIAGES)
-                .set(mr.intoMap())
-                .onDuplicateKeyUpdate()
-                .set(mr)
-                .execute();
     }
 
     public void delete(Marriage rel) {

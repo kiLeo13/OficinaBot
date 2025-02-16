@@ -1,9 +1,8 @@
 package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.FormerMembersRolesTable;
-import org.jooq.impl.TableRecordImpl;
 
-public class FormerMemberRole extends TableRecordImpl<FormerMemberRole> {
+public class FormerMemberRole extends OficinaRecord<FormerMemberRole> {
     private static final FormerMembersRolesTable FORMER_MEMBER_ROLES = FormerMembersRolesTable.FORMER_MEMBERS_ROLES;
 
     public FormerMemberRole() {
@@ -57,11 +56,6 @@ public class FormerMemberRole extends TableRecordImpl<FormerMemberRole> {
 
     public FormerMemberRole setRoleId(long roleId) {
         set(FORMER_MEMBER_ROLES.ROLE_ID, roleId);
-        return this;
-    }
-
-    public FormerMemberRole setTimeCreated(long createdAt) {
-        set(FORMER_MEMBER_ROLES.CREATED_AT, createdAt);
         return this;
     }
 }

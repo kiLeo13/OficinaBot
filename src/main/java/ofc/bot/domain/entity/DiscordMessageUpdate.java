@@ -1,9 +1,8 @@
 package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.DiscordMessageUpdatesTable;
-import org.jooq.impl.TableRecordImpl;
 
-public class DiscordMessageUpdate extends TableRecordImpl<DiscordMessageUpdate> {
+public class DiscordMessageUpdate extends OficinaRecord<DiscordMessageUpdate> {
     private static final DiscordMessageUpdatesTable DISCORD_MESSAGE_UPDATES = DiscordMessageUpdatesTable.DISCORD_MESSAGE_UPDATES;
 
     public DiscordMessageUpdate() {
@@ -46,11 +45,6 @@ public class DiscordMessageUpdate extends TableRecordImpl<DiscordMessageUpdate> 
 
     public DiscordMessageUpdate setNewContent(String now) {
         set(DISCORD_MESSAGE_UPDATES.NEW_CONTENT, now);
-        return this;
-    }
-
-    public DiscordMessageUpdate setTimeCreated(long createdAt) {
-        set(DISCORD_MESSAGE_UPDATES.CREATED_AT, createdAt);
         return this;
     }
 }

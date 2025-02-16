@@ -1,7 +1,9 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.Birthday;
 import ofc.bot.domain.tables.BirthdaysTable;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 import java.time.Month;
@@ -10,14 +12,19 @@ import java.util.List;
 import static org.jooq.impl.DSL.*;
 
 /**
- * Repository for {@link ofc.bot.domain.entity.Birthday Birthday} entity.
+ * Repository for {@link Birthday} entity.
  */
-public class BirthdayRepository {
-    private final BirthdaysTable BIRTHDAYS = BirthdaysTable.BIRTHDAYS;
-    private final DSLContext ctx;
+public class BirthdayRepository extends Repository<Birthday> {
+    private static final BirthdaysTable BIRTHDAYS = BirthdaysTable.BIRTHDAYS;
 
     public BirthdayRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
+    }
+
+    @NotNull
+    @Override
+    public InitializableTable<Birthday> getTable() {
+        return BIRTHDAYS;
     }
 
     public List<Birthday> findByCurrentMonth() {
@@ -40,15 +47,6 @@ public class BirthdayRepository {
                 .groupBy(BIRTHDAYS.USER_ID)
                 .orderBy(day(BIRTHDAYS.BIRTHDAY).asc())
                 .fetch();
-    }
-
-    public void upsert(Birthday birthday) {
-        birthday.changed(BIRTHDAYS.CREATED_AT, false);
-        ctx.insertInto(BIRTHDAYS)
-                .set(birthday.intoMap())
-                .onDuplicateKeyUpdate()
-                .set(birthday)
-                .execute();
     }
 
     public void delete(Birthday birthday) {

@@ -4,11 +4,11 @@ import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.domain.tables.UsersXPTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiConsumer;
 
-public class UserXP extends TableRecordImpl<UserXP> {
+public class UserXP extends OficinaRecord<UserXP> {
     private static final UsersXPTable USERS_XP = UsersXPTable.USERS_XP;
     public static final int MIN_CYCLE = 12 * 3;
     public static final int MAX_CYCLE = 25 * 3;
@@ -89,20 +89,10 @@ public class UserXP extends TableRecordImpl<UserXP> {
         return this;
     }
 
+    @NotNull
     public UserXP setLastUpdated(long updatedAt) {
         set(USERS_XP.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public UserXP tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 
     public static void compute(int xp, int currentLevel, BiConsumer<Integer, Integer> act) {

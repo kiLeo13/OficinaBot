@@ -1,7 +1,7 @@
 package ofc.bot.handlers.economy.oficina;
 
 import ofc.bot.domain.entity.UserEconomy;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.handlers.economy.BankAccount;
 import ofc.bot.handlers.economy.CurrencyType;
@@ -46,7 +46,7 @@ public class OficinaAccount implements BankAccount {
 
     @Override
     public int getRank() {
-        UserEconomyRepository ecoRepo = RepositoryFactory.getUserEconomyRepository();
+        UserEconomyRepository ecoRepo = Repositories.getUserEconomyRepository();
         return ecoRepo.findRankByUserId(userId);
     }
 

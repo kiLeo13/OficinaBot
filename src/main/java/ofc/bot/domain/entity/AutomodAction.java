@@ -2,11 +2,11 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.AutomodActionsTable;
 import ofc.bot.domain.entity.enums.WarnAction;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 
-public class AutomodAction extends TableRecordImpl<AutomodAction> {
+public class AutomodAction extends OficinaRecord<AutomodAction> {
     private static final AutomodActionsTable AUTOMOD_ACTIONS = AutomodActionsTable.AUTOMOD_ACTIONS;
 
     public AutomodAction() {
@@ -57,11 +57,7 @@ public class AutomodAction extends TableRecordImpl<AutomodAction> {
         return this;
     }
 
-    public AutomodAction setTimeCreated(long createdAt) {
-        set(AUTOMOD_ACTIONS.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public AutomodAction setLastUpdated(long updatedAt) {
         set(AUTOMOD_ACTIONS.UPDATED_AT, updatedAt);
         return this;

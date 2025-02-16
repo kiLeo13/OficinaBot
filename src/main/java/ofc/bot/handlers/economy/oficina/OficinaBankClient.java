@@ -34,8 +34,8 @@ public class OficinaBankClient implements PaymentManager {
                 .setBalance(bank)
                 .tickUpdate();
 
-        UserEconomy newEco = ecoRepo.upsert(eco);
-        return OficinaAccount.from(newEco);
+        ecoRepo.upsert(eco);
+        return OficinaAccount.from(ecoRepo.findByUserId(userId));
     }
 
     @Override
@@ -49,8 +49,8 @@ public class OficinaBankClient implements PaymentManager {
                 .modifyBalance(bank)
                 .tickUpdate();
 
-        UserEconomy newEco = ecoRepo.upsert(eco);
-        return OficinaAccount.from(newEco);
+        ecoRepo.upsert(eco);
+        return OficinaAccount.from(ecoRepo.findByUserId(userId));
     }
 
     @Override

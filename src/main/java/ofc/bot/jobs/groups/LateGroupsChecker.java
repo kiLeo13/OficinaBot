@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.domain.sqlite.repository.RepositoryFactory;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.util.content.Channels;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.Job;
@@ -22,7 +22,7 @@ public class LateGroupsChecker implements Job {
     private final OficinaGroupRepository grpRepo;
 
     public LateGroupsChecker() {
-        this.grpRepo = RepositoryFactory.getOficinaGroupRepository();
+        this.grpRepo = Repositories.getOficinaGroupRepository();
     }
 
     @Override

@@ -16,7 +16,7 @@ public final class Paginators {
     public static PaginationItem<BankTransaction> viewTransactions(long userId, int pageIndex, int pageSize,
                                                                    List<CurrencyType> currencies,
                                                                    List<TransactionType> types) {
-        BankTransactionRepository bankTrRepo = RepositoryFactory.getBankTransactionRepository();
+        BankTransactionRepository bankTrRepo = Repositories.getBankTransactionRepository();
         int offset = pageIndex * pageSize;
         int rowCount = bankTrRepo.countUserTransactions(userId, currencies, types);
         int maxPages = Bot.calcMaxPages(rowCount, pageSize);
@@ -33,7 +33,7 @@ public final class Paginators {
 
     public static PaginationItem<MemberPunishment> viewInfractions(long targetId, long guildId,
                                                                    int pageSize, int pageIndex, boolean showInactive) {
-        MemberPunishmentRepository pnshRepo = RepositoryFactory.getMemberPunishmentRepository();
+        MemberPunishmentRepository pnshRepo = Repositories.getMemberPunishmentRepository();
         int offset = pageIndex * pageSize;
         int rowCount = pnshRepo.countByUserAndGuildId(targetId, guildId);
         int maxPages = Bot.calcMaxPages(rowCount, pageSize);
@@ -50,7 +50,7 @@ public final class Paginators {
     }
 
     public static PaginationItem<LevelView> viewLevels(int pageSize, int pageIndex) {
-        UserXPRepository xpRepo = RepositoryFactory.getUserXPRepository();
+        UserXPRepository xpRepo = Repositories.getUserXPRepository();
         int offset = pageIndex * pageSize;
         int rowCount = xpRepo.countAll();
         int maxPages = Bot.calcMaxPages(rowCount, pageSize);

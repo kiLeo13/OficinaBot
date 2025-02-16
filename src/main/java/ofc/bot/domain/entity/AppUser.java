@@ -3,7 +3,7 @@ package ofc.bot.domain.entity;
 import net.dv8tion.jda.api.entities.User;
 import ofc.bot.domain.tables.UsersTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This refers to the {@link UsersTable user} table in the database.
@@ -12,7 +12,7 @@ import org.jooq.impl.TableRecordImpl;
  * and import collisions with JDA's
  * {@link net.dv8tion.jda.api.entities.User User} interface.
  */
-public class AppUser extends TableRecordImpl<AppUser> {
+public class AppUser extends OficinaRecord<AppUser> {
     private static final UsersTable USERS = UsersTable.USERS;
 
     public AppUser() {
@@ -73,24 +73,9 @@ public class AppUser extends TableRecordImpl<AppUser> {
         return this;
     }
 
-    public AppUser setTimeCreated(long createdAt) {
-        set(USERS.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public AppUser setLastUpdated(long updatedAt) {
         set(USERS.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public AppUser tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }

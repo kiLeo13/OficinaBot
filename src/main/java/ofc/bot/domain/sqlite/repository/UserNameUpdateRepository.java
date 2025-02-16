@@ -1,31 +1,29 @@
 package ofc.bot.domain.sqlite.repository;
 
+import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.tables.UserNamesUpdatesTable;
 import ofc.bot.domain.viewmodels.NamesHistoryView;
 import ofc.bot.domain.entity.UserNameUpdate;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 import java.util.List;
 
 /**
- * Repository for {@link ofc.bot.domain.entity.UserNameUpdate UserNameUpdate} entity.
+ * Repository for {@link UserNameUpdate} entity.
  */
-public class UserNameUpdateRepository {
+public class UserNameUpdateRepository extends Repository<UserNameUpdate> {
     private static final UserNamesUpdatesTable NAME_UPDATES = UserNamesUpdatesTable.USERNAMES_UPDATES;
-    private final DSLContext ctx;
 
     public UserNameUpdateRepository(DSLContext ctx) {
-        this.ctx = ctx;
+        super(ctx);
     }
 
-    public void save(UserNameUpdate upd) {
-        ctx.insertInto(NAME_UPDATES)
-                .set(upd.intoMap())
-                // Impossible collision here; as its being autoincremented,
-                // and the "id" field will be ignored on insertion
-                .onDuplicateKeyIgnore()
-                .execute();
+    @NotNull
+    @Override
+    public InitializableTable<UserNameUpdate> getTable() {
+        return NAME_UPDATES;
     }
 
     public NamesHistoryView viewByUserId(NameScope scope, long userId, int offset, int limit) {

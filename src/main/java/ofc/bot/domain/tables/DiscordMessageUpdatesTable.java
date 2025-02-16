@@ -10,7 +10,6 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.SQLDataType;
 
 import static ofc.bot.domain.tables.DiscordMessagesTable.DISCORD_MESSAGES;
-import static org.jooq.impl.DSL.*;
 
 public class DiscordMessageUpdatesTable extends InitializableTable<DiscordMessageUpdate> {
     public static final DiscordMessageUpdatesTable DISCORD_MESSAGE_UPDATES = new DiscordMessageUpdatesTable();

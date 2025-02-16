@@ -2,9 +2,9 @@ package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.UsersEconomyTable;
 import ofc.bot.util.Bot;
-import org.jooq.impl.TableRecordImpl;
+import org.jetbrains.annotations.NotNull;
 
-public class UserEconomy extends TableRecordImpl<UserEconomy> {
+public class UserEconomy extends OficinaRecord<UserEconomy> {
     private static final UsersEconomyTable USERS_ECONOMY = UsersEconomyTable.USERS_ECONOMY;
 
     public static final String LEADERBOARD_ROW_FORMAT = "%d. `%s`**・**$%s";
@@ -94,24 +94,9 @@ public class UserEconomy extends TableRecordImpl<UserEconomy> {
         return this;
     }
 
-    public UserEconomy setTimeCreated(long createdAt) {
-        set(USERS_ECONOMY.CREATED_AT, createdAt);
-        return this;
-    }
-
+    @NotNull
     public UserEconomy setLastUpdated(long updatedAt) {
         set(USERS_ECONOMY.UPDATED_AT, updatedAt);
         return this;
-    }
-
-    /**
-     * Shortcut for {@link #setLastUpdated(long)}.
-     * Here you don't have to manually provide a timestamp value,
-     * the field is updated through the {@link Bot#unixNow()} method call.
-     *
-     * @return The current instance, for chaining convenience.
-     */
-    public UserEconomy tickUpdate() {
-        return setLastUpdated(Bot.unixNow());
     }
 }
