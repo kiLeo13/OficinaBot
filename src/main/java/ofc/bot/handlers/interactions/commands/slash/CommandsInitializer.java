@@ -42,23 +42,25 @@ public final class CommandsInitializer {
      * sends them to Discord.
      */
     public static void initializeSlashCommands() {
-        var bckpRepo    = Repositories.getFormerMemberRoleRepository();
-        var bankTrRepo  = Repositories.getBankTransactionRepository();
-        var pnshRepo    = Repositories.getMemberPunishmentRepository();
-        var csinfoRepo  = Repositories.getCustomUserinfoRepository();
-        var mreqRepo    = Repositories.getMarriageRequestRepository();
-        var namesRepo   = Repositories.getUserNameUpdateRepository();
         var modActRepo  = Repositories.getAutomodActionRepository();
-        var policyRepo  = Repositories.getEntityPolicyRepository();
-        var grpRepo     = Repositories.getOficinaGroupRepository();
-        var lvlRoleRepo = Repositories.getLevelRoleRepository();
-        var emjRepo     = Repositories.getMemberEmojiRepository();
-        var ecoRepo     = Repositories.getUserEconomyRepository();
-        var grpBotRepo  = Repositories.getGroupBotRepository();
+        var bankTrRepo  = Repositories.getBankTransactionRepository();
         var bdayRepo    = Repositories.getBirthdayRepository();
+        var csinfoRepo  = Repositories.getCustomUserinfoRepository();
+        var policyRepo  = Repositories.getEntityPolicyRepository();
+        var bckpRepo    = Repositories.getFormerMemberRoleRepository();
+        var grpBotRepo  = Repositories.getGroupBotRepository();
+        var lvlRoleRepo = Repositories.getLevelRoleRepository();
         var marrRepo    = Repositories.getMarriageRepository();
-        var xpRepo      = Repositories.getUserXPRepository();
+        var mreqRepo    = Repositories.getMarriageRequestRepository();
+        var emjRepo     = Repositories.getMemberEmojiRepository();
+        var pnshRepo    = Repositories.getMemberPunishmentRepository();
+        var grpRepo     = Repositories.getOficinaGroupRepository();
+        var tmpBanRepo  = Repositories.getTempBanRepository();
+        var ecoRepo     = Repositories.getUserEconomyRepository();
+        var namesRepo   = Repositories.getUserNameUpdateRepository();
         var userRepo    = Repositories.getUserRepository();
+        var xpRepo      = Repositories.getUserXPRepository();
+
 
         // Birhday
         SlashCommand birthday = new EmptySlashCommand("birthday", "Gerencia os aniversários.", Permission.MANAGE_SERVER)
@@ -130,7 +132,7 @@ public final class CommandsInitializer {
                 new RankCommand(xpRepo, lvlRoleRepo),
 
                 // Moderation
-                new BanCommand(),
+                new BanCommand(tmpBanRepo),
                 new InfractionsCommand(),
                 new MuteCommand(),
                 new UnbanCommand(),
