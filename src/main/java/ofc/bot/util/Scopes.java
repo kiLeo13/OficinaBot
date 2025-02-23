@@ -19,11 +19,12 @@ public final class Scopes {
     }
 
     public static class Economy {
-        public static final String VIEW_LEADERBOARD = "LEADERBOARD";
+        public static final String VIEW_LEADERBOARD  = "LEADERBOARD";
         public static final String VIEW_TRANSACTIONS = "VIEW_TRANSACTIONS";
     }
 
     public static class Misc {
+        public static final String CHOOSABLE_ROLES            = "CHOOSABLE_ROLES";
         public static final String PAGINATE_BIRTHDAYS         = "VIEW_BIRTHDAYS";
         public static final String PAGINATE_LEVELS            = "VIEW_LEVELS";
         public static final String PAGINATE_NAME_UPDATE       = "USERNAME_UPDATE";

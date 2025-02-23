@@ -47,6 +47,18 @@ public final class EmbedFactory {
                 .build();
     }
 
+    public static MessageEmbed embedChoosableRoles(Guild guild, String title, String desc, String filename, int color) {
+        OficinaEmbed builder = new OficinaEmbed();
+        Color embedColor = color == 0 ? Bot.Colors.DEFAULT : new Color(color);
+
+        return builder
+                .setAuthor(title, null, guild.getIconUrl())
+                .setDesc(desc)
+                .setColor(embedColor)
+                .setImageIf(filename != null, "attachment://" + filename)
+                .build();
+    }
+
     public static MessageEmbed embedTransactions(User user, Guild guild, PaginationItem<BankTransaction> trs) {
         OficinaEmbed builder = new OficinaEmbed();
         String title = String.format("Transações de %s", user.getEffectiveName());
