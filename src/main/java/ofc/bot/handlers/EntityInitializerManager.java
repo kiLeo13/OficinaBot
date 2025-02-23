@@ -169,6 +169,7 @@ public final class EntityInitializerManager {
         var usprefRepo    = Repositories.getUserPreferenceRepository();
         var colorsRepo    = Repositories.getColorRoleStateRepository();
         var policyRepo    = Repositories.getEntityPolicyRepository();
+        var cmdRepo       = Repositories.getCommandHistoryRepository();
         var namesRepo     = Repositories.getUserNameUpdateRepository();
         var modActRepo    = Repositories.getAutomodActionRepository();
         var blckWordsRepo = Repositories.getBlockedWordRepository();
@@ -210,7 +211,7 @@ public final class EntityInitializerManager {
                 new OficinaGroupAutocompletion(grpRepo),
                 new OutageCommandsDisclaimer(),
                 new ResourceAutocompletion(userRepo),
-                new SlashCommandsGateway(),
+                new SlashCommandsGateway(cmdRepo),
                 new SteamScamBlocker(),
                 new StudyRoleHandler(),
                 new UnverifiedMembersRegisterBlocker(),

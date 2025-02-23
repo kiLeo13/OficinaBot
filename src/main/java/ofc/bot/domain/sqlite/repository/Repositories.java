@@ -9,6 +9,7 @@ public final class Repositories {
     private static BirthdayRepository birthdayRepository;
     private static BlockedWordRepository blockedWordRepository;
     private static ColorRoleStateRepository colorRoleStateRepository;
+    private static CommandHistoryRepository commandHistoryRepository;
     private static CustomUserinfoRepository customUserinfoRepository;
     private static DiscordMessageRepository discordMessageRepository;
     private static DiscordMessageUpdateRepository discordMessageUpdateRepository;
@@ -53,6 +54,11 @@ public final class Repositories {
     public static ColorRoleStateRepository getColorRoleStateRepository() {
         if (colorRoleStateRepository == null) colorRoleStateRepository = new ColorRoleStateRepository(getDSLContext());
         return colorRoleStateRepository;
+    }
+
+    public static CommandHistoryRepository getCommandHistoryRepository() {
+        if (commandHistoryRepository == null) commandHistoryRepository = new CommandHistoryRepository(getDSLContext());
+        return commandHistoryRepository;
     }
 
     public static CustomUserinfoRepository getCustomUserinfoRepository() {

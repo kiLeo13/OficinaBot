@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
+import ofc.bot.domain.entity.CommandHistory;
+import ofc.bot.domain.sqlite.repository.CommandHistoryRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -15,6 +17,7 @@ import ofc.bot.handlers.interactions.commands.slash.SlashCommandsRegistryManager
 import ofc.bot.handlers.interactions.commands.slash.abstractions.ICommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
+import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +28,11 @@ import java.util.concurrent.ForkJoinPool;
 public class SlashCommandsGateway extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(SlashCommandsGateway.class);
     private static final ExecutorService EXECUTOR = ForkJoinPool.commonPool();
+    private final CommandHistoryRepository cmdRepo;
+
+    public SlashCommandsGateway(CommandHistoryRepository cmdRepo) {
+        this.cmdRepo = cmdRepo;
+    }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
@@ -62,26 +70,35 @@ public class SlashCommandsGateway extends ListenerAdapter {
         SlashCommandInteraction itr = ctx.getInteraction();
         MessageChannel channel = ctx.getChannel();
         User user = ctx.getUser();
-        String userId = user.getId();
         String userName = user.getName();
         String cmdName = itr.getFullCommandName();
+        long userId = user.getIdLong();
+        long guildId = ctx.getGuildId();
 
         EXECUTOR.execute(() -> {
             try {
                 // Not the best way of getting the response time,
                 // but it's more about aesthetics than debugging itself :)
                 long start = System.currentTimeMillis();
-                InteractionResult state = cmd.onSlashCommand(ctx);
+                InteractionResult res = cmd.onSlashCommand(ctx);
+                Status status = res.getStatus();
                 long end = System.currentTimeMillis();
                 long duration = end - start;
 
-                LOGGER.info("@{} issued \"/{}\" at \"#{}\": status {}, took {}ms", userName, cmdName, channel.getName(), state.getStatus(), duration);
+                LOGGER.info("@{} issued \"/{}\" at \"#{}\": status {}, took {}ms",
+                        userName, cmdName, channel.getName(), status, duration);
 
-                if (state.getContent() != null)
-                    ctx.reply(state);
-            } catch (Throwable err) {
+                if (res.getContent() != null) {
+                    ctx.reply(res);
+                }
+
+                CommandHistory entry = new CommandHistory(cmdName, status, guildId, userId);
+                cmdRepo.save(entry);
+            } catch (DataAccessException e) {
+                LOGGER.warn("Could not save Slash Command activity to database", e);
+            } catch (Throwable e) {
                 LOGGER.error("Command execution triggered by @{} [{}], as \"/{}\", at \"{}\" failed",
-                        userName, userId, cmdName, ctx.getTimeCreated(), err
+                        userName, userId, cmdName, ctx.getTimeCreated(), e
                 );
                 ctx.reply("Ocorreu um erro :/", true);
             }
