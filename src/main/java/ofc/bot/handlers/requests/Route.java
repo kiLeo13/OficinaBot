@@ -34,7 +34,7 @@ public final class Route {
     }
 
     public static class Images {
-        private static final String BASE = "https://api.mathxplains.com.br";
+        private static final String BASE = "https://6mi48ibg97.execute-api.us-east-2.amazonaws.com/v1";
 
         public static final Route CREATE_RANK_CARD  = new Route(POST, BASE, "/levels/cards");
         public static final Route CREATE_ROLES_CARD = new Route(POST, BASE, "/levels/roles");
