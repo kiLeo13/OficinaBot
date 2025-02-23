@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.sqlite.repository.UserNameUpdateRepository;
 import ofc.bot.domain.viewmodels.NamesHistoryView;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -52,7 +52,7 @@ public class NamesHistoryCommand extends SlashCommand {
             return Status.NO_NAME_HISTORY_FOR_USER.args(target.getName());
 
         boolean hasMorePages = names.page() < names.maxPages();
-        List<Button> buttons = ButtonContextFactory.createNamesHistoryButtons(scope, targetId, 0, hasMorePages);
+        List<Button> buttons = EntityContextFactory.createNamesHistoryButtons(scope, targetId, 0, hasMorePages);
         MessageEmbed embed = EmbedFactory.embedUsernameUpdates(names, guild, target);
 
         return ctx.create()

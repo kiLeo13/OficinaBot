@@ -7,20 +7,15 @@ import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
 import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
-import ofc.bot.handlers.interactions.AcknowledgeableAction;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import ofc.bot.handlers.interactions.InteractionSubmitContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ButtonClickContext extends AcknowledgeableAction<ButtonInteraction> {
-    private final ButtonContext buttonContext;
+public class ButtonClickContext extends InteractionSubmitContext<ButtonContext, ButtonInteraction> {
 
-    public ButtonClickContext(ButtonContext data, ButtonInteraction interaction) {
-        super(interaction);
-        this.buttonContext = data;
+    public ButtonClickContext(ButtonContext context, ButtonInteraction itr) {
+        super(context, itr);
     }
 
     @Override
@@ -60,35 +55,8 @@ public class ButtonClickContext extends AcknowledgeableAction<ButtonInteraction>
         return getMessage().editMessageComponents(components);
     }
 
-    public Button getButton() {
-        return getInteraction().getButton();
-    }
-
     public Message getMessage() {
         return getInteraction().getMessage();
-    }
-
-    public ButtonContext getData() {
-        return this.buttonContext;
-    }
-
-    public long getAuthorId() {
-        return this.buttonContext.getAuthorId();
-    }
-
-    @NotNull
-    public <T> T get(String key) {
-        return this.buttonContext.get(key);
-    }
-
-    @Nullable
-    public <T> T find(String key) {
-        return this.buttonContext.find(key);
-    }
-
-    @Contract("null, null -> null")
-    public <T> T getOrDefault(String key, T defaultValue) {
-        return this.buttonContext.getOrDefault(key, defaultValue);
     }
 
     private int findTargetButtonIndex() {

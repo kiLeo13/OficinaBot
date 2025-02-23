@@ -1,6 +1,7 @@
 package ofc.bot.handlers.interactions.commands.contexts;
 
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +35,7 @@ public interface OptionsContainer {
         T data = getOption(name, resolver);
 
         if (data == null)
-            throw new IllegalStateException("Option \"" + name + "\" cannot be omitted or empty");
+            throwNullOptionException(name);
 
         return data;
     }
@@ -64,10 +65,17 @@ public interface OptionsContainer {
 
         if (opt == null) return null;
 
-        try {
-            return Enum.valueOf(type, opt);
-        } catch (IllegalArgumentException e) {
-            return null;
+        for (T en : type.getEnumConstants()) {
+            if (en.name().equals(opt)) return en;
         }
+        return null;
+    }
+
+    @Contract("_ -> fail")
+    private void throwNullOptionException(String opt) {
+        throw new IllegalStateException("The option \"" + opt + "\" was expected to be present but is missing. " +
+                "This could be due to the option not being marked as required or a naming mismatch. " +
+                "It is unlikely to be a Discord-related issue."
+        );
     }
 }

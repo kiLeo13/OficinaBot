@@ -6,22 +6,22 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.commands.levels.LevelsCommand;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.domain.viewmodels.LevelView;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.paginations.PaginationItem;
 import ofc.bot.handlers.paginations.Paginators;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@ButtonHandler(scope = Scopes.Misc.PAGINATE_LEVELS, autoResponseType = AutoResponseType.DEFER_EDIT)
-public class LevelsPageUpdate implements BotButtonListener {
+@InteractionHandler(scope = Scopes.Misc.PAGINATE_LEVELS, autoResponseType = AutoResponseType.DEFER_EDIT)
+public class LevelsPageUpdate implements InteractionListener<ButtonClickContext> {
     private final UserXPRepository xpRepo;
 
     public LevelsPageUpdate(UserXPRepository xpRepo) {
@@ -29,9 +29,9 @@ public class LevelsPageUpdate implements BotButtonListener {
     }
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         int pageIndex = ctx.get("page_index");
-        long authorId = ctx.getAuthorId();
+        long userId = ctx.get("user_id");
         Guild guild = ctx.getGuild();
         PaginationItem<LevelView> pageItem = Paginators.viewLevels(LevelsCommand.PAGE_SIZE, pageIndex);
 
@@ -39,8 +39,8 @@ public class LevelsPageUpdate implements BotButtonListener {
             return Status.LEADERBOARD_IS_EMPTY;
 
         boolean hasMore = pageItem.hasMore();
-        LevelView levelView = xpRepo.viewLevelByUserId(authorId);
-        List<Button> buttons = ButtonContextFactory.createLevelsButtons(authorId, pageIndex, hasMore);
+        LevelView levelView = xpRepo.viewLevelByUserId(userId);
+        List<Button> buttons = EntityContextFactory.createLevelsButtons(userId, pageIndex, hasMore);
         MessageEmbed embed = EmbedFactory.embedLevels(guild, levelView, pageItem);
 
         return ctx.create()

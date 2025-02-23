@@ -5,20 +5,20 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.MarriageRequestRepository;
 import ofc.bot.domain.viewmodels.ProposalsView;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@ButtonHandler(scope = Scopes.Misc.PAGINATE_MARRIAGE_REQUESTS)
-public class ProposalListPagination implements BotButtonListener {
+@InteractionHandler(scope = Scopes.Misc.PAGINATE_MARRIAGE_REQUESTS)
+public class ProposalListPagination implements InteractionListener<ButtonClickContext> {
     private final MarriageRequestRepository mreqRepo;
 
     public ProposalListPagination(MarriageRequestRepository mreqRepo) {
@@ -26,14 +26,14 @@ public class ProposalListPagination implements BotButtonListener {
     }
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         int page = ctx.get("page");
         long userId = ctx.get("target_id");
         Guild guild = ctx.getGuild();
         String type = ctx.get("type");
         ProposalsView proposals = mreqRepo.viewProposals(type, userId, page - 1);
         boolean hasMorePages = proposals.page() < proposals.maxPages();
-        List<Button> buttons = ButtonContextFactory.createProposalsListButtons(page, userId, hasMorePages, type);
+        List<Button> buttons = EntityContextFactory.createProposalsListButtons(page, userId, hasMorePages, type);
 
         Bot.fetchUser(userId).queue((user) -> {
             MessageEmbed embed = EmbedFactory.embedProposals(guild, user, proposals);

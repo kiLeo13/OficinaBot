@@ -16,23 +16,23 @@ import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@ButtonHandler(
+@InteractionHandler(
         scope = Scopes.Group.CREATE_CHANNEL,
         autoResponseType = AutoResponseType.THINKING
 )
-public class GroupChannelCreationHandler implements BotButtonListener {
+public class GroupChannelCreationHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupChannelCreationHandler.class);
     private final OficinaGroupRepository grpRepo;
 
@@ -41,7 +41,7 @@ public class GroupChannelCreationHandler implements BotButtonListener {
     }
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         int price = ctx.get("amount");
         OficinaGroup group = ctx.get("group");
         ChannelType chanType = ctx.get("channel_type");

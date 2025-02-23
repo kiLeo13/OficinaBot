@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.handlers.economy.CurrencyType;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -46,7 +46,7 @@ public class TransactionsCommand extends SlashCommand {
             return Status.PAGE_DOES_NOT_EXIST.args(trs.getLastPage());
 
         MessageEmbed embed = EmbedFactory.embedTransactions(user, guild, trs);
-        List<Button> btns = ButtonContextFactory.createTransactionsButtons(
+        List<Button> btns = EntityContextFactory.createTransactionsButtons(
                 userId, currencies, actions, pageIndex, trs.hasMore());
 
         return ctx.create()

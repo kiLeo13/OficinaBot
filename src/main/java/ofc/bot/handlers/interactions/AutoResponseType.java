@@ -1,4 +1,4 @@
-package ofc.bot.handlers.interactions.buttons;
+package ofc.bot.handlers.interactions;
 
 public enum AutoResponseType {
     NONE(false),

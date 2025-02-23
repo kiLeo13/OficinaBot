@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -45,7 +45,7 @@ public class RemoveGroupMemberCommand extends SlashSubcommand {
         if (!hasRole(member, group.getRoleId()))
             return Status.MEMBER_NOT_IN_THE_GROUP;
 
-        Button confirm = ButtonContextFactory.createRemoveGroupMemberConfirm(group, member.getIdLong());
+        Button confirm = EntityContextFactory.createRemoveGroupMemberConfirm(group, member.getIdLong());
         MessageEmbed embed = EmbedFactory.embedGroupMemberRemove(issuer, group, member);
         return ctx.create(true)
                 .setActionRow(confirm)

@@ -6,21 +6,18 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ofc.bot.Main;
 import ofc.bot.commands.*;
-import ofc.bot.commands.birthday.BirthdayAddCommand;
-import ofc.bot.commands.birthday.BirthdayRemoveCommand;
-import ofc.bot.commands.birthday.BirthdaysCommand;
+import ofc.bot.commands.additionals.AdditionalRolesCommand;
+import ofc.bot.commands.birthday.*;
 import ofc.bot.commands.economy.*;
 import ofc.bot.commands.groups.*;
 import ofc.bot.commands.groups.channel.CreateGroupChannelCommand;
 import ofc.bot.commands.groups.member.AddGroupMemberCommand;
 import ofc.bot.commands.groups.member.RemoveGroupMemberCommand;
-import ofc.bot.commands.levels.LevelsCommand;
-import ofc.bot.commands.levels.LevelsRolesCommand;
-import ofc.bot.commands.levels.RankCommand;
+import ofc.bot.commands.levels.*;
 import ofc.bot.commands.moderation.*;
-import ofc.bot.commands.relationships.DivorceCommand;
-import ofc.bot.commands.relationships.MarryCommand;
-import ofc.bot.commands.relationships.UpdateMarriageCreationCommand;
+import ofc.bot.commands.policies.AddPolicyCommand;
+import ofc.bot.commands.policies.RemovePolicyCommand;
+import ofc.bot.commands.relationships.*;
 import ofc.bot.commands.relationships.marriages.*;
 import ofc.bot.commands.stafflist.RefreshStaffListMessageCommand;
 import ofc.bot.commands.stafflist.StaffListMessagesRegenerateCommand;
@@ -61,11 +58,19 @@ public final class CommandsInitializer {
         var userRepo    = Repositories.getUserRepository();
         var xpRepo      = Repositories.getUserXPRepository();
 
+        // Additionals
+        SlashCommand additionals = new EmptySlashCommand("additionals", "Gerencia recursos adicionais/misc do bot.", Permission.MANAGE_SERVER)
+                .addSubcommand(new AdditionalRolesCommand());
 
         // Birhday
         SlashCommand birthday = new EmptySlashCommand("birthday", "Gerencia os aniversários.", Permission.MANAGE_SERVER)
                 .addSubcommand(new BirthdayAddCommand(bdayRepo, policyRepo))
                 .addSubcommand(new BirthdayRemoveCommand(bdayRepo));
+
+        // Policies
+        SlashCommand policies = new EmptySlashCommand("policies", "Gerencia as regras dos módulos do bot.", Permission.MANAGE_SERVER)
+                .addSubcommand(new AddPolicyCommand(policyRepo))
+                .addSubcommand(new RemovePolicyCommand(policyRepo));
 
         // Marriage
         SlashCommand marriage = new EmptySlashCommand("marriage", "Gerencia os seus casamentos.")
@@ -103,7 +108,9 @@ public final class CommandsInitializer {
 
         List<SlashCommand> cmds = List.of(
                 // Compound Commands
+                additionals,
                 birthday,
+                policies,
                 marriage,
                 customizeUserinfo,
                 group,

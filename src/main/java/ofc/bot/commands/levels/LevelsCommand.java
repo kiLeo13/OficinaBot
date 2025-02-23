@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.domain.viewmodels.LevelView;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -44,7 +44,7 @@ public class LevelsCommand extends SlashCommand {
 
         boolean hasNext = pageItem.hasMore();
         LevelView currentUser = xpRepo.viewLevelByUserId(userId);
-        List<Button> buttons = ButtonContextFactory.createLevelsButtons(userId, pageIndex, hasNext);
+        List<Button> buttons = EntityContextFactory.createLevelsButtons(userId, pageIndex, hasNext);
         MessageEmbed embed = EmbedFactory.embedLevels(guild, currentUser, pageItem);
 
         return ctx.create()

@@ -11,18 +11,18 @@ import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.jooq.exception.DataAccessException;
 
-@ButtonHandler(scope = Scopes.Group.PAY_INVOICE, autoResponseType = AutoResponseType.THINKING)
-public class GroupInvoicePaymentHandler implements BotButtonListener {
+@InteractionHandler(scope = Scopes.Group.PAY_INVOICE, autoResponseType = AutoResponseType.THINKING)
+public class GroupInvoicePaymentHandler implements InteractionListener<ButtonClickContext> {
     private final OficinaGroupRepository grpRepo;
 
     public GroupInvoicePaymentHandler(OficinaGroupRepository grpRepo) {
@@ -30,7 +30,7 @@ public class GroupInvoicePaymentHandler implements BotButtonListener {
     }
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         long userId = ctx.getUserId();
         long guildId = ctx.getGuildId();
         int amount = ctx.get("amount");

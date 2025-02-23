@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -56,7 +56,7 @@ public class CreateGroupChannelCommand extends SlashSubcommand {
         StoreItemType itemType = resolveStoreItem(chanType);
         int price = group.hasFreeAccess() ? 0 : itemType.getPrice();
 
-        Button confirm = ButtonContextFactory.createGroupChannelConfirm(group, chanType, price);
+        Button confirm = EntityContextFactory.createGroupChannelConfirm(group, chanType, price);
         MessageEmbed embed = EmbedFactory.embedGroupChannelCreate(issuer, group, chanType, price);
         return ctx.create()
                 .setActionRow(confirm)

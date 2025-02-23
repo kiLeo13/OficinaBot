@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.MarriageRequestRepository;
 import ofc.bot.domain.viewmodels.ProposalsView;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -39,7 +39,7 @@ public class ProposalsListCommand extends SlashSubcommand {
             return Status.MARRIAGE_PROPOSAL_LIST_IS_EMPTY;
 
         boolean hasMorePages = 1 < proposals.maxPages();
-        List<Button> buttons = ButtonContextFactory.createProposalsListButtons(1, senderId, hasMorePages, type);
+        List<Button> buttons = EntityContextFactory.createProposalsListButtons(1, senderId, hasMorePages, type);
         MessageEmbed embed = EmbedFactory.embedProposals(guild, user, proposals);
 
         return ctx.create()

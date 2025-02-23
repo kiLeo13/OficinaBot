@@ -53,7 +53,7 @@ public final class Main {
         EntityInitializerManager.initServices();
         EntityInitializerManager.registerListeners();
         EntityInitializerManager.registerSlashCommands();
-        EntityInitializerManager.registerButtons();
+        EntityInitializerManager.registerComposedInteractions();
     }
 
     public static JDA getApi() {

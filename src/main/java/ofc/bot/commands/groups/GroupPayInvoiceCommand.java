@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -42,7 +42,7 @@ public class GroupPayInvoiceCommand extends SlashSubcommand {
         if (invoice == 0 || group.getRentStatus() == RentStatus.PAID)
             return Status.NO_PENDING_INVOICES;
 
-        Button confirm = ButtonContextFactory.createInvoiceConfirm(group, invoice);
+        Button confirm = EntityContextFactory.createInvoiceConfirm(group, invoice);
         MessageEmbed embed = EmbedFactory.embedInvoicePayment(issuer, group, invoice);
 
         return ctx.create()

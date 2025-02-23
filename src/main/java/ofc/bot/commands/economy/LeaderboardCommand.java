@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.domain.viewmodels.LeaderboardView;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -41,7 +41,7 @@ public class LeaderboardCommand extends SlashCommand {
             return Status.LEADERBOARD_IS_EMPTY;
 
         boolean hasMorePages = leaderboard.hasMorePages();
-        List<Button> buttons = ButtonContextFactory.createLeaderboardButtons(pageIndex, hasMorePages);
+        List<Button> buttons = EntityContextFactory.createLeaderboardButtons(pageIndex, hasMorePages);
         MessageEmbed embed = EmbedFactory.embedLeaderboard(guild, leaderboard);
 
         return ctx.create()

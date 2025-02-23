@@ -12,7 +12,7 @@ import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.GroupBotRepository;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -54,7 +54,7 @@ public class GroupBotsCommand extends SlashSubcommand {
         boolean isFree = group.hasFreeAccess();
         int price = isFree ? 0 : itemType.getPrice();
 
-        Button confirm = ButtonContextFactory.createGroupBotAddConfirm(group, bot, price);
+        Button confirm = EntityContextFactory.createGroupBotAddConfirm(group, bot, price);
         MessageEmbed embed = EmbedFactory.embedGroupBotAdd(issuer, group, bot, price);
         return ctx.create()
                 .setActionRow(confirm)

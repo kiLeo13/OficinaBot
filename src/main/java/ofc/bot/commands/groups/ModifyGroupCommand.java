@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -59,7 +59,7 @@ public class ModifyGroupCommand extends SlashSubcommand {
             if (newColorHex != null) price += StoreItemType.UPDATE_GROUP.getPrice();
         }
 
-        Button confirmButton = ButtonContextFactory.createModifyGroupConfirm(group, newName, newColor, price);
+        Button confirmButton = EntityContextFactory.createModifyGroupConfirm(group, newName, newColor, price);
         MessageEmbed embed = EmbedFactory.embedGroupModify(issuer, group, newName, newColor, price);
         return ctx.create()
                 .setActionRow(confirmButton)

@@ -11,7 +11,7 @@ import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.BankTransactionRepository;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -66,7 +66,7 @@ public class AddGroupMemberCommand extends SlashSubcommand {
         int price = group.hasFreeAccess() || targetHasFreeAccess || hasFreeSlots
                 ? 0
                 : StoreItemType.GROUP_SLOT.getPrice();
-        Button confirm = ButtonContextFactory.createAddGroupMemberConfirm(group, newMember, price);
+        Button confirm = EntityContextFactory.createAddGroupMemberConfirm(group, newMember, price);
         MessageEmbed embed = EmbedFactory.embedGroupMemberAdd(issuer, group, newMember, price);
         return ctx.create()
                 .setActionRow(confirm)

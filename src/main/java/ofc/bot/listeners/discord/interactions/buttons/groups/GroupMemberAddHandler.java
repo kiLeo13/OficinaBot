@@ -10,25 +10,25 @@ import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ButtonHandler(
+@InteractionHandler(
         scope = Scopes.Group.ADD_MEMBER,
         autoResponseType = AutoResponseType.THINKING
 )
-public class GroupMemberAddHandler implements BotButtonListener {
+public class GroupMemberAddHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupMemberAddHandler.class);
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         Guild guild = ctx.getGuild();
         OficinaGroup group = ctx.get("group");
         Member newMember = ctx.get("new_member");

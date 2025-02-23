@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.MemberPunishment;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -44,7 +44,7 @@ public class InfractionsCommand extends SlashCommand {
 
         MemberPunishment infr = infrs.get(0);
         boolean active = infr.isActive();
-        List<Button> btns = ButtonContextFactory.createInfractionsButtons(
+        List<Button> btns = EntityContextFactory.createInfractionsButtons(
                 infr.getId(), active, targetId, infrs.getPageIndex(), showInactive, infrs.hasMore());
         MessageEmbed embed = EmbedFactory.embedInfractions(target, guild, infrs, infr.getModeratorId());
 

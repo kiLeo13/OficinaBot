@@ -12,7 +12,7 @@ import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.groups.permissions.GroupPermissionManager;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -51,7 +51,7 @@ public class GroupPermissionCommand extends SlashSubcommand {
 
         boolean isFree = group.hasFreeAccess();
         int price = isFree ? 0 : StoreItemType.GROUP_PERMISSION.getPrice();
-        Button confirm = ButtonContextFactory.createPermissionConfirm(group, perm, price);
+        Button confirm = EntityContextFactory.createPermissionConfirm(group, perm, price);
         MessageEmbed embed = EmbedFactory.embedGroupPermissionAdd(issuer, group, perm, price);
 
         return ctx.create()

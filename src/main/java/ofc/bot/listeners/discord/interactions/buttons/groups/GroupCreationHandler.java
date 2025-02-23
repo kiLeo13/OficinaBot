@@ -12,22 +12,22 @@ import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ButtonHandler(
+@InteractionHandler(
         scope = Scopes.Group.CREATE_GROUP,
         autoResponseType = AutoResponseType.THINKING
 )
-public class GroupCreationHandler implements BotButtonListener {
+public class GroupCreationHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupCreationHandler.class);
     private final OficinaGroupRepository grpRepo;
 
@@ -35,8 +35,7 @@ public class GroupCreationHandler implements BotButtonListener {
         this.grpRepo = grpRepo;
     }
 
-    @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         OficinaGroup group = ctx.get("group");
         PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
         Guild guild = ctx.getGuild();

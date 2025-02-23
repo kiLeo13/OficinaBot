@@ -1,48 +1,46 @@
-package ofc.bot.handlers.interactions.buttons;
+package ofc.bot.handlers.interactions.modals;
 
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.InteractionMemoryManager;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.interactions.modals.contexts.ModalContext;
+import ofc.bot.handlers.interactions.modals.contexts.ModalSubmitContext;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
 @DiscordEventHandler
-public class ButtonInteractionGateway extends ListenerAdapter {
+public class ModalInteractionGateway extends ListenerAdapter {
     private static final ExecutorService EXECUTOR = ForkJoinPool.commonPool();
     private final InteractionMemoryManager mngr = InteractionMemoryManager.getManager();
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent e) {
+    public void onModalInteraction(ModalInteractionEvent e) {
         Member member = e.getMember();
-        String buttonId = e.getComponentId();
-        ButtonContext buttonCtx = mngr.get(buttonId);
+        String modalId = e.getModalId();
+        ModalContext modalCtx = mngr.get(modalId);
 
         if (!e.isFromGuild() || member == null) return;
 
-        if (buttonCtx == null) return;
+        if (modalCtx == null) return;
 
-        String scope = buttonCtx.getScope();
-        InteractionListener<ButtonClickContext> listener = mngr.getListener(scope);
+        String scope = modalCtx.getScope();
+        InteractionListener<ModalSubmitContext> listener = mngr.getListener(scope);
 
         if (listener == null) return;
 
-        if (!buttonCtx.isPermitted(member)) {
-            e.reply("Você não pode clicar neste botão.").setEphemeral(true).queue();
-            return;
-        }
+        // There is no need to check if the user is permitted to submit
+        // the Modal as no one else can even see it.
 
-        ButtonClickContext clickContext = new ButtonClickContext(buttonCtx, e);
+        ModalSubmitContext clickContext = new ModalSubmitContext(modalCtx, e);
         handleAutoResponse(listener.getAutoResponseType(), clickContext);
 
-        mngr.remove(buttonId);
+        mngr.remove(modalId);
 
         EXECUTOR.execute(() -> {
             InteractionResult state = listener.onExecute(clickContext);
@@ -52,10 +50,11 @@ public class ButtonInteractionGateway extends ListenerAdapter {
         });
     }
 
-    private void handleAutoResponse(AutoResponseType type, ButtonClickContext ctx) {
+    private void handleAutoResponse(AutoResponseType type, ModalSubmitContext ctx) {
         switch (type) {
             case THINKING, THINKING_EPHEMERAL -> ctx.ack(type.isEphemeral());
-            case DEFER_EDIT -> ctx.ackEdit();
+            case DEFER_EDIT -> throw new UnsupportedOperationException(
+                    "Cannot send a defer edit response to Modal interactions");
         }
     }
 }

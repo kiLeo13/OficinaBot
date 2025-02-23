@@ -34,6 +34,19 @@ public class EntityPolicyRepository extends Repository<EntityPolicy> {
                 .execute();
     }
 
+    public EntityPolicy findByPolicyAndResource(PolicyType type, Object resource) {
+        return ctx.selectFrom(ENTITIES_POLICIES)
+                .where(ENTITIES_POLICIES.POLICY_TYPE.eq(type.name()))
+                .and(ENTITIES_POLICIES.RESOURCE.eq(String.valueOf(resource)))
+                .fetchOne();
+    }
+
+    public void delete(EntityPolicy entity) {
+        ctx.deleteFrom(ENTITIES_POLICIES)
+                .where(ENTITIES_POLICIES.ID.eq(entity.getId()))
+                .execute();
+    }
+
     public boolean existsByTypeAndResource(PolicyType type, Object resource) {
         return ctx.fetchExists(ENTITIES_POLICIES,
                 ENTITIES_POLICIES.POLICY_TYPE.eq(type.name())

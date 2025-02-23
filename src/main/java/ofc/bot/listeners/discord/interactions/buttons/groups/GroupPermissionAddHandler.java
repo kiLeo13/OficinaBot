@@ -12,16 +12,16 @@ import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.cache.PolicyService;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.groups.permissions.GroupPermissionManager;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 
-@ButtonHandler(scope = Scopes.Group.ADD_PERMISSION, autoResponseType = AutoResponseType.THINKING)
-public class GroupPermissionAddHandler implements BotButtonListener {
+@InteractionHandler(scope = Scopes.Group.ADD_PERMISSION, autoResponseType = AutoResponseType.THINKING)
+public class GroupPermissionAddHandler implements InteractionListener<ButtonClickContext> {
     private final GroupPermissionManager permissionManager;
     private final PolicyService policyService = PolicyService.getService();
 
@@ -30,7 +30,7 @@ public class GroupPermissionAddHandler implements BotButtonListener {
     }
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         int price = ctx.get("amount");
         OficinaGroup group = ctx.get("group");
         GroupPermission perm = ctx.get("permission");

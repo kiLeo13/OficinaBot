@@ -7,26 +7,26 @@ import ofc.bot.commands.economy.TransactionsCommand;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.handlers.economy.CurrencyType;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.paginations.PaginationItem;
 import ofc.bot.handlers.paginations.Paginators;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@ButtonHandler(scope = Scopes.Economy.VIEW_TRANSACTIONS, autoResponseType = AutoResponseType.DEFER_EDIT)
-public class TransactionsPagination implements BotButtonListener {
+@InteractionHandler(scope = Scopes.Economy.VIEW_TRANSACTIONS, autoResponseType = AutoResponseType.DEFER_EDIT)
+public class TransactionsPagination implements InteractionListener<ButtonClickContext> {
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         int pageIndex = ctx.get("page_index");
         long userId = ctx.get("user_id");
         List<CurrencyType> currencies = ctx.get("currencies");
@@ -40,7 +40,7 @@ public class TransactionsPagination implements BotButtonListener {
 
         Bot.fetchUser(userId).queue(user -> {
             MessageEmbed embed = EmbedFactory.embedTransactions(user, guild, trs);
-            List<Button> btns = ButtonContextFactory.createTransactionsButtons(
+            List<Button> btns = EntityContextFactory.createTransactionsButtons(
                     userId, currencies, actions, pageIndex, trs.hasMore());
 
             ctx.create()

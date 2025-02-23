@@ -10,25 +10,25 @@ import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.CurrencyType;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ButtonHandler(
+@InteractionHandler(
         scope = Scopes.Group.REMOVE_MEMBER,
         autoResponseType = AutoResponseType.THINKING_EPHEMERAL
 )
-public class GroupMemberRemoveHandler implements BotButtonListener {
+public class GroupMemberRemoveHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupMemberRemoveHandler.class);
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         Guild guild = ctx.getGuild();
         OficinaGroup group = ctx.get("group");
         long targetId = ctx.get("target_id");

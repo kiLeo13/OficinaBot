@@ -3,14 +3,17 @@ package ofc.bot.handlers;
 import net.dv8tion.jda.api.JDA;
 import ofc.bot.Main;
 import ofc.bot.commands.groups.LeaveGroupCommand;
-import ofc.bot.domain.sqlite.repository.*;
+import ofc.bot.domain.sqlite.repository.BankTransactionRepository;
+import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.cache.PolicyService;
+import ofc.bot.handlers.interactions.InteractionMemoryManager;
 import ofc.bot.handlers.interactions.buttons.ButtonInteractionGateway;
 import ofc.bot.handlers.interactions.commands.SlashCommandsGateway;
 import ofc.bot.handlers.interactions.commands.slash.CommandsInitializer;
+import ofc.bot.handlers.interactions.modals.ModalInteractionGateway;
 import ofc.bot.jobs.*;
-import ofc.bot.jobs.QueryCountPrinter;
 import ofc.bot.jobs.groups.GroupsInvoiceHandler;
 import ofc.bot.jobs.groups.LateGroupsChecker;
 import ofc.bot.jobs.income.VoiceChatMoneyHandler;
@@ -28,16 +31,16 @@ import ofc.bot.listeners.discord.guilds.reactionroles.StudyRoleHandler;
 import ofc.bot.listeners.discord.guilds.roles.ColorRoleHandler;
 import ofc.bot.listeners.discord.guilds.roles.MemberRolesBackup;
 import ofc.bot.listeners.discord.interactions.GenericInteractionLocaleUpsert;
-import ofc.bot.listeners.discord.interactions.autocomplete.GroupBotAutocompletion;
-import ofc.bot.listeners.discord.interactions.autocomplete.InfractionsAutocompletion;
-import ofc.bot.listeners.discord.interactions.autocomplete.OficinaGroupAutocompletion;
+import ofc.bot.listeners.discord.interactions.autocomplete.*;
 import ofc.bot.listeners.discord.interactions.buttons.WorkReminderHandler;
 import ofc.bot.listeners.discord.interactions.buttons.groups.*;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.*;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.DeleteInfraction;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.InfractionsPageUpdate;
 import ofc.bot.listeners.discord.interactions.dm.DirectMessageReceived;
+import ofc.bot.listeners.discord.interactions.menus.ChoosableRolesListener;
 import ofc.bot.listeners.discord.interactions.modals.ChangelogCreationHandler;
+import ofc.bot.listeners.discord.interactions.modals.ChoosableRolesHandler;
 import ofc.bot.listeners.discord.logs.VoiceActivity;
 import ofc.bot.listeners.discord.logs.messages.*;
 import ofc.bot.listeners.discord.logs.moderation.LogTimeout;
@@ -47,17 +50,16 @@ import ofc.bot.listeners.discord.logs.names.UserGlobalNameUpdateLogger;
 import ofc.bot.listeners.discord.logs.names.UserNameUpdateLogger;
 import ofc.bot.listeners.discord.moderation.AutoModerator;
 import ofc.bot.listeners.oficina.DefaultBankTransactionLogger;
-import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an utility class where it's main intention is to
- * register commands, listeners and jobs.
+ * This is an utility class to register/initialize commands,
+ * listeners, jobs, services, etc.
  * <p>
- * For {@link DiscordEventHandler} and {@link ofc.bot.util.content.annotations.jobs.CronJob CronJob}
- * classes, they are instnatiated by the default constructor,
+ * For {@link ofc.bot.util.content.annotations.jobs.CronJob CronJob}
+ * classes, they are instantiated through the default constructor,
  * as {@code new Class()}.
  */
 public final class EntityInitializerManager {
@@ -107,7 +109,7 @@ public final class EntityInitializerManager {
         PolicyService.setPolicyRepo(policyRepo);
     }
 
-    public static void registerButtons() {
+    public static void registerComposedInteractions() {
         var pnshRepo   = Repositories.getMemberPunishmentRepository();
         var mreqRepo   = Repositories.getMarriageRequestRepository();
         var namesRepo  = Repositories.getUserNameUpdateRepository();
@@ -117,7 +119,7 @@ public final class EntityInitializerManager {
         var bdayRepo   = Repositories.getBirthdayRepository();
         var xpRepo     = Repositories.getUserXPRepository();
 
-        ButtonInteractionGateway.registerButtons(
+        InteractionMemoryManager.getManager().registerListeners(
                 // Infractions
                 new DeleteInfraction(pnshRepo),
                 new InfractionsPageUpdate(),
@@ -138,7 +140,10 @@ public final class EntityInitializerManager {
                 new GroupMemberRemoveHandler(),
                 new GroupPermissionAddHandler(policyRepo),
                 new GroupPinsHandler(),
-                new GroupUpdateHandler(grpRepo)
+                new GroupUpdateHandler(grpRepo),
+
+                // Generic
+                new ChoosableRolesHandler()
         );
     }
 
@@ -173,15 +178,17 @@ public final class EntityInitializerManager {
         var grpBotRepo    = Repositories.getGroupBotRepository();
         var tmpBanRepo    = Repositories.getTempBanRepository();
         var xpRepo        = Repositories.getUserXPRepository();
-        var usersRepo     = Repositories.getUserRepository();
+        var userRepo      = Repositories.getUserRepository();
 
         api.addEventListener(
+                new AutoModerator(policyRepo, blckWordsRepo, pnshRepo, modActRepo),
                 new AutoModLogger(),
                 new BlockDumbCommands(),
                 new BotChangelogRoleHandler(),
                 new ButtonInteractionGateway(),
                 new ChangelogCreationHandler(),
                 new ChatMoney(ecoRepo),
+                new ChoosableRolesListener(),
                 new ColorRoleHandler(colorsRepo),
                 new DirectMessageReceived(),
                 new ErikPingReactionHelper(),
@@ -191,8 +198,9 @@ public final class EntityInitializerManager {
                 new LeaveGroupCommand.FakePISuggester(),
                 new LogTimeout(),
                 new MemberJoinUpsert(),
-                new MemberNickUpdateLogger(namesRepo, usersRepo),
+                new MemberNickUpdateLogger(namesRepo, userRepo),
                 new MemberRolesBackup(rolesRepo, xpRepo),
+                new ModalInteractionGateway(),
                 new UnbanTempBanCleaner(tmpBanRepo),
                 new MessageBulkDeleteLogger(msgRepo),
                 new MessageCreatedLogger(msgRepo),
@@ -201,18 +209,16 @@ public final class EntityInitializerManager {
                 new MessageUpdatedLogger(msgRepo, updRepo),
                 new OficinaGroupAutocompletion(grpRepo),
                 new OutageCommandsDisclaimer(),
+                new ResourceAutocompletion(userRepo),
                 new SlashCommandsGateway(),
                 new SteamScamBlocker(),
                 new StudyRoleHandler(),
                 new UnverifiedMembersRegisterBlocker(),
-                new UserGlobalNameUpdateLogger(namesRepo, usersRepo),
-                new UserNameUpdateLogger(namesRepo, usersRepo),
+                new UserGlobalNameUpdateLogger(namesRepo, userRepo),
+                new UserNameUpdateLogger(namesRepo, userRepo),
                 new UsersXPHandler(),
                 new VoiceActivity(),
-                new WorkReminderHandler(),
-
-                // Moderation
-                new AutoModerator(policyRepo, blckWordsRepo, pnshRepo, modActRepo)
+                new WorkReminderHandler()
         );
     }
 }

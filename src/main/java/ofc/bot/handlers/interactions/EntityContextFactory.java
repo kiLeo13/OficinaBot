@@ -1,42 +1,40 @@
-package ofc.bot.handlers.interactions.buttons.contexts;
+package ofc.bot.handlers.interactions;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import ofc.bot.domain.entity.*;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
+import ofc.bot.domain.entity.GroupBot;
+import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.GroupPermission;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.handlers.economy.CurrencyType;
-import ofc.bot.handlers.interactions.buttons.ButtonManager;
+import ofc.bot.handlers.interactions.buttons.contexts.ButtonContext;
+import ofc.bot.handlers.interactions.modals.contexts.ModalContext;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
 
 import java.time.Month;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
-/**
- * Utility class for generating buttons for all commands,
- * whether its for pagination or confirmation.
- * <p>
- * Just like that room you leave all your stuff you are unsure where to put, to keep the rest of
- * your house organized.
- * <p>
- * <b>Note:</b> All methods in this class are a part of the {@link ButtonContext}
- * feature, that is, when the {@link Button} instance is returned, its already being handled
- * by the {@link ofc.bot.handlers.interactions.buttons.ButtonManager ButtonManager} and ready
- * to be sent to the end-user.
- */
-public final class ButtonContextFactory {
-    private static final ButtonManager BUTTON_MANAGER = ButtonManager.getManager();
+public final class EntityContextFactory {
+    private static final InteractionMemoryManager INTERACTION_MANAGER = InteractionMemoryManager.getManager();
 
-    private ButtonContextFactory() {}
+    private EntityContextFactory() {}
 
+    /* -------------------- Buttons -------------------- */
     public static List<Button> createBirthdayListButtons(Month currMonth) {
         Month previousMonth = currMonth.minus(1);
         Month nextMonth = currMonth.plus(1);
@@ -53,8 +51,8 @@ public final class ButtonContextFactory {
                 .put("month", nextMonth)
                 .setEnabled(hasNext);
 
-        BUTTON_MANAGER.save(prevButton, nextButton);
-        return List.of(prevButton.getButton(), nextButton.getButton());
+        INTERACTION_MANAGER.save(prevButton, nextButton);
+        return List.of(prevButton.getEntity(), nextButton.getEntity());
     }
 
     public static List<Button> createTransactionsButtons(long userId, List<CurrencyType> currencies,
@@ -78,8 +76,8 @@ public final class ButtonContextFactory {
                 .put("actions", actions)
                 .setEnabled(hasNext);
 
-        BUTTON_MANAGER.save(prev, next);
-        return List.of(prev.getButton(), next.getButton());
+        INTERACTION_MANAGER.save(prev, next);
+        return List.of(prev.getEntity(), next.getEntity());
     }
 
     public static List<Button> createInfractionsButtons(int infrId, boolean isActive,
@@ -112,8 +110,8 @@ public final class ButtonContextFactory {
                 .put("show_inactive", showInactive)
                 .setEnabled(isActive);
 
-        BUTTON_MANAGER.save(prev, next, delete);
-        return List.of(prev.getButton(), next.getButton(), delete.getButton());
+        INTERACTION_MANAGER.save(prev, next, delete);
+        return List.of(prev.getEntity(), next.getEntity(), delete.getEntity());
     }
 
     public static List<Button> createLeaderboardButtons(int pageIndex, boolean hasNext) {
@@ -129,27 +127,27 @@ public final class ButtonContextFactory {
                 .put("page_index", pageIndex + 1)
                 .setEnabled(hasNext);
 
-        BUTTON_MANAGER.save(prev, next);
-        return List.of(prev.getButton(), next.getButton());
+        INTERACTION_MANAGER.save(prev, next);
+        return List.of(prev.getEntity(), next.getEntity());
     }
 
-    public static List<Button> createLevelsButtons(long authorId, int pageIndex, boolean hasNext) {
+    public static List<Button> createLevelsButtons(long userId, int pageIndex, boolean hasNext) {
         boolean hasPrevious = pageIndex > 0;
 
         ButtonContext prev = ButtonContext.secondary(Bot.Emojis.GRAY_ARROW_LEFT)
                 .setScope(Scopes.Misc.PAGINATE_LEVELS)
-                .setAuthorId(authorId)
+                .put("user_id", userId)
                 .put("page_index", pageIndex - 1)
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.secondary(Bot.Emojis.GRAY_ARROW_RIGHT)
                 .setScope(Scopes.Misc.PAGINATE_LEVELS)
-                .setAuthorId(authorId)
+                .put("user_id", userId)
                 .put("page_index", pageIndex + 1)
                 .setEnabled(hasNext);
 
-        BUTTON_MANAGER.save(prev, next);
-        return List.of(prev.getButton(), next.getButton());
+        INTERACTION_MANAGER.save(prev, next);
+        return List.of(prev.getEntity(), next.getEntity());
     }
 
     public static List<Button> createNamesHistoryButtons(NameScope type, long targetId, int currentOffset, boolean hasNext) {
@@ -173,8 +171,8 @@ public final class ButtonContextFactory {
                 .setPermission(Permission.MANAGE_SERVER)
                 .setEnabled(hasNext);
 
-        BUTTON_MANAGER.save(prev, next);
-        return List.of(prev.getButton(), next.getButton());
+        INTERACTION_MANAGER.save(prev, next);
+        return List.of(prev.getEntity(), next.getEntity());
     }
 
     public static List<Button> createProposalsListButtons(int page, long userId, boolean hasNext, String type) {
@@ -184,22 +182,20 @@ public final class ButtonContextFactory {
 
         ButtonContext prev = ButtonContext.primary("Previous")
                 .setScope(Scopes.Misc.PAGINATE_MARRIAGE_REQUESTS)
-                .setAuthorId(userId)
+                .addUser(userId)
                 .put("page", previousPage)
                 .put("type", type)
-                .setAuthorOnly(true)
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.primary("Next")
                 .setScope(Scopes.Misc.PAGINATE_MARRIAGE_REQUESTS)
-                .setAuthorId(userId)
+                .addUser(userId)
                 .put("page", nextPage)
                 .put("type", type)
-                .setAuthorOnly(true)
                 .setEnabled(hasNext);
 
-        BUTTON_MANAGER.save(prev, next);
-        return List.of(prev.getButton(), next.getButton());
+        INTERACTION_MANAGER.save(prev, next);
+        return List.of(prev.getEntity(), next.getEntity());
     }
 
     public static Button createGroupChannelConfirm(OficinaGroup group, ChannelType channelType, int price) {
@@ -310,6 +306,31 @@ public final class ButtonContextFactory {
         );
     }
 
+    /* -------------------- Modals -------------------- */
+    public static Modal createChoosableRolesModal(Message.Attachment img, long chanId, int color, int maxChoices) {
+        String uuid = UUID.randomUUID().toString();
+        int maxTitle = MessageEmbed.AUTHOR_MAX_LENGTH;
+        int maxDesc = TextInput.MAX_VALUE_LENGTH;
+        TextInputStyle shortStyle = TextInputStyle.SHORT;
+        TextInputStyle textStyle = TextInputStyle.PARAGRAPH;
+
+        List<TextInput> inputs = Stream.of(
+                TextInput.create("title", "Título", shortStyle).setMaxLength(maxTitle),
+                TextInput.create("desc", "Descrição", textStyle).setMaxLength(maxDesc).setRequired(false),
+                TextInput.create("opts", "Opções", textStyle)
+        ).map(TextInput.Builder::build).toList();
+        ModalContext ctx = ModalContext.of(uuid, "Choosable Roles", inputs)
+                .setScope(Scopes.Misc.CHOOSABLE_ROLES)
+                .put("image", img)
+                .put("channel_id", chanId)
+                .put("color", color)
+                .put("max_choices", maxChoices);
+
+        INTERACTION_MANAGER.save(ctx);
+        return ctx.getEntity();
+    }
+
+    // Utility Internals
     private static Button createGroupItemPaymentConfirm(
             OficinaGroup group, String scope, Emoji emoji, int price, Map<String, Object> payload
     ) {
@@ -328,15 +349,14 @@ public final class ButtonContextFactory {
     ) {
         String label = String.format("Confirmar %s", act);
         ButtonContext confirm = ButtonContext.of(style, label, emoji)
-                .setAuthorOnly(true)
+                .addUser(group.getOwnerId())
                 .setScope(scope)
                 .setValidity(30, TimeUnit.SECONDS)
-                .setAuthorId(group.getOwnerId())
                 .put("group", group)
                 .put("amount", price)
                 .putAll(payload == null ? Map.of() : payload);
 
-        BUTTON_MANAGER.save(confirm);
-        return confirm.getButton();
+        INTERACTION_MANAGER.save(confirm);
+        return confirm.getEntity();
     }
 }

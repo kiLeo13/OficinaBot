@@ -6,24 +6,24 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.commands.moderation.InfractionsCommand;
 import ofc.bot.domain.entity.MemberPunishment;
 import ofc.bot.domain.sqlite.repository.MemberPunishmentRepository;
-import ofc.bot.handlers.interactions.buttons.AutoResponseType;
-import ofc.bot.handlers.interactions.buttons.BotButtonListener;
+import ofc.bot.handlers.interactions.AutoResponseType;
+import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
-import ofc.bot.handlers.interactions.buttons.contexts.ButtonContextFactory;
+import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.paginations.PaginationItem;
 import ofc.bot.handlers.paginations.Paginators;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
-import ofc.bot.util.content.annotations.listeners.ButtonHandler;
+import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 import org.jooq.exception.DataAccessException;
 
 import java.util.List;
 
-@ButtonHandler(scope = Scopes.Punishments.DELETE_INFRACTION, autoResponseType = AutoResponseType.DEFER_EDIT)
-public class DeleteInfraction implements BotButtonListener {
+@InteractionHandler(scope = Scopes.Punishments.DELETE_INFRACTION, autoResponseType = AutoResponseType.DEFER_EDIT)
+public class DeleteInfraction implements InteractionListener<ButtonClickContext> {
     private final MemberPunishmentRepository pnshRepo;
 
     public DeleteInfraction(MemberPunishmentRepository pnshRepo) {
@@ -31,7 +31,7 @@ public class DeleteInfraction implements BotButtonListener {
     }
 
     @Override
-    public InteractionResult onClick(ButtonClickContext ctx) {
+    public InteractionResult onExecute(ButtonClickContext ctx) {
         long issuerId = ctx.getUserId();
         long guildId = ctx.getGuildId();
         long targetId = ctx.get("target_id");
@@ -68,7 +68,7 @@ public class DeleteInfraction implements BotButtonListener {
             MemberPunishment updatedIfr = infrs.get(0);
             boolean active = updatedIfr.isActive();
             MessageEmbed embed = EmbedFactory.embedInfractions(target, guild, infrs, issuerId);
-            List<Button> btns = ButtonContextFactory.createInfractionsButtons(
+            List<Button> btns = EntityContextFactory.createInfractionsButtons(
                     updatedIfr.getId(), active, targetId, newPageIndex, showInactive, infrs.hasMore());
 
             ctx.create()
