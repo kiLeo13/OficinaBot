@@ -29,12 +29,11 @@ public class SlashCommandsGateway extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
         Guild guild = e.getGuild();
-
-        if (guild == null) return;
-
         String fullName = e.getFullCommandName();
         ICommand<SlashCommandContext> cmd = SlashCommandsRegistryManager.getCommand(fullName);
         Member member = e.getMember();
+
+        if (guild == null || member == null) return;
 
         if (cmd == null) {
             e.reply("""
