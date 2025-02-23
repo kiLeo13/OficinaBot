@@ -90,6 +90,14 @@ public class OficinaEmbed extends EmbedBuilder {
     }
 
     @NotNull
+    public OficinaEmbed setImageIf(boolean expression, @Nullable String url) {
+        if (expression) {
+            setImage(url);
+        }
+        return this;
+    }
+
+    @NotNull
     @Override
     public OficinaEmbed setAuthor(@Nullable String name) {
         super.setAuthor(name);
