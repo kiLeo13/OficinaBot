@@ -38,6 +38,10 @@ public class Birthday extends OficinaRecord<Birthday> {
         return get(BIRTHDAYS.BIRTHDAY);
     }
 
+    public int getZoneHours() {
+        return get(BIRTHDAYS.ZONE_HOURS);
+    }
+
     public String getPrettyBirthday() {
         LocalDate birthday = getBirthday();
 
