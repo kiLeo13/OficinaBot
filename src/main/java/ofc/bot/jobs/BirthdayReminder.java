@@ -18,13 +18,13 @@ import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.time.Period;
+import java.time.*;
 import java.util.List;
 
-@CronJob(expression = "0 0 0 ? * * *") // Every day at midnight
+@CronJob(expression = "0 0 * ? * * *") // Runs every hour
 public class BirthdayReminder implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(BirthdayReminder.class);
+    private static final ErrorHandler DEFAULT_MEMBER_ERROR_HANDLER = new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MEMBER);
     private static final String DEFAULT_MESSAGE = "@everyone BELA NOITE, vamos parabenizar esta pessoa tão especial chamada %s, por estar completando `%d` anos! Né? %s";
     private static final String AGELESS_MESSAGE = "@everyone BELA NOITE, vamos parabenizar esta pessoa tão especial chamada %s, por estar fazendo aniversário hoje! Né? %s";
     private static final long ROLE_ID_UNDERAGE = 664918505400958986L;
@@ -39,7 +39,7 @@ public class BirthdayReminder implements Job {
 
     @Override
     public void execute(JobExecutionContext context) {
-        List<Birthday> birthdays = bdayRepo.findByCurrentMonth();
+        List<Birthday> birthdays = bdayRepo.findAll();
         TextChannel channel = Channels.E.textChannel();
 
         if (channel == null) {
@@ -47,13 +47,21 @@ public class BirthdayReminder implements Job {
             return;
         }
 
-        if (birthdays.isEmpty()) return;
-
-        for (Birthday birthday : birthdays) {
+        for (Birthday entry : birthdays) {
+            ZoneOffset userOffset = ZoneOffset.ofHours(entry.getZoneHours());
+            LocalDateTime userLocalTime = LocalDateTime.now(Clock.system(userOffset));
+            LocalDate birthdayDate = entry.getBirthday();
             Guild guild = channel.getGuild();
-            String name = birthday.getName();
-            long userId = birthday.getUserId();
-            int turnAge = resolveAge(birthday.getBirthday());
+            String name = entry.getName();
+            long userId = entry.getUserId();
+            int turnAge = resolveAge(birthdayDate);
+
+            // This cron job runs every hour, so we must check if this is equal to 0 (midnight)
+            // to aviod notifying users like... 24 times in a day for the same birthday, yknow
+            if (userLocalTime.getHour() != 0 ||
+                    birthdayDate.getMonth() != userLocalTime.getMonth() ||
+                    birthdayDate.getDayOfMonth() != userLocalTime.getDayOfMonth()
+            ) return;
 
             guild.retrieveMemberById(userId).queue(m -> {
                 if (!m.hasAccess(channel)) return;
@@ -63,7 +71,7 @@ public class BirthdayReminder implements Job {
 
                 if (turnAge == 18) updateAgeRole(channel, m);
 
-            }, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MEMBER));
+            }, DEFAULT_MEMBER_ERROR_HANDLER);
         }
     }
 
@@ -93,11 +101,10 @@ public class BirthdayReminder implements Job {
             return;
         }
 
-        guild.modifyMemberRoles(member, List.of(adultRole), List.of(underageRole)).queue((v) -> {
-            channel.sendMessageFormat("%s seu cargo foi atualizado para maior de idade! 🤨", member.getAsMention()).queue();
-        }, (err) -> {
-            LOGGER.error("Could not update roles of member '{}'", member.getId(), err);
-        });
+        guild.modifyMemberRoles(member, List.of(adultRole), List.of(underageRole)).queue(
+                (v) -> channel.sendMessageFormat("%s seu cargo foi atualizado para maior de idade! 🤨", member.getAsMention()).queue(),
+                (err) -> LOGGER.error("Could not update roles of member '{}'", member.getId(), err)
+        );
     }
 
     private int resolveAge(LocalDate birth) {
