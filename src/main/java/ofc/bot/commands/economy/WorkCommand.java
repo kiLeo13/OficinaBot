@@ -29,8 +29,8 @@ public class WorkCommand extends SlashCommand {
     private static final Random random = new Random();
     public static final long COOLDOWN = 2700; // Seconds
     private static final double BOOSTER_EXTRA_PERCENTAGE = 1.2;
-    private static final int MIN = 50;
-    private static final int MAX = 200;
+    private static final int MIN = 50 * 2;
+    private static final int MAX = 200 * 2;
     private final UserEconomyRepository ecoRepo;
 
     public WorkCommand(UserEconomyRepository ecoRepo) {
