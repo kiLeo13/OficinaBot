@@ -21,7 +21,7 @@ import ofc.bot.jobs.income.VoiceXPHandler;
 import ofc.bot.jobs.roles.ExpiredBackupsRemover;
 import ofc.bot.jobs.weekdays.SadMonday;
 import ofc.bot.jobs.weekdays.SadSunday;
-import ofc.bot.listeners.discord.economy.ChatMoney;
+import ofc.bot.listeners.discord.economy.ChatMoneyHandler;
 import ofc.bot.listeners.discord.guilds.BlockDumbCommands;
 import ofc.bot.listeners.discord.guilds.UnbanTempBanCleaner;
 import ofc.bot.listeners.discord.guilds.members.MemberJoinUpsert;
@@ -188,7 +188,7 @@ public final class EntityInitializerManager {
                 new BotChangelogRoleHandler(),
                 new ButtonInteractionGateway(),
                 new ChangelogCreationHandler(),
-                new ChatMoney(ecoRepo),
+                new ChatMoneyHandler(ecoRepo),
                 new ChoosableRolesListener(),
                 new ColorRoleHandler(colorsRepo),
                 new DirectMessageReceived(),

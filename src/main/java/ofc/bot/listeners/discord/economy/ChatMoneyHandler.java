@@ -19,15 +19,15 @@ import java.util.HashMap;
 import java.util.Random;
 
 @DiscordEventHandler
-public class ChatMoney extends ListenerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChatMoney.class);
+public class ChatMoneyHandler extends ListenerAdapter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatMoneyHandler.class);
     private static final Random random = new Random();
     private static final int PERIOD = 15000;
     private static final int MAX_AMOUNT = 10;
     private static final HashMap<Long, Long> cooldown = new HashMap<>();
     private final UserEconomyRepository ecoRepo;
 
-    public ChatMoney(UserEconomyRepository ecoRepo) {
+    public ChatMoneyHandler(UserEconomyRepository ecoRepo) {
         this.ecoRepo = ecoRepo;
     }
 
