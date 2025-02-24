@@ -49,6 +49,7 @@ public final class DB {
                 BirthdaysTable.BIRTHDAYS,
                 BlockedWordsTable.BLOCKED_WORDS,
                 ColorRolesStateTable.COLOR_ROLES_STATES,
+                CommandsHistoryTable.COMMANDS_HISTORY,
                 CustomUserinfoTable.CUSTOM_USERINFO,
                 DiscordMessagesTable.DISCORD_MESSAGES,
                 DiscordMessageUpdatesTable.DISCORD_MESSAGE_UPDATES,
