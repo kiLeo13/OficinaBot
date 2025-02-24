@@ -3,13 +3,8 @@ package ofc.bot.listeners.discord.economy;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.UserEconomy;
-import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
-import ofc.bot.events.eventbus.EventBus;
-import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
@@ -48,7 +43,6 @@ public class ChatMoneyHandler extends ListenerAdapter {
                     .tickUpdate();
             ecoRepo.upsert(userEconomy);
 
-            dispatchChatMoneyEvent(userId, amount);
             cooldown.put(userId, now);
         } catch (DataAccessException e) {
             LOGGER.error("Could not update money of user '{}' by chat money", userId, e);
@@ -67,10 +61,5 @@ public class ChatMoneyHandler extends ListenerAdapter {
         long lastEarnedMessage = cooldown.get(userId);
 
         return now - lastEarnedMessage <= PERIOD;
-    }
-
-    private void dispatchChatMoneyEvent(long userId, int amount) {
-        BankTransaction tr = new BankTransaction(userId, amount, CurrencyType.OFICINA, TransactionType.CHAT_MONEY);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }
