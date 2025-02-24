@@ -14,13 +14,13 @@ import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
-import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -42,13 +42,13 @@ public class BirthdayAddCommand extends SlashSubcommand {
         String name = ctx.getSafeOption("name", OptionMapping::getAsString);
         String dateInput = ctx.getSafeOption("birthday", OptionMapping::getAsString);
         User user = ctx.getSafeOption("user", OptionMapping::getAsUser);
+        int zoneHours = ctx.getSafeOption("time-zone", OptionMapping::getAsInt);
         boolean hideAge = ctx.getOption("hide-age", false, OptionMapping::getAsBoolean);
         long userId = user.getIdLong();
-        long now = Bot.unixNow();
 
         try {
             LocalDate date = LocalDate.parse(dateInput, END_USER_DATE_FORMATTER);
-            Birthday birthday = new Birthday(userId, name, date, now, now);
+            Birthday birthday = new Birthday(userId, name, date, zoneHours);
 
             bdayRepo.upsert(birthday);
 
@@ -66,6 +66,9 @@ public class BirthdayAddCommand extends SlashSubcommand {
 
     @Override
     public List<OptionData> getOptions() {
+        int minZoneOffset = ZoneOffset.MIN.getTotalSeconds() / 3600;
+        int maxZoneOffset = ZoneOffset.MAX.getTotalSeconds() / 3600;
+
         return List.of(
                 new OptionData(OptionType.USER, "user", "O usuário a ter o aniversário salvo.", true),
 
@@ -73,6 +76,9 @@ public class BirthdayAddCommand extends SlashSubcommand {
                         .setRequiredLength(2, 128),
 
                 new OptionData(OptionType.STRING, "birthday", "A data de nascimento do usuário fornecido (Formato: DD/MM/AAAA).", true),
+
+                new OptionData(OptionType.INTEGER, "time-zone", "O fuso horário local do membro.", true)
+                        .setRequiredRange(minZoneOffset, maxZoneOffset),
 
                 new OptionData(OptionType.BOOLEAN, "hide-age", "Deve-se ocultar a idade do usuário ao notificar o aniversário?")
         );
