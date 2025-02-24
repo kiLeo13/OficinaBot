@@ -1,6 +1,7 @@
 package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.BirthdaysTable;
+import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
@@ -17,13 +18,18 @@ public class Birthday extends OficinaRecord<Birthday> {
         super(BIRTHDAYS);
     }
 
-    public Birthday(long userId, String name, LocalDate birthday, long createdAt, long updatedAt) {
+    public Birthday(long userId, String name, LocalDate birthday, int zoneHours, long createdAt, long updatedAt) {
         this();
         set(BIRTHDAYS.USER_ID, userId);
         set(BIRTHDAYS.NAME, name);
         set(BIRTHDAYS.BIRTHDAY, birthday);
+        set(BIRTHDAYS.ZONE_HOURS, zoneHours);
         set(BIRTHDAYS.CREATED_AT, createdAt);
         set(BIRTHDAYS.UPDATED_AT, updatedAt);
+    }
+
+    public Birthday(long userId, String name, LocalDate birthday, int zoneHours) {
+        this(userId, name, birthday, zoneHours, Bot.unixNow(), Bot.unixNow());
     }
 
     public long getUserId() {
