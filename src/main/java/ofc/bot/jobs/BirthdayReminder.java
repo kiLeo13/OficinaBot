@@ -61,7 +61,7 @@ public class BirthdayReminder implements Job {
             if (userLocalTime.getHour() != 0 ||
                     birthdayDate.getMonth() != userLocalTime.getMonth() ||
                     birthdayDate.getDayOfMonth() != userLocalTime.getDayOfMonth()
-            ) return;
+            ) continue;
 
             guild.retrieveMemberById(userId).queue(m -> {
                 if (!m.hasAccess(channel)) return;
