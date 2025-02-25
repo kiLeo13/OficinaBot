@@ -1,15 +1,14 @@
 package ofc.bot.commands.economy;
 
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -40,7 +39,6 @@ public class WorkCommand extends SlashCommand {
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         Member sender = ctx.getIssuer();
-        User user = sender.getUser();
         long userId = sender.getIdLong();
         long nextWorkAt = getNextWork(userId);
         long now = Bot.unixNow();
