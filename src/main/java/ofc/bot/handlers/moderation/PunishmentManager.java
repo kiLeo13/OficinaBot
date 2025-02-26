@@ -56,7 +56,7 @@ public final class PunishmentManager {
 
     private AuditableRestAction<?> resolveAction(Member target, int duration, PunishmentType type) {
         return switch (type) {
-            case WARN, TIMEOUT -> target.timeoutFor(duration, TimeUnit.SECONDS);
+            case WARN, MUTE -> target.timeoutFor(duration, TimeUnit.SECONDS);
             case KICK -> target.kick();
             case BAN -> target.ban(0, TimeUnit.SECONDS);
         };

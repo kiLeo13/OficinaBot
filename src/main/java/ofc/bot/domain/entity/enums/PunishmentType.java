@@ -2,13 +2,15 @@ package ofc.bot.domain.entity.enums;
 
 public enum PunishmentType {
     /**
-     * This constant is sort of an alias to {@link #TIMEOUT},
+     * This constant is sort of an alias to {@link #MUTE},
      * thus why it supports a duration (through {@link #supportsDuration() PunishmentType.supportsDuration()}).
      */
-    WARN(   "advertido",  true),
-    TIMEOUT("silenciado", true),
-    KICK(   "expulso",    false),
-    BAN(    "banido",     true);
+    WARN(  "advertido",     true),
+    MUTE(  "silenciado",    true),
+    UNMUTE("dessilenciado", true),
+    KICK(  "expulso",       false),
+    BAN(   "banido",        true),
+    UNBAN( "desbanido",     false);
 
     private final String display;
     private final boolean supportsDuration;

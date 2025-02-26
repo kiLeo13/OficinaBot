@@ -1,13 +1,12 @@
 package ofc.bot.commands.moderation;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.TempBan;
+import ofc.bot.domain.entity.enums.PunishmentType;
 import ofc.bot.domain.sqlite.repository.TempBanRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -15,6 +14,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.embeds.EmbedFactory;
 import ofc.bot.util.time.OficinaDuration;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
@@ -62,15 +62,17 @@ public class BanCommand extends SlashCommand {
             return Status.INVALID_DELETION_TIMEFRAME.args(
                     Bot.parseDuration(MAX_DELETION_TIMEFRAME), Bot.parsePeriod(delTimeframe.getSeconds()));
 
+        ctx.ack();
         guild.ban(target, (int) delTimeframe.getMillis(), TimeUnit.MILLISECONDS).reason(reason).queue(v -> {
-            ctx.reply(Status.MEMBER_SUCCESSFULLY_BANNED.args(target.getAsMention()));
-
             long secs = banDuration.getSeconds();
             long expiresAt = Bot.unixNow() + secs;
+            MessageEmbed embed = EmbedFactory.embedPunishment(target, PunishmentType.BAN, reason, secs);
+
             if (secs != 0) {
                 TempBan ban = new TempBan(targetId, guildId, expiresAt);
                 tmpBanRepo.save(ban);
             }
+            ctx.replyEmbeds(embed);
         }, (err) -> {
             LOGGER.error("Could not ban member {}", target.getId(), err);
             ctx.reply(Status.COULD_NOT_EXECUTE_SUCH_OPERATION);

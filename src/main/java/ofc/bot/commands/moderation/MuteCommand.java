@@ -3,15 +3,18 @@ package ofc.bot.commands.moderation;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ofc.bot.domain.entity.enums.PunishmentType;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import ofc.bot.util.embeds.EmbedFactory;
 import ofc.bot.util.time.OficinaDuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +30,16 @@ public class MuteCommand extends SlashCommand {
 
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
-        Member member = ctx.getOption("member", OptionMapping::getAsMember);
+        Member target = ctx.getOption("member", OptionMapping::getAsMember);
         String reason = ctx.getOption("reason", OptionMapping::getAsString);
         String fmtDuration = ctx.getSafeOption("duration", OptionMapping::getAsString);
         Guild guild = ctx.getGuild();
         Member self = guild.getSelfMember();
 
-        if (member == null)
+        if (target == null)
             return Status.MEMBER_NOT_FOUND;
 
-        if (!self.canInteract(member))
+        if (!self.canInteract(target))
             return Status.BOT_CANNOT_TIMEOUT_PROVIDED_MEMBER;
 
         Duration duration;
@@ -49,11 +52,12 @@ public class MuteCommand extends SlashCommand {
         if (duration.getSeconds() > MAX_TIMEOUT_SECS)
             return Status.INVALID_TIMEOUT_DURATION.args(Bot.parsePeriod(MAX_TIMEOUT_SECS), Bot.parseDuration(duration));
 
-        member.timeoutFor(duration).reason(reason).queue(v -> {
-            String fmtPeriod = Bot.parsePeriod(duration.getSeconds());
-            ctx.reply(Status.MEMBER_SUCCESSFULLY_TIMED_OUT_FOR.args(member.getAsMention(), fmtPeriod));
+        ctx.ack();
+        target.timeoutFor(duration).reason(reason).queue(v -> {
+            MessageEmbed embed = EmbedFactory.embedPunishment(target.getUser(), PunishmentType.MUTE, reason, duration.getSeconds());
+            ctx.replyEmbeds(embed);
         }, (err) -> {
-            LOGGER.error("Could not timeout member {}", member.getId(), err);
+            LOGGER.error("Could not timeout member {}", target.getId(), err);
             ctx.reply(Status.COULD_NOT_EXECUTE_SUCH_OPERATION);
         });
         return Status.OK;
