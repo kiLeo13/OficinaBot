@@ -171,7 +171,7 @@ public final class EmbedFactory {
                 .build();
     }
 
-    public static MessageEmbed embedPunishment(User user, PunishmentType action, String reason, int duration) {
+    public static MessageEmbed embedPunishment(User user, PunishmentType action, String reason, long duration) {
         OficinaEmbed embed = new OficinaEmbed();
         String header = String.format("%s foi %s", user.getName(), action.getDisplay());
 
