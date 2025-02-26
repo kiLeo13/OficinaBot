@@ -30,6 +30,7 @@ import ofc.bot.listeners.discord.guilds.reactionroles.BotChangelogRoleHandler;
 import ofc.bot.listeners.discord.guilds.reactionroles.StudyRoleHandler;
 import ofc.bot.listeners.discord.guilds.roles.ColorRoleHandler;
 import ofc.bot.listeners.discord.guilds.roles.MemberRolesBackup;
+import ofc.bot.listeners.discord.guilds.voice.solo.SoloChannelsHandler;
 import ofc.bot.listeners.discord.interactions.GenericInteractionLocaleUpsert;
 import ofc.bot.listeners.discord.interactions.autocomplete.*;
 import ofc.bot.listeners.discord.interactions.buttons.WorkReminderHandler;
@@ -212,6 +213,7 @@ public final class EntityInitializerManager {
                 new OutageCommandsDisclaimer(),
                 new ResourceAutocompletion(userRepo),
                 new SlashCommandsGateway(cmdRepo),
+                new SoloChannelsHandler(),
                 new SteamScamBlocker(),
                 new StudyRoleHandler(),
                 new UnverifiedMembersRegisterBlocker(),
