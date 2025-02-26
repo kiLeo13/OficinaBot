@@ -178,8 +178,8 @@ public final class EmbedFactory {
         return embed
                 .setAuthor(header, null, user.getEffectiveAvatarUrl())
                 .setColor(Bot.Colors.DEFAULT)
-                .setDesc("**Motivo:** " + reason)
-                .appendDescriptionIf(duration > 0, "\n\n\uD83D\uDD52 **Duração:** " + Bot.parsePeriod(duration))
+                .appendDescriptionIf(reason != null, "**Motivo:** " + reason + "\n\n")
+                .appendDescriptionIf(duration > 0, "\uD83D\uDD52 **Duração:** " + Bot.parsePeriod(duration))
                 .build();
     }
 
