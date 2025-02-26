@@ -5,9 +5,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import ofc.bot.commands.economy.LeaderboardCommand;
 import ofc.bot.domain.entity.*;
-import ofc.bot.domain.entity.enums.GroupPermission;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
+import ofc.bot.domain.entity.enums.*;
 import ofc.bot.domain.viewmodels.*;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.paginations.PaginationItem;
@@ -170,6 +168,18 @@ public final class EmbedFactory {
                 .setDescription(desc)
                 .setColor(Bot.Colors.DEFAULT)
                 .setFooter(pages, guild.getIconUrl())
+                .build();
+    }
+
+    public static MessageEmbed embedPunishment(User user, PunishmentType action, String reason, int duration) {
+        OficinaEmbed embed = new OficinaEmbed();
+        String header = String.format("%s foi %s", user.getName(), action.getDisplay());
+
+        return embed
+                .setAuthor(header, null, user.getEffectiveAvatarUrl())
+                .setColor(Bot.Colors.DEFAULT)
+                .setDesc("**Motivo:** " + reason)
+                .appendDescriptionIf(duration > 0, "\n\n\uD83D\uDD52 **Duração:** " + Bot.parsePeriod(duration))
                 .build();
     }
 

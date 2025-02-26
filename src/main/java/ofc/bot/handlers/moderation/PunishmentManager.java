@@ -1,7 +1,7 @@
 package ofc.bot.handlers.moderation;
 
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.entity.AutomodAction;
@@ -10,11 +10,10 @@ import ofc.bot.domain.entity.enums.PunishmentType;
 import ofc.bot.domain.sqlite.repository.AutomodActionRepository;
 import ofc.bot.domain.sqlite.repository.MemberPunishmentRepository;
 import ofc.bot.handlers.exceptions.PunishmentCreationException;
-import ofc.bot.util.Bot;
+import ofc.bot.util.embeds.EmbedFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 public final class PunishmentManager {
@@ -37,39 +36,29 @@ public final class PunishmentManager {
         try {
             pnshRepo.upsert(punishment);
             int warnCount = pnshRepo.countByUserIdAfter(target.getIdLong(), 30, TimeUnit.DAYS);
-            AutomodAction action = modActRepo.findLastByThreshold(warnCount);
+            AutomodAction automodAction = modActRepo.findLastByThreshold(warnCount);
 
-            if (action == null)
+            if (automodAction == null)
                 throw new IllegalStateException("No Automod actions defined");
 
-            resolveAction(target, action.getDuration(), action.getAction())
+            PunishmentType action = automodAction.getAction();
+            int duration = automodAction.getDurationRaw();
+            resolveAction(target, duration, action)
                     .reason(fmtReason)
                     .queue();
 
-            return embedPunishment(target, action.getAction(), fmtReason);
+            return EmbedFactory.embedPunishment(target.getUser(), action, fmtReason, duration);
         } catch (DataAccessException e) {
             throw new PunishmentCreationException(
                     "Could not create punisment for member " + punishment.getUserId(), e);
         }
     }
 
-    private AuditableRestAction<?> resolveAction(Member target, Duration duration, PunishmentType type) {
+    private AuditableRestAction<?> resolveAction(Member target, int duration, PunishmentType type) {
         return switch (type) {
-            case WARN, TIMEOUT -> target.timeoutFor(duration);
+            case WARN, TIMEOUT -> target.timeoutFor(duration, TimeUnit.SECONDS);
             case KICK -> target.kick();
             case BAN -> target.ban(0, TimeUnit.SECONDS);
         };
-    }
-
-    private MessageEmbed embedPunishment(Member target, PunishmentType action, String reason) {
-        EmbedBuilder builder = new EmbedBuilder();
-        User user = target.getUser();
-        String header = String.format("%s foi %s", user.getName(), action.getDisplay());
-
-        return builder
-                .setAuthor(header, null, user.getEffectiveAvatarUrl())
-                .setColor(Bot.Colors.DEFAULT)
-                .setDescription("**Motivo:** " + reason)
-                .build();
     }
 }
