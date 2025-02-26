@@ -55,6 +55,14 @@ public class OficinaEmbed extends EmbedBuilder {
     }
 
     @NotNull
+    public OficinaEmbed appendDescriptionIf(boolean expression, @NotNull CharSequence description) {
+        if (expression) {
+            appendDescription(description);
+        }
+        return this;
+    }
+
+    @NotNull
     @Override
     public OficinaEmbed setTimestamp(@Nullable TemporalAccessor temporal) {
         super.setTimestamp(temporal);
