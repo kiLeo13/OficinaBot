@@ -59,6 +59,9 @@ public final class PunishmentManager {
             case WARN, MUTE -> target.timeoutFor(duration, TimeUnit.SECONDS);
             case KICK -> target.kick();
             case BAN -> target.ban(0, TimeUnit.SECONDS);
+
+            // This will never happen
+            case UNMUTE, UNBAN -> throw new UnsupportedOperationException();
         };
     }
 }
