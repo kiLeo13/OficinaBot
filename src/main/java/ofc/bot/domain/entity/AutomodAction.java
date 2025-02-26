@@ -1,7 +1,7 @@
 package ofc.bot.domain.entity;
 
 import ofc.bot.domain.tables.AutomodActionsTable;
-import ofc.bot.domain.entity.enums.WarnAction;
+import ofc.bot.domain.entity.enums.PunishmentType;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -26,12 +26,12 @@ public class AutomodAction extends OficinaRecord<AutomodAction> {
     }
 
     public Duration getDuration() {
-        return getDurationRaw() <= 0 ? Duration.ZERO : Duration.ofSeconds(getDurationRaw());
+        return Duration.ofSeconds(getDurationRaw());
     }
 
-    public WarnAction getAction() {
+    public PunishmentType getAction() {
         String action = get(AUTOMOD_ACTIONS.ACTION);
-        return WarnAction.valueOf(action);
+        return PunishmentType.valueOf(action);
     }
 
     public long getTimeCreated() {
@@ -52,7 +52,7 @@ public class AutomodAction extends OficinaRecord<AutomodAction> {
         return this;
     }
 
-    public AutomodAction setAction(WarnAction action) {
+    public AutomodAction setAction(PunishmentType action) {
         set(AUTOMOD_ACTIONS.ACTION, action.name());
         return this;
     }

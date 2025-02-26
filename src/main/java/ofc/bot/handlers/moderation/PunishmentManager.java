@@ -2,10 +2,11 @@ package ofc.bot.handlers.moderation;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.entity.AutomodAction;
 import ofc.bot.domain.entity.MemberPunishment;
-import ofc.bot.domain.entity.enums.WarnAction;
+import ofc.bot.domain.entity.enums.PunishmentType;
 import ofc.bot.domain.sqlite.repository.AutomodActionRepository;
 import ofc.bot.domain.sqlite.repository.MemberPunishmentRepository;
 import ofc.bot.handlers.exceptions.PunishmentCreationException;
@@ -13,6 +14,7 @@ import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 public final class PunishmentManager {
@@ -40,8 +42,7 @@ public final class PunishmentManager {
             if (action == null)
                 throw new IllegalStateException("No Automod actions defined");
 
-            action.getAction()
-                    .apply(target, action.getDuration())
+            resolveAction(target, action.getDuration(), action.getAction())
                     .reason(fmtReason)
                     .queue();
 
@@ -52,7 +53,15 @@ public final class PunishmentManager {
         }
     }
 
-    private MessageEmbed embedPunishment(Member target, WarnAction action, String reason) {
+    private AuditableRestAction<?> resolveAction(Member target, Duration duration, PunishmentType type) {
+        return switch (type) {
+            case WARN, TIMEOUT -> target.timeoutFor(duration);
+            case KICK -> target.kick();
+            case BAN -> target.ban(0, TimeUnit.SECONDS);
+        };
+    }
+
+    private MessageEmbed embedPunishment(Member target, PunishmentType action, String reason) {
         EmbedBuilder builder = new EmbedBuilder();
         User user = target.getUser();
         String header = String.format("%s foi %s", user.getName(), action.getDisplay());
