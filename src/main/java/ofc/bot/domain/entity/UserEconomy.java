@@ -11,9 +11,11 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
     public static final String SYMBOL = "<a:coin:1160091618746060811>";
     public static final String RANK_SYMBOL = "⬆️";
     public static final String BANK_ICON = "https://media.discordapp.net/attachments/506838906872922145/506899959816126493/h5D6Ei0.png";
+    private boolean isGenerated;
 
     public UserEconomy() {
         super(USERS_ECONOMY);
+        this.isGenerated = false;
     }
 
     public UserEconomy(long userId, long balance, long lastDailyAt, long lastWorkAt, long createdAt, long updatedAt) {
@@ -24,6 +26,7 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
         set(USERS_ECONOMY.LAST_WORK_AT, lastWorkAt);
         set(USERS_ECONOMY.CREATED_AT, createdAt);
         set(USERS_ECONOMY.UPDATED_AT, updatedAt);
+        this.isGenerated = true;
     }
 
     /**
@@ -67,6 +70,20 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
 
     public long getLastUpdated() {
         return get(USERS_ECONOMY.UPDATED_AT);
+    }
+
+    /**
+     * Checks if this is a "generated" record.
+     * <p>
+     * Generated records are those from {@link #fromUserId(long)} calls
+     * and through the {@link #UserEconomy(long, long, long, long, long, long)} constructor.
+     * <p>
+     * If the current record came from a database fetch, then this method will return {@code false}.
+     *
+     * @return {@code true} if this record was generated, {@code false} if it was fetched.
+     */
+    public boolean isGenerated() {
+        return this.isGenerated;
     }
 
     public UserEconomy setUserId(long userId) {

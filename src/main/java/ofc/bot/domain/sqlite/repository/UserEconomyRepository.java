@@ -6,23 +6,20 @@ import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.sqlite.MapperFactory;
 import ofc.bot.domain.tables.UsersEconomyTable;
 import ofc.bot.domain.tables.UsersTable;
-import ofc.bot.domain.viewmodels.BalanceView;
 import ofc.bot.domain.viewmodels.LeaderboardUser;
 import ofc.bot.domain.viewmodels.LeaderboardView;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 
 import java.util.List;
 
-import static org.jooq.impl.DSL.*;
-
 /**
  * Repository for {@link UserEconomy} entity.
  */
 public class UserEconomyRepository extends Repository<UserEconomy> {
-    private static final BalanceView EMPTY_BALANCE_DATA = new BalanceView(0, 0, 0, 0, 0, 0, false);
     private static final UsersEconomyTable USERS_ECONOMY = UsersEconomyTable.USERS_ECONOMY;
     private static final UsersTable USERS = UsersTable.USERS;
 
@@ -110,45 +107,28 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
     }
 
     /**
-     * Returns the rank of the user for the supplied ID, ranging from {@code 1}
-     * to {@code N}, where {@code 1} has the highest/best position.
+     * Finds the rank of a user based on the {@code eco} parameter.
      * <p>
-     * If the user is not found in the leaderboard, {@link Integer#MAX_VALUE} is returned instead.
-     * <p>
-     * <b>Note:</b> You should avoid using this function multiple times, as this is a heavy operation
-     * (specially in larger datasets), scanning the whole table every call.
+     * If {@code null} is provided in the {@code eco} parameter, then {@code 0}
+     * is returned, meaning the user has no rank.
      *
-     * @param userId the ID of the user to have their rank fetched.
-     * @return the rank of the user with the given ID (if found),
-     * {@link Integer#MAX_VALUE} otherwise.
+     * @param eco the {@link UserEconomy} to fetch the rank.
+     * @return the rank of the user, or {@code 0} if {@code eco} is null.
      */
-    public int findRankByUserId(long userId) {
-        return ctx.with("ranked_economy").as(
-                        select(
-                                USERS_ECONOMY.USER_ID,
-                                rowNumber().over(orderBy(USERS_ECONOMY.BALANCE.desc())).as("rank")
-                        ).from(USERS_ECONOMY))
-                .select(
-                        field(name("ranked_economy", "rank"), int.class)
-                )
-                .from(table(name("ranked_economy")))
-                .join(USERS_ECONOMY)
-                .on(field(name("ranked_economy", "user_id"), long.class).eq(USERS_ECONOMY.USER_ID))
-                .join(USERS)
-                .on(USERS.ID.eq(field(name("ranked_economy", "user_id"), long.class)))
-                .where(field(name("ranked_economy", "user_id")).eq(userId))
-                .fetchOptionalInto(int.class)
-                .orElse(0);
+    public int findRankByUser(@Nullable UserEconomy eco) {
+        if (eco == null) return 0;
+
+        long userId = eco.getUserId();
+        long balance = eco.getBalance();
+        return ctx.fetchCount(
+                USERS_ECONOMY,
+                USERS_ECONOMY.BALANCE.gt(balance)
+                        .or(USERS_ECONOMY.BALANCE.eq(balance).and(USERS_ECONOMY.USER_ID.gt(userId)))
+        ) + 1;
     }
 
-    @NotNull
-    public BalanceView viewBalance(long userId) {
-        UserEconomy userEco = findByUserId(userId);
-
-        if (userEco == null) return EMPTY_BALANCE_DATA;
-
-        int rank = findRankByUserId(userId);
-        return BalanceView.of(userEco, rank);
+    public int findRankByUserId(long userId) {
+        return findRankByUser(findByUserId(userId));
     }
 
     public LeaderboardView viewLeaderboard(int pageIndex) {

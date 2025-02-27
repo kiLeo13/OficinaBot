@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
-import ofc.bot.domain.viewmodels.BalanceView;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
@@ -32,8 +31,8 @@ public class BalanceCommand extends SlashCommand {
         User target = ctx.getOption("user", issuer, OptionMapping::getAsUser);
         boolean full = ctx.getOption("full", false, OptionMapping::getAsBoolean);
         long userId = target.getIdLong();
-        BalanceView balanceData = ecoRepo.viewBalance(userId);
-        MessageEmbed embed = embed(target, balanceData, full);
+        UserEconomy userEco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId));
+        MessageEmbed embed = embed(target, userEco, full && userEco.isGenerated());
 
         return ctx.replyEmbeds(embed);
     }
@@ -46,31 +45,36 @@ public class BalanceCommand extends SlashCommand {
         );
     }
 
-    private MessageEmbed embed(User user, BalanceView data, boolean fullBody) {
+    private MessageEmbed embed(User user, UserEconomy eco, boolean isFull) {
         EmbedBuilder builder = new EmbedBuilder();
 
-        String rank = data.prettyRank();
+        int rank = ecoRepo.findRankByUser(eco);
+        String fmtRank = rank == 0 ? "*Sem rank*" : "#" + rank;
         String name = user.getEffectiveName();
         String avatar = user.getEffectiveAvatarUrl();
-        String balance = data.prettyBalance();
+        String fmtBalance = Bot.fmtNum(eco.getBalance());
         Color color = Bot.Colors.DEFAULT;
 
         builder.setAuthor(name, null, avatar)
                 .setDescription("Use `/leaderboard` para ver o ranking global.")
                 .setColor(color)
-                .addField(UserEconomy.SYMBOL + " Saldo", balance, true)
-                .addField(UserEconomy.RANK_SYMBOL + " Rank", rank, true);
+                .addField(UserEconomy.SYMBOL + " Saldo", fmtBalance, true)
+                .addField(UserEconomy.RANK_SYMBOL + " Rank", fmtRank, true);
 
-        if (fullBody && data.found())
-            applyExtraFields(data, builder);
+        if (isFull)
+            applyExtraFields(eco, builder);
 
         return builder.build();
     }
 
-    private void applyExtraFields(BalanceView data, EmbedBuilder builder) {
+    private void applyExtraFields(UserEconomy eco, EmbedBuilder builder) {
         builder
-                .addField("📅 Iniciou", data.prettyCreation(), true)
-                .addField("💼 Último Trabalho", data.prettyLastWork(), true)
-                .addField("\uD83C\uDF1E Último Daily", data.prettyLastDaily(), true);
+                .addField("📅 Iniciou", formatTimestamp(eco.getTimeCreated()), true)
+                .addField("💼 Último Trabalho", formatTimestamp(eco.getLastWorkAt()), true)
+                .addField("\uD83C\uDF1E Último Daily", formatTimestamp(eco.getLastDailyAt()), true);
+    }
+
+    private String formatTimestamp(long timestamp) {
+        return String.format("<t:%d>", timestamp);
     }
 }
