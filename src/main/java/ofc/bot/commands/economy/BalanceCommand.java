@@ -71,6 +71,6 @@ public class BalanceCommand extends SlashCommand {
         builder
                 .addField("📅 Iniciou", data.prettyCreation(), true)
                 .addField("💼 Último Trabalho", data.prettyLastWork(), true)
-                .addField("☀ Último Daily", data.prettyLastDaily(), true);
+                .addField("\uD83C\uDF1E Último Daily", data.prettyLastDaily(), true);
     }
 }
