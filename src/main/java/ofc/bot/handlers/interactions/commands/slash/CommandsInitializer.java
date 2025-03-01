@@ -141,6 +141,7 @@ public final class CommandsInitializer {
                 // Moderation
                 new BanCommand(tmpBanRepo),
                 new InfractionsCommand(),
+                new KickCommand(),
                 new MuteCommand(),
                 new UnbanCommand(),
                 new UnmuteCommand(),
