@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.List;
 
-@CronJob(expression = "0 0 14 1,10 * ? *")
+@CronJob(expression = "0 0 0 1,10 * ? *")
 public class GroupsInvoiceHandler implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupsInvoiceHandler.class);
     private final OficinaGroupRepository grpRepo;

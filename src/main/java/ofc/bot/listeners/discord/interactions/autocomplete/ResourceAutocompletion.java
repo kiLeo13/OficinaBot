@@ -39,7 +39,7 @@ public class ResourceAutocompletion extends ListenerAdapter {
         String resTypeName = e.getOption("resource-type", OptionMapping::getAsString);
         ResourceType resType = ResourceType.valueOf(resTypeName);
         List<Command.Choice> choices = getChoices(resType, guild, value);
-        
+
         e.replyChoices(choices).queue();
     }
 

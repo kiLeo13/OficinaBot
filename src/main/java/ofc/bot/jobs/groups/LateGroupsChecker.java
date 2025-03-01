@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@CronJob(expression = "0 0 14 L * ? *")
+@CronJob(expression = "59 59 23 L * ? *")
 public class LateGroupsChecker implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(LateGroupsChecker.class);
     private final OficinaGroupRepository grpRepo;
@@ -33,7 +33,10 @@ public class LateGroupsChecker implements Job {
             return;
         }
 
-        List<OficinaGroup> groups = grpRepo.findByRentStatus(RentStatus.LATE);
+        grpRepo.updateGroupsStatus(RentStatus.NOT_PAID, RentStatus.LATE);
+        List<OficinaGroup> groups = grpRepo.findByRentStatus(RentStatus.NOT_PAID);
+        if (groups.isEmpty()) return;
+
         String msg = String.format("Os grupos: [%s] não pagaram o aluguel até hoje.", formatGroups(groups));
         chan.sendMessage(msg).queue();
     }
