@@ -30,16 +30,16 @@ public class ResourceAutocompletion extends ListenerAdapter {
     public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent e) {
         AutoCompleteQuery focus = e.getFocusedOption();
         String name = focus.getName();
-        String value = focus.getValue().toLowerCase();
-        String resTypeName = e.getOption("resource-type", OptionMapping::getAsString);
-        ResourceType resType = ResourceType.valueOf(resTypeName);
         Guild guild = e.getGuild();
 
         if (!"resource".equals(name) || focus.getType() != OptionType.STRING) return;
-
         if (guild == null) return;
 
+        String value = focus.getValue().toLowerCase();
+        String resTypeName = e.getOption("resource-type", OptionMapping::getAsString);
+        ResourceType resType = ResourceType.valueOf(resTypeName);
         List<Command.Choice> choices = getChoices(resType, guild, value);
+        
         e.replyChoices(choices).queue();
     }
 
