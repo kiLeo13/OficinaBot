@@ -1,6 +1,7 @@
 package ofc.bot.commands.moderation;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -26,10 +27,15 @@ public class KickCommand extends SlashCommand {
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         Member target = ctx.getOption("member", OptionMapping::getAsMember);
         String reason = ctx.getSafeOption("reason", OptionMapping::getAsString);
-        long guildId = ctx.getGuildId();
+        Guild guild = ctx.getGuild();
+        Member self = guild.getSelfMember();
+        long guildId = guild.getIdLong();
 
         if (target == null)
             return Status.MEMBER_NOT_FOUND;
+
+        if (!self.canInteract(target))
+            return Status.BOT_CANNOT_KICK_PROVIDED_MEMBER;
 
         target.kick().reason(reason).queue(v -> {
             MessageEmbed embed = EmbedFactory.embedPunishment(target.getUser(), PunishmentType.KICK, reason, 0);

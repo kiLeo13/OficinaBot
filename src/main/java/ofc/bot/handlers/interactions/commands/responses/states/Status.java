@@ -106,6 +106,7 @@ public enum Status implements InteractionResult {
     CANNOT_LEAVE_YOUR_OWN_GROUP(                State.FAILURE, "Você não pode sair do seu próprio grupo."),
     USER_NOT_FOUND(                             State.FAILURE, "Usuário não encontrado."),
     BOT_CANNOT_BAN_PROVIDED_MEMBER(             State.FAILURE, "Eu não posso banir este usuário."),
+    BOT_CANNOT_KICK_PROVIDED_MEMBER(            State.FAILURE, "Eu não posso expulsar este usuário."),
     POLICY_RULE_NOT_FOUND(                      State.FAILURE, "Nenhuma regra encontrada."),
     BOT_CANNOT_TIMEOUT_PROVIDED_MEMBER(         State.FAILURE, "Eu não posso silenciar este usuário."),
     BOT_CANNOT_REMOVE_TIMEOUT_OF_MEMBER(        State.FAILURE, "Eu não posso remover o timeout deste usuário."),
