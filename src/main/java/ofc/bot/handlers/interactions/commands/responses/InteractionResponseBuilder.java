@@ -2,23 +2,31 @@ package ofc.bot.handlers.interactions.commands.responses;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.handlers.interactions.AcknowledgeableAction;
-import ofc.bot.handlers.interactions.commands.contexts.MultipleResponsesPolicy;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class InteractionResponseBuilder implements InteractionResponseData {
+    private static final Consumer<Throwable> DEFAULT_ERROR_HANDLER = new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE);
     private final AcknowledgeableAction<?> acknowledgeable;
     private final MessageCreateBuilder builder;
+    private Consumer<InteractionHook> successSend;
+    private Consumer<Message> successHook;
+    private Consumer<Throwable> failureSend = DEFAULT_ERROR_HANDLER;
+    private Consumer<Throwable> failureHook = DEFAULT_ERROR_HANDLER;
     private boolean ephemeral;
 
     public InteractionResponseBuilder(AcknowledgeableAction<?> acknowledgeable) {
@@ -29,6 +37,28 @@ public class InteractionResponseBuilder implements InteractionResponseData {
         this.builder = new MessageCreateBuilder();
         this.ephemeral = false;
         this.acknowledgeable = acknowledgeable;
+    }
+
+    public InteractionResponseBuilder onHook(Consumer<Message> success, Consumer<Throwable> failure) {
+        this.successHook = success;
+        this.failureHook = failure == null ? DEFAULT_ERROR_HANDLER : failure;
+        return this;
+    }
+
+    public InteractionResponseBuilder onHook(Consumer<Message> success) {
+        this.successHook = success;
+        return this;
+    }
+
+    public InteractionResponseBuilder onSend(Consumer<InteractionHook> success, Consumer<Throwable> failure) {
+        this.successSend = success;
+        this.failureSend = failure == null ? DEFAULT_ERROR_HANDLER : failure;
+        return this;
+    }
+
+    public InteractionResponseBuilder onSend(Consumer<InteractionHook> success) {
+        this.successSend = success;
+        return this;
     }
 
     public InteractionResponseBuilder setEphemeral(boolean flag) {
@@ -83,6 +113,11 @@ public class InteractionResponseBuilder implements InteractionResponseData {
         return this;
     }
 
+    public InteractionResponseBuilder setComponents(List<? extends LayoutComponent> components) {
+        builder.setComponents(components);
+        return this;
+    }
+
     public InteractionResponseBuilder setActionRow(List<? extends ItemComponent> components) {
         builder.setActionRow(components);
         return this;
@@ -101,13 +136,32 @@ public class InteractionResponseBuilder implements InteractionResponseData {
 
     @Override
     public InteractionResult edit(InteractionResult res) {
-        acknowledgeable.setMultipleResponsesPolicy(MultipleResponsesPolicy.EDIT);
-        return send(res);
+        return acknowledgeable.edit(this);
     }
 
     @Override
     public boolean isEphemeral() {
         return this.ephemeral;
+    }
+
+    @Override
+    public Consumer<Message> getSuccessHook() {
+        return this.successHook;
+    }
+
+    @Override
+    public Consumer<InteractionHook> getSuccessSend() {
+        return this.successSend;
+    }
+
+    @Override
+    public Consumer<Throwable> getFailureHook() {
+        return this.failureHook;
+    }
+
+    @Override
+    public Consumer<Throwable> getFailureSend() {
+        return this.failureSend;
     }
 
     @NotNull

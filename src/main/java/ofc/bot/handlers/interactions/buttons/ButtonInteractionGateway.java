@@ -11,6 +11,7 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
@@ -30,9 +31,9 @@ public class ButtonInteractionGateway extends ListenerAdapter {
         if (buttonCtx == null) return;
 
         String scope = buttonCtx.getScope();
-        InteractionListener<ButtonClickContext> listener = mngr.getListener(scope);
+        List<InteractionListener<ButtonClickContext>> listeners = mngr.getListeners(scope);
 
-        if (listener == null) return;
+        if (listeners.isEmpty()) return;
 
         if (!buttonCtx.isPermitted(member)) {
             e.reply("Você não pode clicar neste botão.").setEphemeral(true).queue();
@@ -40,16 +41,19 @@ public class ButtonInteractionGateway extends ListenerAdapter {
         }
 
         ButtonClickContext clickContext = new ButtonClickContext(buttonCtx, e);
-        handleAutoResponse(listener.getAutoResponseType(), clickContext);
+        listeners.forEach(ls -> handleAutoResponse(ls.getAutoResponseType(), clickContext));
 
         mngr.remove(buttonId);
 
-        EXECUTOR.execute(() -> {
-            InteractionResult state = listener.onExecute(clickContext);
+        for (var l : listeners) {
+            EXECUTOR.execute(() -> {
+                if (!l.validate(clickContext)) return;
 
-            if (state.getContent() != null)
-                clickContext.reply(state);
-        });
+                InteractionResult state = l.onExecute(clickContext);
+                if (state.getContent() != null)
+                    clickContext.reply(state);
+            });
+        }
     }
 
     private void handleAutoResponse(AutoResponseType type, ButtonClickContext ctx) {

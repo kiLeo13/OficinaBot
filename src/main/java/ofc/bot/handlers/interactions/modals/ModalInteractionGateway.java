@@ -11,6 +11,7 @@ import ofc.bot.handlers.interactions.modals.contexts.ModalContext;
 import ofc.bot.handlers.interactions.modals.contexts.ModalSubmitContext;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
@@ -30,24 +31,26 @@ public class ModalInteractionGateway extends ListenerAdapter {
         if (modalCtx == null) return;
 
         String scope = modalCtx.getScope();
-        InteractionListener<ModalSubmitContext> listener = mngr.getListener(scope);
+        List<InteractionListener<ModalSubmitContext>> listeners = mngr.getListeners(scope);
 
-        if (listener == null) return;
+        if (listeners.isEmpty()) return;
 
         // There is no need to check if the user is permitted to submit
         // the Modal as no one else can even see it.
-
-        ModalSubmitContext clickContext = new ModalSubmitContext(modalCtx, e);
-        handleAutoResponse(listener.getAutoResponseType(), clickContext);
+        ModalSubmitContext submitContext = new ModalSubmitContext(modalCtx, e);
+        listeners.forEach(ls -> handleAutoResponse(ls.getAutoResponseType(), submitContext));
 
         mngr.remove(modalId);
 
-        EXECUTOR.execute(() -> {
-            InteractionResult state = listener.onExecute(clickContext);
+        for (var l : listeners) {
+            EXECUTOR.execute(() -> {
+                if (l.validate(submitContext)) return;
+                InteractionResult state = l.onExecute(submitContext);
 
-            if (state.getContent() != null)
-                clickContext.reply(state);
-        });
+                if (state.getContent() != null)
+                    submitContext.reply(state);
+            });
+        }
     }
 
     private void handleAutoResponse(AutoResponseType type, ModalSubmitContext ctx) {

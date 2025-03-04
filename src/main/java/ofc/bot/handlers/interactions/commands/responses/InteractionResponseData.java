@@ -1,5 +1,7 @@
 package ofc.bot.handlers.interactions.commands.responses;
 
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageData;
@@ -9,6 +11,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface InteractionResponseData extends MessageData {
 
@@ -22,6 +25,14 @@ public interface InteractionResponseData extends MessageData {
     MessageEditData toEditData();
 
     boolean isEphemeral();
+
+    Consumer<Message> getSuccessHook();
+
+    Consumer<InteractionHook> getSuccessSend();
+
+    Consumer<Throwable> getFailureHook();
+
+    Consumer<Throwable> getFailureSend();
 
     InteractionResult send(InteractionResult res);
 

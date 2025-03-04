@@ -1,23 +1,18 @@
 package ofc.bot.handlers.interactions;
 
-import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.handlers.TemporaryStorage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class InteractionMemoryManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(InteractionMemoryManager.class);
-    private static final InteractionMemoryManager instance = new InteractionMemoryManager();
-    private final TemporaryStorage<EntityContext<?, ?>> entities = new TemporaryStorage<>();
-    private final Map<String, InteractionListener<?>> listeners = new HashMap<>();
+    private static final InteractionMemoryManager INSTANCE = new InteractionMemoryManager();
+    private final TemporaryStorage<EntityContext<?, ?>> contexts = new TemporaryStorage<>();
+    private final Map<String, List<InteractionListener<?>>> subscribers = new HashMap<>();
 
     private InteractionMemoryManager() {}
 
     public static InteractionMemoryManager getManager() {
-        return instance;
+        return INSTANCE;
     }
 
     public void save(EntityContext<?, ?>... contexts) {
@@ -25,34 +20,39 @@ public final class InteractionMemoryManager {
             ctx.checkFields();
 
             String id = ctx.getId();
-            Checks.notNull(id, "entity id");
-
-            this.entities.put(id, ctx, ctx.getValidityMillis());
+            this.contexts.put(id, ctx, ctx.getValidityMillis());
         }
+    }
+
+    public void removeListener(InteractionListener<?> ls) {
+        subscribers.values().forEach(l -> l.remove(ls));
+    }
+
+    public void removeListeners(String scope) {
+        subscribers.remove(scope);
     }
 
     public void registerListeners(InteractionListener<?>... listeners) {
         for (InteractionListener<?> ls : listeners) {
             String scope = ls.getScope();
 
-            if (this.listeners.containsKey(scope))
-                LOGGER.warn("Overriding already existing scope {}", scope);
-
-            this.listeners.put(scope, ls);
+            List<InteractionListener<?>> scopeList = this.subscribers.getOrDefault(scope, new ArrayList<>());
+            scopeList.add(ls);
+            this.subscribers.put(scope, scopeList);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends InteractionListener<?>> T getListener(String scope) {
-        return (T) this.listeners.get(scope);
+    public <T extends InteractionListener<?>> List<T> getListeners(String scope) {
+        return (List<T>) this.subscribers.getOrDefault(scope, List.of());
     }
 
     @SuppressWarnings("unchecked")
     public <T extends EntityContext<?, ?>> T get(String id) {
-        return (T) this.entities.find(id);
+        return (T) this.contexts.find(id);
     }
 
     public void remove(String id) {
-        this.entities.remove(id);
+        this.contexts.remove(id);
     }
 }

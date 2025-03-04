@@ -2,16 +2,13 @@ package ofc.bot.handlers.interactions;
 
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.TimeUtil;
 import net.dv8tion.jda.internal.utils.Checks;
-import ofc.bot.handlers.interactions.commands.contexts.MultipleResponsesPolicy;
 import ofc.bot.handlers.interactions.commands.responses.InteractionResponseBuilder;
 import ofc.bot.handlers.interactions.commands.responses.InteractionResponseData;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -19,21 +16,16 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
-import java.util.function.Consumer;
 
 public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallback> {
-    public static final MultipleResponsesPolicy DEFAULT_MULTIPLE_RESPONSES_POLICY = MultipleResponsesPolicy.EDIT;
-    private static final Consumer<Throwable> DEFAULT_ERROR_HANDLER = (e) -> new ErrorHandler().ignore(ErrorResponse.UNKNOWN_INTERACTION);
     private final T itr;
     private final Member issuer;
     private final Guild guild;
-    private MultipleResponsesPolicy multipleResponsesPolicy;
 
     public AcknowledgeableAction(T interaction) {
         this.itr = interaction;
         this.issuer = interaction.getMember();
         this.guild = interaction.getGuild();
-        this.multipleResponsesPolicy = DEFAULT_MULTIPLE_RESPONSES_POLICY;
 
         Checks.notNull(this.issuer, "Interaction issuer");
         Checks.notNull(this.guild, "Interaction guild");
@@ -92,31 +84,6 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
     @NotNull
     public T getInteraction() {
         return this.itr;
-    }
-
-    /**
-     * Sometimes your command may need to send more than one response,
-     * somtimes you just want to edit the one you sent previously.
-     * <p>
-     * Here you can set this behavior:
-     * <ul>
-     *   <li>{@link MultipleResponsesPolicy#EDIT} will edit the last message, on calling {@link AcknowledgeableAction#create()} multiple times.</li>
-     *   <li>
-     *     {@link MultipleResponsesPolicy#SEND} will send a new response
-     *      when calling {@link AcknowledgeableAction#create()} multiple times.
-     *   </li>
-     * </ul>
-     * <p>
-     * When the policy is set to {@link MultipleResponsesPolicy#SEND} you <b>CAN</b> use
-     * features like ephemeral messages or modals. Since this entity will be treated
-     * as a new response.
-     * <p>
-     * The default value is defined at {@link #DEFAULT_MULTIPLE_RESPONSES_POLICY}.
-     *
-     * @param policy The new policy to be set.
-     */
-    public final void setMultipleResponsesPolicy(@NotNull MultipleResponsesPolicy policy) {
-        this.multipleResponsesPolicy = policy;
     }
 
     /**
@@ -220,8 +187,11 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
 
     @NotNull
     public final InteractionResult edit(InteractionResponseData data) {
-        setMultipleResponsesPolicy(MultipleResponsesPolicy.EDIT);
-        return reply(data);
+        itr.getHook()
+                .editOriginal(data.toEditData())
+                .queue(data.getSuccessHook(), data.getFailureHook());
+
+        return Status.OK;
     }
 
     @NotNull
@@ -229,19 +199,12 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
         if (!isAcknowledged()) {
             itr.reply(data.toCreateData())
                     .setEphemeral(data.isEphemeral())
-                    .queue();
-            return Status.OK;
-        }
-
-        if (multipleResponsesPolicy == MultipleResponsesPolicy.EDIT) {
-            itr.getHook()
-                    .editOriginal(data.toEditData())
-                    .queue(null, DEFAULT_ERROR_HANDLER);
+                    .queue(data.getSuccessSend(), data.getFailureSend());
         } else {
             itr.getHook()
                     .sendMessage(data.toCreateData())
                     .setEphemeral(data.isEphemeral())
-                    .queue(null, DEFAULT_ERROR_HANDLER);
+                    .queue(data.getSuccessHook(), data.getFailureHook());
         }
         return Status.OK;
     }

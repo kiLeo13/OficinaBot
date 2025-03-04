@@ -37,6 +37,7 @@ public abstract class EntityContext<E, C extends EntityContext<E, C>> {
     public final void checkFields() {
         Checks.notNull(this.entity, "entity");
         Checks.notNull(this.scope, "scope");
+        Checks.notNull(getId(), "Entity ID");
 
         Checks.check(this.permission != Permission.UNKNOWN,
                 "Permission cannot be of type " + this.permission);
