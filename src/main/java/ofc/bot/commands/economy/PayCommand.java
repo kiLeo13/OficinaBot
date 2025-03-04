@@ -12,6 +12,7 @@ import ofc.bot.domain.sqlite.repository.UserRepository;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.CurrencyType;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -27,6 +28,7 @@ import java.util.List;
 @DiscordCommand(name = "pay", description = "Envie dinheiro para outro usuário.")
 public class PayCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(PayCommand.class);
+    private static final BetManager betManager = BetManager.getManager();
     private static final double TAX_PER_EXECUTION = 1 - 0.05; // 5%
     private final UserEconomyRepository ecoRepo;
     private final UserRepository userRepo;
@@ -38,13 +40,19 @@ public class PayCommand extends SlashCommand {
 
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
-        User sender = ctx.getUser();
         User target = ctx.getSafeOption("user", OptionMapping::getAsUser);
         String amountInput = ctx.getSafeOption("amount", OptionMapping::getAsString);
-        long senderId = sender.getIdLong();
-        long senderBalance = ecoRepo.fetchBalanceByUserId(senderId);
+        long issuerId = ctx.getUserId();
+
+        if (betManager.isBetting(issuerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
+
+        long senderBalance = ecoRepo.fetchBalanceByUserId(issuerId);
         long amountTotal = parseAmountToPay(amountInput, senderBalance);
         long targetId = target.getIdLong();
+        long amountToSend = amountTotal >= 10
+                ? (long) (amountTotal * TAX_PER_EXECUTION)
+                : amountTotal;
 
         if (amountTotal > senderBalance)
             return Status.INSUFFICIENT_BALANCE_VALUE.args(Bot.fmtNum(amountTotal - senderBalance));
@@ -52,24 +60,24 @@ public class PayCommand extends SlashCommand {
         if (amountTotal <= 0)
             return Status.INVALID_VALUE_PROVIDED.args(amountInput);
 
-        if (targetId == senderId)
+        if (targetId == issuerId)
             return Status.CANNOT_TRANSFER_TO_YOURSELF;
 
         if (target.isBot())
             return Status.CANNOT_TRANSFER_TO_BOTS;
 
         try {
-            ecoRepo.transfer(senderId, targetId, amountTotal, amountTotal);
+            ecoRepo.transfer(issuerId, targetId, amountToSend, amountTotal);
             userRepo.upsert(AppUser.fromUser(target));
 
-            dispatchSendMoneyEvent(senderId, targetId, amountTotal);
+            dispatchSendMoneyEvent(issuerId, targetId, amountTotal);
 
             return Status.TRANSACTION_SUCCESSFUL.args(
-                    Bot.fmtNum(amountTotal),
+                    Bot.fmtNum(amountToSend),
                     target.getAsMention()
             );
         } catch (DataAccessException e) {
-            LOGGER.error("Could not complete transaction of '%{}' from '{}' to '{}'", amountInput, senderId, targetId, e);
+            LOGGER.error("Could not complete transaction of '%{}' from '{}' to '{}'", amountInput, issuerId, targetId, e);
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
         }
     }
