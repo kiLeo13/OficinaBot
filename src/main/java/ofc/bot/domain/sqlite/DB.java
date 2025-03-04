@@ -46,6 +46,7 @@ public final class DB {
         return List.of(
                 AutomodActionsTable.AUTOMOD_ACTIONS,
                 BankTransactionsTable.BANK_TRANSACTIONS,
+                BetGamesTable.BET_GAMES,
                 BirthdaysTable.BIRTHDAYS,
                 BlockedWordsTable.BLOCKED_WORDS,
                 ColorRolesStateTable.COLOR_ROLES_STATES,
@@ -55,6 +56,7 @@ public final class DB {
                 DiscordMessageUpdatesTable.DISCORD_MESSAGE_UPDATES,
                 EntitiesPoliciesTable.ENTITIES_POLICIES,
                 FormerMembersRolesTable.FORMER_MEMBERS_ROLES,
+                GamesParticipantsTable.GAMES_PARTICIPANTS,
                 GroupBotsTable.GROUP_BOTS,
                 LevelsRolesTable.LEVELS_ROLES,
                 MarriageRequestsTable.MARRIAGE_REQUESTS,
