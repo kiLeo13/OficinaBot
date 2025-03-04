@@ -33,7 +33,7 @@ public class LateGroupsChecker implements Job {
             return;
         }
 
-        grpRepo.updateGroupsStatus(RentStatus.NOT_PAID, RentStatus.LATE);
+        grpRepo.updateGroupsStatus(RentStatus.NOT_PAID, RentStatus.PENDING);
         List<OficinaGroup> groups = grpRepo.findByRentStatus(RentStatus.NOT_PAID);
         if (groups.isEmpty()) return;
 

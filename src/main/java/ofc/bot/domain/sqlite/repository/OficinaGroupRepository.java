@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Repository for {@link OficinaGroup} entity.
@@ -49,15 +50,16 @@ public class OficinaGroupRepository extends Repository<OficinaGroup> {
         return ctx.fetchExists(OFICINA_GROUPS, OFICINA_GROUPS.OWNER_ID.eq(userId));
     }
 
-    public List<OficinaGroup> findChargeableGroups() {
-        return ctx.selectFrom(OFICINA_GROUPS)
-                .where(OFICINA_GROUPS.RENT_STATUS.ne(RentStatus.FREE.name()))
-                .fetch();
-    }
-
     public List<OficinaGroup> findByRentStatus(RentStatus status) {
         return ctx.selectFrom(OFICINA_GROUPS)
                 .where(OFICINA_GROUPS.RENT_STATUS.eq(status.name()))
+                .fetch();
+    }
+
+    public List<OficinaGroup> findAllExcept(RentStatus... statuses) {
+        List<String> statusList = Stream.of(statuses).map(RentStatus::name).toList();
+        return ctx.selectFrom(OFICINA_GROUPS)
+                .where(OFICINA_GROUPS.RENT_STATUS.notIn(statusList))
                 .fetch();
     }
 

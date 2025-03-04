@@ -5,7 +5,6 @@ public enum RentStatus {
     FREE(    "Isento",          "O grupo não paga aluguel."),
     PAID(    "Pago",            "O aluguel já foi pago."),
     PENDING( "Pendente",        "O aluguel ainda não foi pago."),
-    LATE(    "⚠️ Atrasado",     "O aluguel já está atrasado."),
     NOT_PAID("❌ Não Pago",     "O aluguel não foi pago e excedeu o fim do mês.");
 
     private final String displayStatus;

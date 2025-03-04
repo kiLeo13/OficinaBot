@@ -16,10 +16,9 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
 import java.util.List;
 
-@CronJob(expression = "0 0 0 1,11 * ? *")
+@CronJob(expression = "0 0 0 1 * ? *")
 public class GroupsInvoiceHandler implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupsInvoiceHandler.class);
     private final OficinaGroupRepository grpRepo;
@@ -30,20 +29,8 @@ public class GroupsInvoiceHandler implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LocalDate now = LocalDate.now();
-        int day = now.getDayOfMonth();
-
-        switch (day) {
-            case 1 -> handleInvoiceCharges();
-            case 11 -> checkUnpaidInvoiceGroups();
-
-            default -> LOGGER.warn("Hi, developer! 🤔");
-        }
-    }
-
-    private void handleInvoiceCharges() {
         LOGGER.info("Starting invoice operation");
-        List<OficinaGroup> groups = grpRepo.findChargeableGroups();
+        List<OficinaGroup> groups = grpRepo.findAllExcept(RentStatus.FREE, RentStatus.NOT_PAID);
         JDA api = Main.getApi();
 
         // Pretty printing ^^
@@ -81,16 +68,5 @@ public class GroupsInvoiceHandler implements Job {
             grpRepo.upsert(gp);
         }
         LOGGER.info("Invoice operation completed!");
-    }
-
-    private void checkUnpaidInvoiceGroups() {
-        LOGGER.info("Switching some groups to status LATE...");
-        int updated = grpRepo.updateGroupsStatus(RentStatus.LATE, RentStatus.PENDING);
-
-        if (updated == 1) {
-            LOGGER.info("Updated 1 group to LATE rent status");
-        } else {
-            LOGGER.info("Updated {} groups to LATE rent status", updated);
-        }
     }
 }

@@ -73,12 +73,13 @@ public class GroupInfoCommand extends SlashSubcommand {
         EmbedBuilder builder = new EmbedBuilder();
         long rent = group.calcRawRent(members);
         long appreciation = -getAppreciation(group);
+        RentStatus rentStatus = group.getRentStatus();
         String hex = Bot.fmtColorHex(color);
         String fmtRent = String.format("%s/mês", Bot.fmtMoney(rent));
         String fmtApprec = Bot.fmtMoney(appreciation);
         String fmtMembers = Bot.fmtNum(members.size());
-        RentStatus rentStatus = group.getRentStatus();
         String fmtTimestamp = String.format("<t:%d>", group.getTimeCreated());
+        String fmtRentStatus = group.isRentLate() ? "⚠️ Atrasado" : rentStatus.getDisplayStatus();
 
         return builder
                 .setTitle(group.getName())
@@ -88,7 +89,7 @@ public class GroupInfoCommand extends SlashSubcommand {
                 .addField("💎 Valorização", fmtApprec, true)
                 .addField("📅 Aluguel", fmtRent, true)
                 .addField("👑 Dono", group.getOwnerAsMention(), true)
-                .addField("🏡 Status de Aluguel", rentStatus.getDisplayStatus(), true)
+                .addField("🏡 Status de Aluguel", fmtRentStatus, true)
                 .addField("👥 Membros", fmtMembers, true)
                 .addField("📅 Criação", fmtTimestamp, true)
                 .setFooter(guild.getName(), guild.getIconUrl())

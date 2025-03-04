@@ -384,6 +384,30 @@ public class OficinaGroup extends OficinaRecord<OficinaGroup> {
         return this;
     }
 
+    public int getDaysLate() {
+        int today = LocalDate.now().getDayOfMonth();
+        return Math.max(today - INVOICE_DUE_DAY, 0);
+    }
+
+    /**
+     * Checks if the rent payment is considered late. A rent payment is deemed late if
+     * it has not been paid by the {@value #INVOICE_DUE_DAY}th day of the current month.
+     * <p>
+     * This method determines whether the rent payment is late based on the following conditions:
+     * <ul>
+     *   <li>If {@link #getRentStatus()} returns {@link RentStatus#NOT_PAID}, this method will return {@code false},
+     *       because the rent has not been paid at all and thus cannot be considered "late".</li>
+     *   <li>If the rent status is {@link RentStatus#PENDING} and the current day of the month
+     *       exceeds {@value #INVOICE_DUE_DAY}, then {@code true} is returned.</li>
+     * </ul>
+     *
+     * @return {@code true} if the rent payment is late, {@code false} otherwise.
+     * @see #getRentStatus()
+     */
+    public boolean isRentLate() {
+        return getRentStatus() == RentStatus.PENDING && getDaysLate() > 0;
+    }
+
     public synchronized long calcRawRent(List<Member> members) {
         if (!isRentRecurring()) return 0;
 
@@ -402,7 +426,7 @@ public class OficinaGroup extends OficinaRecord<OficinaGroup> {
 
     public long calcCurrentInvoice() {
         int today = LocalDate.now().getDayOfMonth();
-        int daysLate = Math.max(today - INVOICE_DUE_DAY, 0);
+        int daysLate = getDaysLate();
         long raw = getInvoiceAmount();
 
         for (int i = 0; i < daysLate; i++) {
