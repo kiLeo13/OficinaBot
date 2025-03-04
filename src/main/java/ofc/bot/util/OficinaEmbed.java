@@ -54,6 +54,10 @@ public class OficinaEmbed extends EmbedBuilder {
         return this;
     }
 
+    public OficinaEmbed appendDescf(@NotNull String format, Object... args) {
+        return appendDescription(String.format(format, args));
+    }
+
     @NotNull
     public OficinaEmbed appendDescriptionIf(boolean expression, @NotNull CharSequence description) {
         if (expression) {
