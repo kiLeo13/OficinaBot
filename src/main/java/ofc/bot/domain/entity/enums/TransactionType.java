@@ -5,6 +5,8 @@ import java.util.List;
 
 public enum TransactionType {
     MONEY_TRANSFERRED(false, "Quantia Transferida"),
+    BET_RESULT(       false, "Quantia Apostada"),
+    BET_PENALTY(      false, "Penalidade em Aposta"),
     BALANCE_UPDATED(  false, "Saldo Actualizado"),
     BALANCE_SET(      false, "Saldo Definido"),
     DAILY_COLLECTED(  false, "Daily Coletado"),
