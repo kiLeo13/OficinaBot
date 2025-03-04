@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@DiscordCommand(name = "pay", description = "Envie dinheiro para outro usuário.")
+@DiscordCommand(name = "pay", description = "Envie dinheiro para outro usuário.", cooldown = 30)
 public class PayCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(PayCommand.class);
     private static final BetManager betManager = BetManager.getManager();
