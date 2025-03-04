@@ -23,6 +23,11 @@ public final class Scopes {
         public static final String VIEW_TRANSACTIONS = "VIEW_TRANSACTIONS";
     }
 
+    public static class Bets {
+        public static final String TICTACTOE_GAME   = "TICTACTOE_GAME";
+        public static final String CREATE_TICTACTOE = "CREATE_TICTACTOE";
+    }
+
     public static class Misc {
         public static final String CHOOSABLE_ROLES            = "CHOOSABLE_ROLES";
         public static final String PAGINATE_BIRTHDAYS         = "VIEW_BIRTHDAYS";
