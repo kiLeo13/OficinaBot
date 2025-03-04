@@ -6,6 +6,7 @@ import org.jooq.DSLContext;
 public final class Repositories {
     private static AutomodActionRepository automodActionRepository;
     private static BankTransactionRepository bankTransactionRepository;
+    private static BetGameRepository gameRepository;
     private static BirthdayRepository birthdayRepository;
     private static BlockedWordRepository blockedWordRepository;
     private static ColorRoleStateRepository colorRoleStateRepository;
@@ -15,6 +16,7 @@ public final class Repositories {
     private static DiscordMessageUpdateRepository discordMessageUpdateRepository;
     private static EntityPolicyRepository entityPolicyRepository;
     private static FormerMemberRoleRepository formerMemberRoleRepository;
+    private static GameParticipantRepository gameParticipantRepository;
     private static GroupBotRepository groupBotRepository;
     private static LevelRoleRepository levelRoleRepository;
     private static MarriageRepository marriageRepository;
@@ -39,6 +41,11 @@ public final class Repositories {
     public static BankTransactionRepository getBankTransactionRepository() {
         if (bankTransactionRepository == null) bankTransactionRepository = new BankTransactionRepository(getDSLContext());
         return bankTransactionRepository;
+    }
+
+    public static BetGameRepository getBetGameRepository() {
+        if (gameRepository == null) gameRepository = new BetGameRepository(getDSLContext());
+        return gameRepository;
     }
 
     public static BirthdayRepository getBirthdayRepository() {
@@ -76,9 +83,19 @@ public final class Repositories {
         return discordMessageUpdateRepository;
     }
 
+    public static EntityPolicyRepository getEntityPolicyRepository() {
+        if (entityPolicyRepository == null) entityPolicyRepository = new EntityPolicyRepository(getDSLContext());
+        return entityPolicyRepository;
+    }
+
     public static FormerMemberRoleRepository getFormerMemberRoleRepository() {
         if (formerMemberRoleRepository == null) formerMemberRoleRepository = new FormerMemberRoleRepository(getDSLContext());
         return formerMemberRoleRepository;
+    }
+
+    public static GameParticipantRepository getGameParticipantRepository() {
+        if (gameParticipantRepository == null) gameParticipantRepository = new GameParticipantRepository(getDSLContext());
+        return gameParticipantRepository;
     }
 
     public static GroupBotRepository getGroupBotRepository() {
@@ -124,11 +141,6 @@ public final class Repositories {
     public static UserEconomyRepository getUserEconomyRepository() {
         if (userEconomyRepository == null) userEconomyRepository = new UserEconomyRepository(getDSLContext());
         return userEconomyRepository;
-    }
-
-    public static EntityPolicyRepository getEntityPolicyRepository() {
-        if (entityPolicyRepository == null) entityPolicyRepository = new EntityPolicyRepository(getDSLContext());
-        return entityPolicyRepository;
     }
 
     public static UserNameUpdateRepository getUserNameUpdateRepository() {
