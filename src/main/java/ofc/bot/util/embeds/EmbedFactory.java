@@ -179,7 +179,59 @@ public final class EmbedFactory {
                 .setAuthor(header, null, user.getEffectiveAvatarUrl())
                 .setColor(Bot.Colors.DEFAULT)
                 .appendDescriptionIf(reason != null, "**Motivo:** " + reason + "\n\n")
-                .appendDescriptionIf(duration > 0, "\uD83D\uDD52 **Duração:** " + Bot.parsePeriod(duration))
+                .appendDescriptionIf(duration > 0, "**Duração:** " + Bot.parsePeriod(duration))
+                .build();
+    }
+
+    public static MessageEmbed embedPunishment(User user, PunishmentType action, String reason) {
+        return embedPunishment(user, action, reason, 0);
+    }
+
+    public static MessageEmbed embedTicTacToeCreate(Guild guild, User author, User other, int amount) {
+        EmbedBuilder builder = new EmbedBuilder();
+        String head = String.format("%s quer jogar Jogo da velha", author.getEffectiveName());
+
+        return builder
+                .setAuthor(head, null, author.getEffectiveAvatarUrl())
+                .setColor(Bot.Colors.DEFAULT)
+                .setThumbnail(other.getEffectiveAvatarUrl())
+                .addField("💰 Aposta", Bot.fmtNum(amount), true)
+                .setFooter(guild.getName(), guild.getIconUrl())
+                .build();
+    }
+
+    public static MessageEmbed embedTicTacToeEnd(User winner) {
+        EmbedBuilder builder = new EmbedBuilder();
+        boolean draw = winner == null;
+        Color color = draw ? Color.YELLOW : Color.GREEN;
+        String name = draw ? "Deu velha!" : winner.getEffectiveName() + " venceu! 🥳";
+        String url = draw ? null : winner.getEffectiveAvatarUrl();
+
+        return builder
+                .setAuthor(name, null, url)
+                .setColor(color)
+                .build();
+    }
+
+    public static MessageEmbed embedTicTacToeTimeout(int amount, User penalized) {
+        OficinaEmbed builder = new OficinaEmbed();
+        String head = String.format("%s foi penalizado!", penalized.getEffectiveName());
+
+        return builder
+                .setAuthor(head, null, penalized.getEffectiveAvatarUrl())
+                .appendDescf("⚠️ Penalizado em %s por inatividade.", Bot.fmtMoney(amount))
+                .setColor(DANGER_RED)
+                .build();
+    }
+
+    public static MessageEmbed embedTicTacToeGame(User current) {
+        EmbedBuilder builder = new EmbedBuilder();
+        String name = "Vez de " + current.getEffectiveName();
+        String url = current.getEffectiveAvatarUrl();
+
+        return builder
+                .setAuthor(name, null, url)
+                .setColor(Bot.Colors.DEFAULT)
                 .build();
     }
 
@@ -395,6 +447,8 @@ public final class EmbedFactory {
                  INVOICE_PAID -> "Pagador";
             case CHAT_MONEY,
                  WORK_EXECUTED,
+                 BET_RESULT,
+                 BET_PENALTY,
                  MARRIAGE_CREATED,
                  DAILY_COLLECTED -> "Membro";
             case BALANCE_SET,
