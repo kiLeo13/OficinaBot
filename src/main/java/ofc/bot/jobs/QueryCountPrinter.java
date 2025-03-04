@@ -8,13 +8,13 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@CronJob(expression = "0 0/5 * ? * * *")
+@CronJob(expression = "0 0/15 * ? * * *")
 public class QueryCountPrinter implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryCountPrinter.class);
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         int queryCount = QueryCounter.poll();
-        LOGGER.info("Executed {} queries in the last 5 minutes", queryCount);
+        LOGGER.info("Executed {} queries in the last 15 minutes", queryCount);
     }
 }
