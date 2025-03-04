@@ -47,7 +47,8 @@ public final class PunishmentManager {
                     .reason(fmtReason)
                     .queue();
 
-            return EmbedFactory.embedPunishment(target.getUser(), action, fmtReason, duration);
+            PunishmentType embedAction = action == PunishmentType.MUTE ? PunishmentType.WARN : action;
+            return EmbedFactory.embedPunishment(target.getUser(), embedAction, fmtReason);
         } catch (DataAccessException e) {
             throw new PunishmentCreationException(
                     "Could not create punisment for member " + punishment.getUserId(), e);
