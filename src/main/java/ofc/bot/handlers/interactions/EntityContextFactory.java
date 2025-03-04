@@ -17,6 +17,7 @@ import ofc.bot.domain.entity.enums.GroupPermission;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.handlers.economy.CurrencyType;
+import ofc.bot.handlers.games.betting.tictactoe.GameGrid;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonContext;
 import ofc.bot.handlers.interactions.modals.contexts.ModalContext;
 import ofc.bot.util.Bot;
@@ -31,6 +32,8 @@ import java.util.stream.Stream;
 
 public final class EntityContextFactory {
     private static final InteractionMemoryManager INTERACTION_MANAGER = InteractionMemoryManager.getManager();
+    private static final String ZERO_WIDTH_SPACE = "\u200E";
+    private static final Emoji GAME_EMOJI = Emoji.fromUnicode("🎮");
 
     private EntityContextFactory() {}
 
@@ -196,6 +199,43 @@ public final class EntityContextFactory {
 
         INTERACTION_MANAGER.save(prev, next);
         return List.of(prev.getEntity(), next.getEntity());
+    }
+
+    public static Button createTicTacToeInvite(long authorId, long otherId, int amount) {
+        ButtonContext ctx = ButtonContext.success("Aceitar", GAME_EMOJI)
+                .setScope(Scopes.Bets.CREATE_TICTACTOE)
+                .addUser(otherId)
+                .put("author_id", authorId)
+                .put("amount", amount);
+
+        INTERACTION_MANAGER.save(ctx);
+        return ctx.getEntity();
+    }
+
+    public static Button[][] createTicTacToeTable(long id, long current, GameGrid grid) {
+        char[][] board = grid.getBoard();
+        int size = grid.size();
+        Button[][] buttons = new Button[size][size];
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                char value = grid.get(i, j);
+                Emoji emoji = GameGrid.EMOJIS.get(value);
+                String label = emoji == null ? ZERO_WIDTH_SPACE : null;
+
+                ButtonContext ctx = ButtonContext.secondary(label, emoji)
+                        .setScope(Scopes.Bets.TICTACTOE_GAME)
+                        .setEnabled(value == 0)
+                        .addUser(current)
+                        .put("bet_id", id)
+                        .put("row", i)
+                        .put("col", j);
+
+                INTERACTION_MANAGER.save(ctx);
+                buttons[i][j] = ctx.getEntity();
+            }
+        }
+        return buttons;
     }
 
     public static Button createGroupChannelConfirm(OficinaGroup group, ChannelType channelType, int price) {

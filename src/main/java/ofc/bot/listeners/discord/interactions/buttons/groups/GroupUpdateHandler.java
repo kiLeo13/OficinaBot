@@ -12,6 +12,7 @@ import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
@@ -25,6 +26,7 @@ import ofc.bot.util.content.annotations.listeners.InteractionHandler;
         autoResponseType = AutoResponseType.THINKING
 )
 public class GroupUpdateHandler implements InteractionListener<ButtonClickContext> {
+    private static final BetManager betManager = BetManager.getManager();
     private final OficinaGroupRepository grpRepo;
 
     public GroupUpdateHandler(OficinaGroupRepository grpRepo) {
@@ -42,6 +44,9 @@ public class GroupUpdateHandler implements InteractionListener<ButtonClickContex
         int newColor = ctx.get("new_color");
         int price = ctx.get("amount");
         boolean changedName = newName != null && !newName.isBlank();
+
+        if (betManager.isBetting(ownerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
         if (changedName)
             group.setName(newName);

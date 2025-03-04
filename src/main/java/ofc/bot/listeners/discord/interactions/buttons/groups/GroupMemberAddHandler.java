@@ -10,6 +10,7 @@ import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 )
 public class GroupMemberAddHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupMemberAddHandler.class);
+    private static final BetManager betManager = BetManager.getManager();
 
     @Override
     public InteractionResult onExecute(ButtonClickContext ctx) {
@@ -38,6 +40,9 @@ public class GroupMemberAddHandler implements InteractionListener<ButtonClickCon
         long guildId = guild.getIdLong();
         PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
         Role groupRole = guild.getRoleById(roleId);
+
+        if (betManager.isBetting(ownerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
         if (groupRole == null)
             return Status.GROUP_ROLE_NOT_FOUND;

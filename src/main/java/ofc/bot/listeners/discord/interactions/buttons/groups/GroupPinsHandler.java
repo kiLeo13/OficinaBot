@@ -11,6 +11,7 @@ import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
@@ -26,19 +27,23 @@ import java.util.List;
 @InteractionHandler(scope = Scopes.Group.PIN_MESSAGE, autoResponseType = AutoResponseType.THINKING)
 public class GroupPinsHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupPinsHandler.class);
+    private static final BetManager betManager = BetManager.getManager();
     private static final int MAX_PINNED_MESSAGES = 50;
 
     @Override
     public InteractionResult onExecute(ButtonClickContext ctx) {
-        long userId = ctx.getUserId();
-        long guildId = ctx.getGuildId();
-        long msgId = ctx.get("message_id");
-        int price = ctx.get("amount");
-        boolean shouldPin = ctx.get("is_pin");
         OficinaGroup group = ctx.get("group");
-        TextChannel chan = group.getTextChannel();
         CurrencyType currency = group.getCurrency();
         PaymentManager bank = PaymentManagerProvider.fromType(currency);
+        TextChannel chan = group.getTextChannel();
+        boolean shouldPin = ctx.get("is_pin");
+        long msgId = ctx.get("message_id");
+        long guildId = ctx.getGuildId();
+        long ownerId = group.getOwnerId();
+        int price = ctx.get("amount");
+
+        if (betManager.isBetting(ownerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
         if (chan == null)
             return Status.YOUR_GROUP_DOES_NOT_HAVE_TEXT_CHANNEL;
@@ -63,14 +68,14 @@ public class GroupPinsHandler implements InteractionListener<ButtonClickContext>
         if (!isPinned && !shouldPin)
             return Status.MESSAGE_ALREADY_UNPINNED;
 
-        BankAction chargeAction = bank.charge(userId, guildId, 0, price, "Pin Group Message");
+        BankAction chargeAction = bank.charge(ownerId, guildId, 0, price, "Pin Group Message");
         if (!chargeAction.isOk())
             return Status.INSUFFICIENT_BALANCE;
 
         getAction(msg, shouldPin).queue(v -> {
             if (shouldPin) {
                 ctx.reply(Status.MESSAGE_SUCCESSFULLY_PINNED);
-                dispatchPinEvent(currency, userId, price);
+                dispatchPinEvent(currency, ownerId, price);
             } else
                 ctx.reply(Status.MESSAGE_SUCCESSFULLY_UNPINNED);
         }, err -> {

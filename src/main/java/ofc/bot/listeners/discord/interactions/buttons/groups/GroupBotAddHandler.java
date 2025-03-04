@@ -12,6 +12,7 @@ import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
@@ -31,6 +32,7 @@ import java.util.List;
 )
 public class GroupBotAddHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupBotAddHandler.class);
+    private static final BetManager betManager = BetManager.getManager();
 
     @Override
     public InteractionResult onExecute(ButtonClickContext ctx) {
@@ -42,6 +44,9 @@ public class GroupBotAddHandler implements InteractionListener<ButtonClickContex
         PaymentManager bank = PaymentManagerProvider.fromType(group.getCurrency());
         long ownerId = group.getOwnerId();
         long guildId = guild.getIdLong();
+
+        if (betManager.isBetting(ownerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
         BankAction chargeAction = bank.charge(ownerId, guildId, 0, price, "Group bot added");
         if (!chargeAction.isOk()) {

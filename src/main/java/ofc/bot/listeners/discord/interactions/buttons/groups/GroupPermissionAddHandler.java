@@ -11,6 +11,7 @@ import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.cache.PolicyService;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.groups.permissions.GroupPermissionManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
@@ -22,8 +23,9 @@ import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 
 @InteractionHandler(scope = Scopes.Group.ADD_PERMISSION, autoResponseType = AutoResponseType.THINKING)
 public class GroupPermissionAddHandler implements InteractionListener<ButtonClickContext> {
-    private final GroupPermissionManager permissionManager;
+    private static final BetManager betManager = BetManager.getManager();
     private final PolicyService policyService = PolicyService.getService();
+    private final GroupPermissionManager permissionManager;
 
     public GroupPermissionAddHandler(EntityPolicyRepository policyRepo) {
         this.permissionManager = new GroupPermissionManager(policyRepo);
@@ -39,6 +41,9 @@ public class GroupPermissionAddHandler implements InteractionListener<ButtonClic
         Guild guild = ctx.getGuild();
         long ownerId = group.getOwnerId();
         long guildId = guild.getIdLong();
+
+        if (betManager.isBetting(ownerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
         BankAction chargeAction = bank.charge(ownerId, guildId, 0, price, "Group Permission Added");
         if (!chargeAction.isOk()) {

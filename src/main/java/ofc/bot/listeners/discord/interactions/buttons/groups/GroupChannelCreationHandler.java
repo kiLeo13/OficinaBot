@@ -16,6 +16,7 @@ import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
@@ -34,6 +35,7 @@ import java.util.List;
 )
 public class GroupChannelCreationHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupChannelCreationHandler.class);
+    private static final BetManager betManager = BetManager.getManager();
     private final OficinaGroupRepository grpRepo;
 
     public GroupChannelCreationHandler(OficinaGroupRepository grpRepo) {
@@ -42,7 +44,6 @@ public class GroupChannelCreationHandler implements InteractionListener<ButtonCl
 
     @Override
     public InteractionResult onExecute(ButtonClickContext ctx) {
-        int price = ctx.get("amount");
         OficinaGroup group = ctx.get("group");
         ChannelType chanType = ctx.get("channel_type");
         Category category = resolveChannelCategory(chanType);
@@ -50,6 +51,10 @@ public class GroupChannelCreationHandler implements InteractionListener<ButtonCl
         Guild guild = ctx.getGuild();
         long ownerId = group.getOwnerId();
         long guildId = guild.getIdLong();
+        int price = ctx.get("amount");
+
+        if (betManager.isBetting(ownerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
         if (category == null)
             return Status.CHANNEL_CATEGORY_NOT_FOUND;

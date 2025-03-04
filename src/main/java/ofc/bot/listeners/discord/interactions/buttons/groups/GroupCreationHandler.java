@@ -12,6 +12,7 @@ import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 )
 public class GroupCreationHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupCreationHandler.class);
+    private static final BetManager betManager = BetManager.getManager();
     private final OficinaGroupRepository grpRepo;
 
     public GroupCreationHandler(OficinaGroupRepository grpRepo) {
@@ -42,6 +44,9 @@ public class GroupCreationHandler implements InteractionListener<ButtonClickCont
         long guildId = guild.getIdLong();
         long ownerId = group.getOwnerId();
         int price = group.getAmountPaid();
+
+        if (betManager.isBetting(ownerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
         ctx.reply(Status.PROCESSING);
 

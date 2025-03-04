@@ -3,9 +3,7 @@ package ofc.bot.handlers;
 import net.dv8tion.jda.api.JDA;
 import ofc.bot.Main;
 import ofc.bot.commands.groups.LeaveGroupCommand;
-import ofc.bot.domain.sqlite.repository.BankTransactionRepository;
-import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
-import ofc.bot.domain.sqlite.repository.Repositories;
+import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.cache.PolicyService;
 import ofc.bot.handlers.interactions.InteractionMemoryManager;
@@ -34,6 +32,7 @@ import ofc.bot.listeners.discord.guilds.voice.solo.SoloChannelsHandler;
 import ofc.bot.listeners.discord.interactions.GenericInteractionLocaleUpsert;
 import ofc.bot.listeners.discord.interactions.autocomplete.*;
 import ofc.bot.listeners.discord.interactions.buttons.WorkReminderHandler;
+import ofc.bot.listeners.discord.interactions.buttons.bets.TicTacToeAcceptHandler;
 import ofc.bot.listeners.discord.interactions.buttons.groups.*;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.*;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.DeleteInfraction;
@@ -111,14 +110,16 @@ public final class EntityInitializerManager {
     }
 
     public static void registerComposedInteractions() {
-        var pnshRepo   = Repositories.getMemberPunishmentRepository();
-        var mreqRepo   = Repositories.getMarriageRequestRepository();
-        var namesRepo  = Repositories.getUserNameUpdateRepository();
-        var policyRepo = Repositories.getEntityPolicyRepository();
-        var grpRepo    = Repositories.getOficinaGroupRepository();
-        var ecoRepo    = Repositories.getUserEconomyRepository();
-        var bdayRepo   = Repositories.getBirthdayRepository();
-        var xpRepo     = Repositories.getUserXPRepository();
+        var betUsersRepo = Repositories.getGameParticipantRepository();
+        var pnshRepo     = Repositories.getMemberPunishmentRepository();
+        var mreqRepo     = Repositories.getMarriageRequestRepository();
+        var namesRepo    = Repositories.getUserNameUpdateRepository();
+        var policyRepo   = Repositories.getEntityPolicyRepository();
+        var grpRepo      = Repositories.getOficinaGroupRepository();
+        var ecoRepo      = Repositories.getUserEconomyRepository();
+        var bdayRepo     = Repositories.getBirthdayRepository();
+        var betRepo      = Repositories.getBetGameRepository();
+        var xpRepo       = Repositories.getUserXPRepository();
 
         InteractionMemoryManager.getManager().registerListeners(
                 // Infractions
@@ -137,11 +138,15 @@ public final class EntityInitializerManager {
                 new GroupBotAddHandler(),
                 new GroupChannelCreationHandler(grpRepo),
                 new GroupCreationHandler(grpRepo),
+                new GroupInvoicePaymentHandler(grpRepo),
                 new GroupMemberAddHandler(),
                 new GroupMemberRemoveHandler(),
                 new GroupPermissionAddHandler(policyRepo),
                 new GroupPinsHandler(),
                 new GroupUpdateHandler(grpRepo),
+
+                // Bets
+                new TicTacToeAcceptHandler(ecoRepo, betRepo, betUsersRepo),
 
                 // Generic
                 new ChoosableRolesHandler()

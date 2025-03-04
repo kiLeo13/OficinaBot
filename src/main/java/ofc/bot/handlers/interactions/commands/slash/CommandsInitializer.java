@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ofc.bot.Main;
 import ofc.bot.commands.*;
 import ofc.bot.commands.additionals.AdditionalRolesCommand;
+import ofc.bot.commands.bets.BetTicTacToeCommand;
 import ofc.bot.commands.birthday.*;
 import ofc.bot.commands.economy.*;
 import ofc.bot.commands.groups.*;
@@ -62,6 +63,9 @@ public final class CommandsInitializer {
         SlashCommand additionals = new EmptySlashCommand("additionals", "Gerencia recursos adicionais/misc do bot.", Permission.MANAGE_SERVER)
                 .addSubcommand(new AdditionalRolesCommand());
 
+        SlashCommand bets = new EmptySlashCommand("bets", "Aposte seu dinheiro.")
+                .addSubcommand(new BetTicTacToeCommand(ecoRepo));
+
         // Birhday
         SlashCommand birthday = new EmptySlashCommand("birthday", "Gerencia os aniversários.", Permission.MANAGE_SERVER)
                 .addSubcommand(new BirthdayAddCommand(bdayRepo, policyRepo))
@@ -109,6 +113,7 @@ public final class CommandsInitializer {
         List<SlashCommand> cmds = List.of(
                 // Compound Commands
                 additionals,
+                bets,
                 birthday,
                 policies,
                 marriage,

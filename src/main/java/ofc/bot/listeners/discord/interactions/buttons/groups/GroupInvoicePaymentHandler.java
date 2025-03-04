@@ -11,6 +11,7 @@ import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
@@ -23,6 +24,7 @@ import org.jooq.exception.DataAccessException;
 
 @InteractionHandler(scope = Scopes.Group.PAY_INVOICE, autoResponseType = AutoResponseType.THINKING)
 public class GroupInvoicePaymentHandler implements InteractionListener<ButtonClickContext> {
+    private static final BetManager betManager = BetManager.getManager();
     private final OficinaGroupRepository grpRepo;
 
     public GroupInvoicePaymentHandler(OficinaGroupRepository grpRepo) {
@@ -31,28 +33,31 @@ public class GroupInvoicePaymentHandler implements InteractionListener<ButtonCli
 
     @Override
     public InteractionResult onExecute(ButtonClickContext ctx) {
-        long userId = ctx.getUserId();
-        long guildId = ctx.getGuildId();
-        int amount = ctx.get("amount");
-        User user = ctx.getUser();
-        OficinaGroup gp = ctx.get("group");
-        CurrencyType currency = gp.getCurrency();
+        OficinaGroup group = ctx.get("group");
+        CurrencyType currency = group.getCurrency();
         PaymentManager bank = PaymentManagerProvider.fromType(currency);
+        User user = ctx.getUser();
+        long guildId = ctx.getGuildId();
+        long ownerId = ctx.getUserId();
+        int value = ctx.get("amount");
 
-        BankAction chargeAction = bank.charge(userId, guildId, 0, amount, "Group invoice payment");
+        if (betManager.isBetting(ownerId))
+            return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
+
+        BankAction chargeAction = bank.charge(ownerId, guildId, 0, value, "Group invoice payment");
         if (!chargeAction.isOk())
             return Status.INSUFFICIENT_BALANCE;
 
-        gp.setInvoiceAmount(0)
+        group.setInvoiceAmount(0)
                 .setRentStatus(RentStatus.PAID)
                 .tickUpdate();
 
         try {
-            grpRepo.upsert(gp);
-            dispatchInvoicePaymentEvent(currency, userId, amount);
-            sendPaymentConfirmation(user, amount);
+            grpRepo.upsert(group);
+            dispatchInvoicePaymentEvent(currency, ownerId, value);
+            sendPaymentConfirmation(user, value);
 
-            return Status.INVOICE_SUCCESSFULLY_PAID.args(Bot.fmtMoney(amount));
+            return Status.INVOICE_SUCCESSFULLY_PAID.args(Bot.fmtMoney(value));
         } catch (DataAccessException e) {
             chargeAction.rollback();
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;

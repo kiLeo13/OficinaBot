@@ -33,6 +33,13 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
         return USERS_ECONOMY;
     }
 
+    public boolean hasEnough(long userId, long amount) {
+        return ctx.fetchExists(
+                USERS_ECONOMY,
+                USERS_ECONOMY.USER_ID.eq(userId).and(USERS_ECONOMY.BALANCE.ge(amount))
+        );
+    }
+
     public long fetchBalanceByUserId(long userId) {
         return ctx.select(USERS_ECONOMY.BALANCE)
                 .from(USERS_ECONOMY)
@@ -48,6 +55,10 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
             updateBalanceCtx(trsCtx, senderId, -totalProvided);
             updateBalanceCtx(trsCtx, receiverId, amountToSend);
         });
+    }
+
+    public void transfer(long senderId, long receiverId, long amount) {
+        transfer(senderId, receiverId, amount, amount);
     }
 
     public void updateCtx(DSLContext trsCtx, UserEconomy eco) {

@@ -4,8 +4,10 @@ import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.games.betting.BetManager;
 
 public class OficinaBankClient implements PaymentManager {
+    private static final BetManager betManager = BetManager.getManager();
     private final UserEconomyRepository ecoRepo;
 
     public OficinaBankClient(UserEconomyRepository ecoRepo) {
@@ -63,6 +65,9 @@ public class OficinaBankClient implements PaymentManager {
         Checks.notNegative(bank, "Bank");
 
         if (bank == 0) return BankAction.STATIC_SUCCESS_NO_CHANGE;
+
+        if (betManager.isBetting(userId))
+            throw new IllegalArgumentException("User " + userId + " cannot be charged because they are betting");
 
         BankAccount acc = get(userId);
 
