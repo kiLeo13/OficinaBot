@@ -2,14 +2,14 @@ package ofc.bot.handlers.games.betting;
 
 import java.util.Set;
 
-public interface Bet<S, E> {
+public interface Bet {
 
     /**
      * Starts the current bet game.
      *
-     * @param arg the optional custom argument to be passed to the start command.
+     * @param args the arguments to be passed to the start command.
      */
-    void start(S arg);
+    void start(GameArgs args);
 
     /**
      * Stops this current bet game.
@@ -17,9 +17,9 @@ public interface Bet<S, E> {
      * This method should (usually) never throw exceptions,
      * but instead, finish the game gracefully (even though it was a "forced" operation).
      *
-     * @param arg the optional custom argument to be passed to the stop command.
+     * @param args the arguments to be passed to the end command.
      */
-    void end(E arg);
+    void end(GameArgs args);
 
     /**
      * <b>This method is intended to be called exclusively by the instance itself.</b>
@@ -63,13 +63,6 @@ public interface Bet<S, E> {
     BetType getType();
 
     BetStatus getStatus();
-
-    /**
-     * Gets the ID uniquely identifying this bet.
-     *
-     * @return the ID of this bet.
-     */
-    long getId();
 
     long getTimeStarted();
 

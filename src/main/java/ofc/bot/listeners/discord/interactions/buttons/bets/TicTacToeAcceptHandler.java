@@ -7,6 +7,7 @@ import ofc.bot.domain.sqlite.repository.BetGameRepository;
 import ofc.bot.domain.sqlite.repository.GameParticipantRepository;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.handlers.games.betting.BetManager;
+import ofc.bot.handlers.games.betting.GameArgs;
 import ofc.bot.handlers.games.betting.tictactoe.TicTacToeGame;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
@@ -44,7 +45,7 @@ public class TicTacToeAcceptHandler implements InteractionListener<ButtonClickCo
         TicTacToeGame game = new TicTacToeGame(ecoRepo, betRepo, betUsersRepo, api, amount);
         game.join(authorId, userId);
 
-        game.start(msg);
+        game.start(new GameArgs(msg));
         return Status.OK;
     }
 

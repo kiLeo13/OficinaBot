@@ -27,16 +27,14 @@ import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 import ofc.bot.util.time.ElasticScheduler;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TicTacToeGame implements Bet<Message, Boolean> {
+public class TicTacToeGame implements Bet {
     public static final int MIN_AMOUNT = 100;
     public static final int MAX_AMOUNT = 10_000;
     public static final int DEFAULT_GRID_SIZE = 3;
@@ -74,7 +72,7 @@ public class TicTacToeGame implements Bet<Message, Boolean> {
             failRange(prizeValue);
 
         this.prizeValue = prizeValue;
-        this.id = Instant.now().toEpochMilli();
+        this.id = System.nanoTime();
         this.ecoRepo = ecoRepo;
         this.betRepo = betRepo;
         this.betUsersRepo = betUsersRepo;
@@ -92,14 +90,13 @@ public class TicTacToeGame implements Bet<Message, Boolean> {
     }
 
     @Override
-    public void start(@NotNull Message msg) {
+    public void start(GameArgs args) {
         if (this.status == BetStatus.RUNNING) return;
 
         if (players.size() != ALLOWED_PLAYERS)
             failPlayers();
 
-        Checks.notNull(msg, "Message");
-        this.message = msg;
+        this.message = args.get(0);
         this.startedAt = Bot.unixNow();
         this.status = BetStatus.RUNNING;
         this.gameHandler = new GameHandler();
@@ -121,9 +118,10 @@ public class TicTacToeGame implements Bet<Message, Boolean> {
     }
 
     @Override
-    public void end(Boolean isDraw) {
+    public void end(GameArgs args) {
         if (this.status != BetStatus.RUNNING) return;
 
+        boolean isDraw = args.get(0);
         this.status = isDraw ? BetStatus.DRAW : BetStatus.COMPLETE;
         this.scheduler.shutdown();
 
@@ -197,11 +195,6 @@ public class TicTacToeGame implements Bet<Message, Boolean> {
     @Override
     public BetStatus getStatus() {
         return this.status;
-    }
-
-    @Override
-    public long getId() {
-        return this.id;
     }
 
     @Override
@@ -345,14 +338,14 @@ public class TicTacToeGame implements Bet<Message, Boolean> {
             char winnerSymbol = grid.getWinner();
             winnerId = resolveWinner(winnerSymbol);
             if (winnerId != '\0') {
-                end(false);
+                end(new GameArgs(false));
                 return Status.OK;
             }
 
             // If we don't have any winners and the table/grid
             // is already full, then we can end the game, its a tie.
             if (!grid.hasSlotAvailable()) {
-                end(true);
+                end(new GameArgs(true));
                 return Status.OK;
             }
 
@@ -373,7 +366,7 @@ public class TicTacToeGame implements Bet<Message, Boolean> {
 
         @Override
         public boolean validate(ButtonClickContext ctx) {
-            return ((long) ctx.get("bet_id")) == getId();
+            return ((long) ctx.get("bet_id")) == id;
         }
 
         private long resolveWinner(char value) {
