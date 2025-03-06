@@ -39,7 +39,7 @@ public class TicTacToeGame implements Bet {
     public static final int MAX_AMOUNT = 10_000;
     public static final int DEFAULT_GRID_SIZE = 3;
     public static final int TIMEOUT = 60 * 1000;
-    public static final float TIMEOUT_PENALTY_RATE = 0.70f;
+    public static final float TIMEOUT_PENALTY_RATE = 1.25f; // Yes, 125%
     private static final Logger LOGGER = LoggerFactory.getLogger(TicTacToeGame.class);
     private static final int ALLOWED_PLAYERS = 2;
     private static final InteractionMemoryManager memoryManager = InteractionMemoryManager.getManager();
