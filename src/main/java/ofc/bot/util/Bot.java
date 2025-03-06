@@ -241,5 +241,6 @@ public final class Bot {
     public static final class Emojis {
         public static final Emoji GRAY_ARROW_LEFT  = Emoji.fromFormatted("<:arrowleft:1331425997890785290>");
         public static final Emoji GRAY_ARROW_RIGHT = Emoji.fromFormatted("<:arrowright:1331425991205191730>");
+        public static final Emoji INV = Emoji.fromFormatted("<:inv:1347081576298844180>");
     }
 }

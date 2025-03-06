@@ -1,6 +1,7 @@
 package ofc.bot.handlers.games.betting.tictactoe;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import ofc.bot.util.Bot;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Arrays;
@@ -139,7 +140,8 @@ public class GameGrid {
     static {
         EMOJIS = Map.of(
                 'X', Emoji.fromUnicode("❌"),
-                'O', Emoji.fromUnicode("⭕")
+                'O', Emoji.fromUnicode("⭕"),
+                '\0', Bot.Emojis.INV
         );
     }
 }
