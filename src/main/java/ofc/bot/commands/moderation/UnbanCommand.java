@@ -30,13 +30,13 @@ public class UnbanCommand extends SlashCommand {
         Guild guild = ctx.getGuild();
 
         ctx.ack();
-        guild.unban(user).reason(reason).queue(v -> {
+        guild.retrieveBan(user).queue(ban -> guild.unban(user).queue(v -> {
             MessageEmbed embed = EmbedFactory.embedPunishment(user, PunishmentType.UNBAN, reason, 0);
             ctx.replyEmbeds(embed);
         }, (err) -> {
             LOGGER.error("Could not unban user {}", user.getId(), err);
             ctx.reply(Status.COULD_NOT_EXECUTE_SUCH_OPERATION);
-        });
+        }), (v) -> ctx.reply(Status.USER_IS_NOT_BANNED_FROM_GUILD.args(user.getAsMention())));
         return Status.OK;
     }
 

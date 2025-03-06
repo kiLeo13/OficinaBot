@@ -125,6 +125,7 @@ public enum Status implements InteractionResult {
     PAGE_DOES_NOT_EXIST(                        State.FAILURE, "A página fornecida não existe! Max: `%d`."),
     MEMBER_NOT_IN_GUILD(                        State.FAILURE, "O membro fornecido não está no servidor."),
     INVALID_COLOR_PROVIDED(                     State.FAILURE, "A cor fornecida é inválida."),
+    USER_IS_NOT_BANNED_FROM_GUILD(              State.FAILURE, "O usuário %s não está banido deste dservidor."),
     INCORRECT_PASSWORD(                         State.FAILURE, "A senha está incorreta."),
     PASSWORD_DOES_NOT_MEET_REQUIREMENTS(        State.FAILURE, """
             A senha não atende aos requisitos necessários:
