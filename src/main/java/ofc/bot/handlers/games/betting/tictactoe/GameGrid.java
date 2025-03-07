@@ -133,7 +133,7 @@ public class GameGrid {
 
     @Contract("_ -> fail")
     private void failGridSize(int size) {
-        throw new IllegalArgumentException(String.format("Grid size must in range of %d - %d, provided: %d",
+        throw new IllegalArgumentException(String.format("Grid size must be in range of %d - %d, provided: %d",
                 MIN_GRID_SIZE, MAX_GRID_SIZE, size));
     }
 
