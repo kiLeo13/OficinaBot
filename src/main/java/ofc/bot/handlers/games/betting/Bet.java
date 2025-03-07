@@ -1,8 +1,11 @@
 package ofc.bot.handlers.games.betting;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 import java.util.Set;
 
-public interface Bet {
+public interface Bet<T> {
 
     /**
      * Starts the current bet game.
@@ -52,13 +55,62 @@ public interface Bet {
     int getTimeout();
 
     /**
-     * Adds these users to the participants list.
+     * Adds the specified users to the participants list.
      * <p>
-     * Refer to the implementation-specific constraints for more information.
+     * This method serves as a shortcut for {@link #join(long, Object)},
+     * but without requiring a specific bet/guess.
+     * <p>
+     * <b>Note:</b> Depending on the {@link BetType}, calling this method may fail immediately
+     * if the game requires a bet to be placed (e.g., non-randomizable bet types like roulette).
+     * <p>
+     * <i>You can check if a bet type is randomizable with {@link BetType#isRandomizable()}.</i>
      *
-     * @param userIds The ID of the users to participate the game.
+     * @param userIds The IDs of the users who wish to participate in the game.
+     * @throws UnsupportedOperationException If the game type requires a bet and does
+     *         not support joining without one.
+     *         <br>In this case, you should always use {@link #join(long, Object)} instead.
+     * @see #join(long, Object)
      */
     void join(long... userIds);
+
+    /**
+     * Allows a user to join the game by providing their bet or guess for the outcome.
+     * <p>
+     * This method ensures that the user is added to the game with a specific bet/role,
+     * which is required for games that involve user predictions or wagers.
+     * <p>
+     * For instance, if this is an instance of a {@link BetType#TIC_TAC_TOE} game,
+     * you can use this method as follows:
+     * <pre>
+     *   {@code
+     * Bet<Character> game = new TicTacToeGame(ecoRepo, betRepo, betUsersRepo, api, 200);
+     * game.join(123, 'X');
+     * game.join(456, 'O');
+     *
+     * game.start(msg);
+     *   }
+     * </pre>
+     * <p>
+     * <b>Note:</b> This method will likely not enforce a limit on the number of users who can join.
+     * This is only checked when calling {@link #start(GameArgs)}.
+     * It is the developer's responsability to check the number of participants joining the game
+     * over the {@link #getMaxUsers()}
+     *
+     * @param userId The ID of the user joining the game.
+     * @param bet The user's bet, role or guess for the outcome of the game.
+     * @throws IllegalArgumentException If the bet is {@code null} or invalid for the game type.
+     * @throws IllegalStateException If the game is not accepting new participants.
+     */
+    void join(long userId, @NotNull T bet);
+
+    /**
+     * Just a shortcut for {@link #join(long, Object)}.
+     *
+     * @param users A {@link Map Map&lt;Long, T&gt;} containing the user IDs and bets.
+     */
+    default void join(@NotNull Map<Long, T> users) {
+        users.forEach(this::join);
+    }
 
     BetType getType();
 
@@ -74,6 +126,8 @@ public interface Bet {
     Set<Long> getParticipants();
 
     Set<Long> getWinners();
+
+    int getMaxUsers();
 
     default boolean isParticipating(long userId) {
         return getParticipants().contains(userId);

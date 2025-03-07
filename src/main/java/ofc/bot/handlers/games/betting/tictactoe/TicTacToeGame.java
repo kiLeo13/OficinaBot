@@ -27,6 +27,7 @@ import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 import ofc.bot.util.time.ElasticScheduler;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +35,14 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TicTacToeGame implements Bet {
+public class TicTacToeGame implements Bet<Character> {
     public static final int MIN_AMOUNT = 100;
     public static final int MAX_AMOUNT = 10_000;
     public static final int DEFAULT_GRID_SIZE = 3;
     public static final int TIMEOUT = 60 * 1000;
     public static final float TIMEOUT_PENALTY_RATE = 1.25f; // Yes, 125%
     private static final Logger LOGGER = LoggerFactory.getLogger(TicTacToeGame.class);
-    private static final int ALLOWED_PLAYERS = 2;
+    private static final int MAX_PLAYERS = 2;
     private static final InteractionMemoryManager memoryManager = InteractionMemoryManager.getManager();
     private static final Random RANDOM = new Random();
     private static final BetManager betManager = BetManager.getManager();
@@ -93,7 +94,7 @@ public class TicTacToeGame implements Bet {
     public void start(GameArgs args) {
         if (this.status == BetStatus.RUNNING) return;
 
-        if (players.size() != ALLOWED_PLAYERS)
+        if (players.size() != MAX_PLAYERS)
             failPlayers();
 
         this.message = args.get(0);
@@ -188,6 +189,14 @@ public class TicTacToeGame implements Bet {
     }
 
     @Override
+    public void join(long userId, @NotNull Character bet) {
+        Checks.notNull(bet, "Bet");
+        Checks.check(bet == 'X' || bet == 'O', "Bet must be X or O, provided: %s", bet);
+
+        players.put(userId, bet);
+    }
+
+    @Override
     public BetType getType() {
         return BetType.TIC_TAC_TOE;
     }
@@ -210,6 +219,11 @@ public class TicTacToeGame implements Bet {
     @Override
     public Set<Long> getWinners() {
         return winnerId == 0 ? Set.of() : Set.of(winnerId);
+    }
+
+    @Override
+    public int getMaxUsers() {
+        return MAX_PLAYERS;
     }
 
     private long findLoserId() {
@@ -312,7 +326,7 @@ public class TicTacToeGame implements Bet {
     @Contract("-> fail")
     private void failPlayers() {
         throw new BetGameCreationException(String.format("TicTacToe game must have exactly %d players, provided: %d",
-                ALLOWED_PLAYERS, players.size()));
+                MAX_PLAYERS, players.size()));
     }
 
     @Contract("_ -> fail")
