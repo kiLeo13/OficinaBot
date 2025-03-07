@@ -116,6 +116,12 @@ public interface Bet<T> {
 
     BetStatus getStatus();
 
+    /**
+     * Gets the time (in {@link java.time.Instant#getEpochSecond() Instant.getEpochSecond()} form)
+     * of when the game has started.
+     *
+     * @return The starting time of this game, or {@code 0} if it has not started yet.
+     */
     long getTimeStarted();
 
     /**
