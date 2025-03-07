@@ -127,6 +127,11 @@ public interface Bet<T> {
 
     Set<Long> getWinners();
 
+    /**
+     * Gets the max amount of users that can join this game.
+     *
+     * @return The max amount of users allowed to join this game, or {@code 0} if there is no limit.
+     */
     int getMaxUsers();
 
     default boolean isParticipating(long userId) {
