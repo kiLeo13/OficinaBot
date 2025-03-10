@@ -44,6 +44,7 @@ public final class DB {
 
     private static List<InitializableTable<?>> getTables() {
         return List.of(
+                AppUsersBanTable.APP_USERS_BAN,
                 AutomodActionsTable.AUTOMOD_ACTIONS,
                 BankTransactionsTable.BANK_TRANSACTIONS,
                 BetGamesTable.BET_GAMES,

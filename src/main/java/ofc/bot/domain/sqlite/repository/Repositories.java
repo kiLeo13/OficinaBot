@@ -4,6 +4,7 @@ import ofc.bot.domain.sqlite.DB;
 import org.jooq.DSLContext;
 
 public final class Repositories {
+    private static AppUserBanRepository appUserBanRepository;
     private static AutomodActionRepository automodActionRepository;
     private static BankTransactionRepository bankTransactionRepository;
     private static BetGameRepository gameRepository;
@@ -32,6 +33,11 @@ public final class Repositories {
     private static UserXPRepository userXPRepository;
 
     private Repositories() {}
+
+    public static AppUserBanRepository getAppUserBanRepository() {
+        if (appUserBanRepository == null) appUserBanRepository = new AppUserBanRepository(getDSLContext());
+        return appUserBanRepository;
+    }
 
     public static AutomodActionRepository getAutomodActionRepository() {
         if (automodActionRepository == null) automodActionRepository = new AutomodActionRepository(getDSLContext());
