@@ -2,8 +2,8 @@ package ofc.bot.domain.entity;
 
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.tables.BetGamesTable;
-import ofc.bot.handlers.games.betting.BetStatus;
-import ofc.bot.handlers.games.betting.BetType;
+import ofc.bot.handlers.games.GameStatus;
+import ofc.bot.handlers.games.GameType;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,8 +15,8 @@ public class BetGame extends OficinaRecord<BetGame> {
         super(BET_GAMES);
     }
 
-    public BetGame(long id, @NotNull BetStatus status, @Nullable String board,
-                   @NotNull BetType type, long startedAt, long endedAt, long createdAt) {
+    public BetGame(long id, @NotNull GameStatus status, @Nullable String board,
+                   @NotNull GameType type, long startedAt, long endedAt, long createdAt) {
         this();
         Checks.notNull(status, "Bet Status");
         Checks.notNull(type, "Bet Type");
@@ -30,8 +30,8 @@ public class BetGame extends OficinaRecord<BetGame> {
         set(BET_GAMES.CREATED_AT, createdAt);
     }
 
-    public BetGame(long id, @NotNull BetStatus status, @Nullable String board,
-                   @NotNull BetType type, long startedAt, long endedAt) {
+    public BetGame(long id, @NotNull GameStatus status, @Nullable String board,
+                   @NotNull GameType type, long startedAt, long endedAt) {
         this(id, status, board, type, startedAt, endedAt, Bot.unixNow());
     }
 
@@ -39,18 +39,18 @@ public class BetGame extends OficinaRecord<BetGame> {
         return get(BET_GAMES.ID);
     }
 
-    public BetStatus getStatus() {
+    public GameStatus getStatus() {
         String status = get(BET_GAMES.STATUS);
-        return BetStatus.valueOf(status);
+        return GameStatus.valueOf(status);
     }
 
     public String getBoard() {
         return get(BET_GAMES.BOARD);
     }
 
-    public BetType getType() {
+    public GameType getType() {
         String type = get(BET_GAMES.BET_TYPE);
-        return BetType.valueOf(type);
+        return GameType.valueOf(type);
     }
 
     public long getTimeStarted() {

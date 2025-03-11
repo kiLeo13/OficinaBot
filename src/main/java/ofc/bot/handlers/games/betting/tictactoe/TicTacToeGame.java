@@ -18,6 +18,9 @@ import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.CurrencyType;
+import ofc.bot.handlers.games.GameStatus;
+import ofc.bot.handlers.games.GameType;
+import ofc.bot.handlers.games.GameArgs;
 import ofc.bot.handlers.games.betting.*;
 import ofc.bot.handlers.games.betting.exceptions.BetGameCreationException;
 import ofc.bot.handlers.interactions.*;
@@ -68,7 +71,7 @@ public class TicTacToeGame implements Bet<Character> {
     private Message message;
     private GameHandler gameHandler;
     private MessageDeleteHandler messageDeleteHandler;
-    private BetStatus status;
+    private GameStatus status;
 
     public TicTacToeGame(UserEconomyRepository ecoRepo, BetGameRepository betRepo,
                          GameParticipantRepository betUsersRepo, AppUserBanRepository appBanRepo,
@@ -90,7 +93,7 @@ public class TicTacToeGame implements Bet<Character> {
         this.api = api;
         this.grid = new GameGrid(gridSize);
         this.players = new HashMap<>(2);
-        this.status = BetStatus.WAITING;
+        this.status = GameStatus.WAITING;
         this.scheduler = new ElasticScheduler(this::timeout, TIMEOUT);
         this.winnerId = 0;
     }
@@ -103,14 +106,14 @@ public class TicTacToeGame implements Bet<Character> {
 
     @Override
     public void start(GameArgs args) {
-        if (this.status == BetStatus.RUNNING) return;
+        if (this.status == GameStatus.RUNNING) return;
 
         if (players.size() != MAX_PLAYERS)
             failPlayers();
 
         this.message = args.get(0);
         this.startedAt = Bot.unixNow();
-        this.status = BetStatus.RUNNING;
+        this.status = GameStatus.RUNNING;
         this.gameHandler = new GameHandler();
         this.messageDeleteHandler = new MessageDeleteHandler(appBanRepo);
         this.currentPlayerId = pickRandomPlayer();
@@ -134,14 +137,14 @@ public class TicTacToeGame implements Bet<Character> {
 
     @Override
     public void end(GameArgs args) {
-        if (this.status != BetStatus.RUNNING) return;
+        if (this.status != GameStatus.RUNNING) return;
 
         boolean isDraw = args.get(0);
-        this.status = isDraw ? BetStatus.DRAW : BetStatus.COMPLETE;
+        this.status = isDraw ? GameStatus.DRAW : GameStatus.COMPLETE;
         this.scheduler.shutdown();
 
         long timeEnded = Bot.unixNow();
-        BetStatus exitStatus = resolveExitStatus(isDraw);
+        GameStatus exitStatus = resolveExitStatus(isDraw);
 
         // Remove bets and listeners regardless of the result
         betManager.removeBets(players.keySet());
@@ -153,9 +156,9 @@ public class TicTacToeGame implements Bet<Character> {
 
     @Override
     public void timeout() {
-        if (this.status != BetStatus.RUNNING) return;
+        if (this.status != GameStatus.RUNNING) return;
 
-        this.status = BetStatus.TIMED_OUT;
+        this.status = GameStatus.TIMED_OUT;
         long timeEnded = Bot.unixNow();
         long targetId = this.currentPlayerId;
 
@@ -214,12 +217,12 @@ public class TicTacToeGame implements Bet<Character> {
     }
 
     @Override
-    public BetType getType() {
-        return BetType.TIC_TAC_TOE;
+    public GameType getType() {
+        return GameType.TIC_TAC_TOE;
     }
 
     @Override
-    public BetStatus getStatus() {
+    public GameStatus getStatus() {
         return this.status;
     }
 
@@ -251,9 +254,9 @@ public class TicTacToeGame implements Bet<Character> {
                 .orElseThrow(() -> new IllegalStateException("Somehow we did not find the loser ID, what???"));
     }
 
-    private BetStatus resolveExitStatus(boolean isDraw) {
+    private GameStatus resolveExitStatus(boolean isDraw) {
         if (!isDraw && this.winnerId == 0) {
-            return BetStatus.INTERRUPTED;
+            return GameStatus.INTERRUPTED;
         }
         return this.status;
     }
@@ -285,7 +288,7 @@ public class TicTacToeGame implements Bet<Character> {
         EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 
-    private void finalizeGame(BetStatus exitStatus, long timeEnded) {
+    private void finalizeGame(GameStatus exitStatus, long timeEnded) {
         long loserId = findLoserId();
         try {
             User winner = winnerId == 0 ? null : api.retrieveUserById(winnerId).complete();
@@ -299,7 +302,7 @@ public class TicTacToeGame implements Bet<Character> {
             persist(exitStatus, timeEnded);
 
             // Only handle payment if a winner exists and the game was not interrupted
-            if (winner != null && exitStatus != BetStatus.INTERRUPTED) {
+            if (winner != null && exitStatus != GameStatus.INTERRUPTED) {
                 handlePayment(winner, loser);
             }
         } catch (DataAccessException e) {
@@ -309,7 +312,7 @@ public class TicTacToeGame implements Bet<Character> {
         }
     }
 
-    private void persist(BetStatus status, long endTime) {
+    private void persist(GameStatus status, long endTime) {
         BetGame bet = new BetGame(id, status, grid.toString(), getType(), startedAt, endTime);
         List<GameParticipant> participants = players.keySet()
                 .stream()
@@ -358,7 +361,7 @@ public class TicTacToeGame implements Bet<Character> {
         @Override
         public InteractionResult onExecute(ButtonClickContext ctx) {
             // Safety purposes, do not proceed if the status is no longer set as RUNNING
-            if (status != BetStatus.RUNNING) return Status.OK;
+            if (status != GameStatus.RUNNING) return Status.OK;
 
             int row = ctx.get("row");
             int col = ctx.get("col");

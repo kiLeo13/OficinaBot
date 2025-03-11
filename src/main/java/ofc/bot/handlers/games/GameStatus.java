@@ -1,6 +1,6 @@
-package ofc.bot.handlers.games.betting;
+package ofc.bot.handlers.games;
 
-public enum BetStatus {
+public enum GameStatus {
     WAITING,
     RUNNING,
     DRAW,

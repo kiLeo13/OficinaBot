@@ -1,4 +1,4 @@
-package ofc.bot.handlers.games.betting;
+package ofc.bot.handlers.games;
 
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
