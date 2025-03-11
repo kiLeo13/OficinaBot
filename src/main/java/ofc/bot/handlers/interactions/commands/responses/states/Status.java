@@ -108,6 +108,7 @@ public enum Status implements InteractionResult {
             "e evitar que você cometa erros. Aiai 😘"),
     CANNOT_LEAVE_YOUR_OWN_GROUP(                State.FAILURE, "Você não pode sair do seu próprio grupo."),
     USER_NOT_FOUND(                             State.FAILURE, "Usuário não encontrado."),
+    YOU_ARE_BANNED_FROM_THIS_BOT(               State.FAILURE, "> ❌ Você está banido deste bot."),
     BOT_CANNOT_BAN_PROVIDED_MEMBER(             State.FAILURE, "Eu não posso banir este usuário."),
     BOT_CANNOT_KICK_PROVIDED_MEMBER(            State.FAILURE, "Eu não posso expulsar este usuário."),
     YOU_CANNOT_BET_THIS_USER(                   State.FAILURE, "Você não pode apostar com você mesmo ou com outros bots."),

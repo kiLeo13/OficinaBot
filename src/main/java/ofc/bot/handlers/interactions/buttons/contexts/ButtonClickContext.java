@@ -47,7 +47,7 @@ public class ButtonClickContext extends InteractionSubmitContext<ButtonContext, 
         return getMessage().editMessage(content);
     }
 
-    public MessageEditAction editEmbeds(MessageEmbed... embeds) {
+    public final MessageEditAction editMessageEmbeds(MessageEmbed... embeds) {
         return getMessage().editMessageEmbeds(embeds);
     }
 

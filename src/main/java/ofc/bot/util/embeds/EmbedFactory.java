@@ -13,7 +13,9 @@ import ofc.bot.util.Bot;
 import ofc.bot.util.OficinaEmbed;
 
 import java.awt.*;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.List;
@@ -221,6 +223,29 @@ public final class EmbedFactory {
                 .setAuthor(head, null, penalized.getEffectiveAvatarUrl())
                 .appendDescf("⚠️ Penalizado em %s por inatividade.", Bot.fmtMoney(amount))
                 .setColor(DANGER_RED)
+                .build();
+    }
+
+    public static MessageEmbed embedTicTacToeDeleted(User author, Guild guild) {
+        OficinaEmbed builder = new OficinaEmbed();
+
+        return builder
+                .setColor(DANGER_RED)
+                .setThumbnail(author.getEffectiveAvatarUrl())
+                .setDescf("""
+                        ## ❌ Jogo da Velha finalizado forçadamente
+                        > É esperado que os membros da equipe do servidor ajam com responsabilidade \
+                        ao utilizar recursos que impactam a economia do servidor. \
+                        No entanto, diante da situação ocorrida, o membro %s foi penalizado com a \
+                        **suspensão total** do acesso a este bot por um período de `7 dias`.
+
+                        > Inclui-se, mas não se limita também à perda total dos ganhos de XP durante esse período.
+
+                        ⚠️ **O ban __NÃO SERÁ REMOVIDO__ em casos de identificação de conduta indevida.**
+
+                        Esperamos uma postura mais responsável no futuro.
+                        """, author.getAsMention())
+                .setFooter(guild.getName(), guild.getIconUrl())
                 .build();
     }
 

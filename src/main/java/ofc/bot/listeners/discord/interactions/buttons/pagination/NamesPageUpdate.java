@@ -44,7 +44,7 @@ public class NamesPageUpdate implements InteractionListener<ButtonClickContext> 
         Bot.fetchUser(targetId).queue((target) -> {
             MessageEmbed newEmbed = EmbedFactory.embedUsernameUpdates(namesData, guild, target);
 
-            ctx.editEmbeds(newEmbed)
+            ctx.editMessageEmbeds(newEmbed)
                     .setComponents(ActionRow.of(newButtons))
                     .queue();
 

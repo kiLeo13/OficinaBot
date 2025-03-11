@@ -34,7 +34,7 @@ public class BirthdayPageUpdate implements InteractionListener<ButtonClickContex
         List<Button> newButtons = EntityContextFactory.createBirthdayListButtons(month);
         MessageEmbed newEmbed = EmbedFactory.embedBirthdayList(birthdays, guild, month);
 
-        ctx.editEmbeds(newEmbed)
+        ctx.editMessageEmbeds(newEmbed)
                 .setActionRow(newButtons)
                 .queue();
 

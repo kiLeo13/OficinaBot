@@ -110,13 +110,14 @@ public final class EntityInitializerManager {
     }
 
     public static void registerComposedInteractions() {
-        var betUsersRepo = Repositories.getGameParticipantRepository();
         var pnshRepo     = Repositories.getMemberPunishmentRepository();
+        var betUsersRepo = Repositories.getGameParticipantRepository();
         var mreqRepo     = Repositories.getMarriageRequestRepository();
         var namesRepo    = Repositories.getUserNameUpdateRepository();
         var policyRepo   = Repositories.getEntityPolicyRepository();
         var grpRepo      = Repositories.getOficinaGroupRepository();
         var ecoRepo      = Repositories.getUserEconomyRepository();
+        var appBanRepo   = Repositories.getAppUserBanRepository();
         var bdayRepo     = Repositories.getBirthdayRepository();
         var betRepo      = Repositories.getBetGameRepository();
         var xpRepo       = Repositories.getUserXPRepository();
@@ -146,7 +147,7 @@ public final class EntityInitializerManager {
                 new GroupUpdateHandler(grpRepo),
 
                 // Bets
-                new TicTacToeAcceptHandler(ecoRepo, betRepo, betUsersRepo),
+                new TicTacToeAcceptHandler(ecoRepo, betRepo, betUsersRepo, appBanRepo),
 
                 // Generic
                 new ChoosableRolesHandler()
@@ -172,16 +173,17 @@ public final class EntityInitializerManager {
         var updRepo       = Repositories.getDiscordMessageUpdateRepository();
         var rolesRepo     = Repositories.getFormerMemberRoleRepository();
         var pnshRepo      = Repositories.getMemberPunishmentRepository();
-        var usprefRepo    = Repositories.getUserPreferenceRepository();
+        var msgRepo       = Repositories.getDiscordMessageRepository();
         var colorsRepo    = Repositories.getColorRoleStateRepository();
-        var policyRepo    = Repositories.getEntityPolicyRepository();
         var cmdRepo       = Repositories.getCommandHistoryRepository();
         var namesRepo     = Repositories.getUserNameUpdateRepository();
+        var usprefRepo    = Repositories.getUserPreferenceRepository();
         var modActRepo    = Repositories.getAutomodActionRepository();
-        var blckWordsRepo = Repositories.getBlockedWordRepository();
-        var msgRepo       = Repositories.getDiscordMessageRepository();
+        var policyRepo    = Repositories.getEntityPolicyRepository();
         var grpRepo       = Repositories.getOficinaGroupRepository();
+        var blckWordsRepo = Repositories.getBlockedWordRepository();
         var ecoRepo       = Repositories.getUserEconomyRepository();
+        var appBanRepo    = Repositories.getAppUserBanRepository();
         var grpBotRepo    = Repositories.getGroupBotRepository();
         var tmpBanRepo    = Repositories.getTempBanRepository();
         var xpRepo        = Repositories.getUserXPRepository();
@@ -192,7 +194,7 @@ public final class EntityInitializerManager {
                 new AutoModLogger(),
                 new BlockDumbCommands(),
                 new BotChangelogRoleHandler(),
-                new ButtonInteractionGateway(),
+                new ButtonInteractionGateway(appBanRepo),
                 new ChangelogCreationHandler(),
                 new ChatMoneyHandler(ecoRepo),
                 new ChoosableRolesListener(),
@@ -217,7 +219,7 @@ public final class EntityInitializerManager {
                 new OficinaGroupAutocompletion(grpRepo),
                 new OutageCommandsDisclaimer(),
                 new ResourceAutocompletion(userRepo),
-                new SlashCommandsGateway(cmdRepo),
+                new SlashCommandsGateway(cmdRepo, appBanRepo),
                 new SoloChannelsHandler(),
                 new SteamScamBlocker(),
                 new StudyRoleHandler(),

@@ -48,6 +48,11 @@ public class OficinaEmbed extends EmbedBuilder {
     }
 
     @NotNull
+    public OficinaEmbed setDescf(@NotNull String format, Object... args) {
+        return setDesc(String.format(format, args));
+    }
+
+    @NotNull
     @Override
     public OficinaEmbed appendDescription(@NotNull CharSequence description) {
         super.appendDescription(description);

@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import ofc.bot.domain.entity.CommandHistory;
+import ofc.bot.domain.sqlite.repository.AppUserBanRepository;
 import ofc.bot.domain.sqlite.repository.CommandHistoryRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -29,9 +30,11 @@ public class SlashCommandsGateway extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(SlashCommandsGateway.class);
     private static final ExecutorService EXECUTOR = ForkJoinPool.commonPool();
     private final CommandHistoryRepository cmdRepo;
+    private final AppUserBanRepository appBanRepo;
 
-    public SlashCommandsGateway(CommandHistoryRepository cmdRepo) {
+    public SlashCommandsGateway(CommandHistoryRepository cmdRepo, AppUserBanRepository appBanRepo) {
         this.cmdRepo = cmdRepo;
+        this.appBanRepo = appBanRepo;
     }
 
     @Override
@@ -55,6 +58,13 @@ public class SlashCommandsGateway extends ListenerAdapter {
         SlashCommandContext ctx = new SlashCommandContext(e);
         User user = ctx.getUser();
         long userId = user.getIdLong();
+
+        // Is the user banned from our application?
+        if (appBanRepo.isBanned(userId)) {
+            ctx.reply(Status.YOU_ARE_BANNED_FROM_THIS_BOT);
+            return;
+        }
+
         long remains = cmd.cooldownRemain(userId);
         if (!member.hasPermission(Permission.MANAGE_SERVER) && cmd.inCooldown(userId)) {
             ctx.reply(Status.PLEASE_WAIT_COOLDOWN.args(Bot.parsePeriod(remains)));

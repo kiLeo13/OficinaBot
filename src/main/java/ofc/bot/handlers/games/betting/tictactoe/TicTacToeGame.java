@@ -1,17 +1,20 @@
 package ofc.bot.handlers.games.betting.tictactoe;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.audit.AuditLogEntry;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.TransactionType;
-import ofc.bot.domain.sqlite.repository.BetGameRepository;
-import ofc.bot.domain.sqlite.repository.GameParticipantRepository;
-import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
+import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.CurrencyType;
@@ -23,6 +26,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
+import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import ofc.bot.util.embeds.EmbedFactory;
 import ofc.bot.util.time.ElasticScheduler;
@@ -33,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class TicTacToeGame implements Bet<Character> {
@@ -42,6 +47,7 @@ public class TicTacToeGame implements Bet<Character> {
     public static final int TIMEOUT = 60 * 1000;
     public static final float TIMEOUT_PENALTY_RATE = 1.25f; // Yes, 125%
     private static final Logger LOGGER = LoggerFactory.getLogger(TicTacToeGame.class);
+    private static final ErrorHandler DEF_ERR_HANDLER = new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE);
     private static final int MAX_PLAYERS = 2;
     private static final InteractionMemoryManager memoryManager = InteractionMemoryManager.getManager();
     private static final Random RANDOM = new Random();
@@ -51,6 +57,7 @@ public class TicTacToeGame implements Bet<Character> {
     private final UserEconomyRepository ecoRepo;
     private final BetGameRepository betRepo;
     private final GameParticipantRepository betUsersRepo;
+    private final AppUserBanRepository appBanRepo;
     private final JDA api;
     private final GameGrid grid;
     private final Map<Long, Character> players;
@@ -60,10 +67,12 @@ public class TicTacToeGame implements Bet<Character> {
     private long startedAt;
     private Message message;
     private GameHandler gameHandler;
+    private MessageDeleteHandler messageDeleteHandler;
     private BetStatus status;
 
     public TicTacToeGame(UserEconomyRepository ecoRepo, BetGameRepository betRepo,
-                         GameParticipantRepository betUsersRepo, JDA api, int prizeValue, int gridSize) {
+                         GameParticipantRepository betUsersRepo, AppUserBanRepository appBanRepo,
+                         JDA api, int prizeValue, int gridSize) {
         Checks.notNull(ecoRepo, "Economy Repository");
         Checks.notNull(betRepo, "Bet Repository");
         Checks.notNull(betUsersRepo, "Bet Users Repository");
@@ -77,6 +86,7 @@ public class TicTacToeGame implements Bet<Character> {
         this.ecoRepo = ecoRepo;
         this.betRepo = betRepo;
         this.betUsersRepo = betUsersRepo;
+        this.appBanRepo = appBanRepo;
         this.api = api;
         this.grid = new GameGrid(gridSize);
         this.players = new HashMap<>(2);
@@ -86,8 +96,9 @@ public class TicTacToeGame implements Bet<Character> {
     }
 
     public TicTacToeGame(UserEconomyRepository ecoRepo, BetGameRepository betRepo,
-                         GameParticipantRepository betUsersRepo, JDA api, int prizeValue) {
-        this(ecoRepo, betRepo, betUsersRepo, api, prizeValue, DEFAULT_GRID_SIZE);
+                         GameParticipantRepository betUsersRepo, AppUserBanRepository appBanRepo,
+                         JDA api, int prizeValue) {
+        this(ecoRepo, betRepo, betUsersRepo, appBanRepo, api, prizeValue, DEFAULT_GRID_SIZE);
     }
 
     @Override
@@ -101,10 +112,13 @@ public class TicTacToeGame implements Bet<Character> {
         this.startedAt = Bot.unixNow();
         this.status = BetStatus.RUNNING;
         this.gameHandler = new GameHandler();
+        this.messageDeleteHandler = new MessageDeleteHandler(appBanRepo);
         this.currentPlayerId = pickRandomPlayer();
 
         betManager.addBets(this, players.keySet());
-        memoryManager.registerListeners(gameHandler);
+        memoryManager.registerListeners(this.gameHandler);
+        api.addEventListener(this.messageDeleteHandler);
+
         api.retrieveUserById(currentPlayerId).queue(user -> {
             MessageEmbed embed = EmbedFactory.embedTicTacToeGame(user);
             List<ActionRow> rows = Stream.of(EntityContextFactory.createTicTacToeTable(id, currentPlayerId, grid))
@@ -114,7 +128,7 @@ public class TicTacToeGame implements Bet<Character> {
             message.editMessageEmbeds(embed)
                     .setComponents(rows)
                     .setReplace(true)
-                    .queue((v) -> this.scheduler.start());
+                    .queue((v) -> this.scheduler.start(), DEF_ERR_HANDLER);
         }, (err) -> LOGGER.error("Could not find user for ID {}", currentPlayerId, err));
     }
 
@@ -131,7 +145,8 @@ public class TicTacToeGame implements Bet<Character> {
 
         // Remove bets and listeners regardless of the result
         betManager.removeBets(players.keySet());
-        memoryManager.removeListener(gameHandler);
+        memoryManager.removeListener(this.gameHandler);
+        api.removeEventListener(this.messageDeleteHandler);
 
         finalizeGame(exitStatus, timeEnded);
     }
@@ -143,8 +158,10 @@ public class TicTacToeGame implements Bet<Character> {
         this.status = BetStatus.TIMED_OUT;
         long timeEnded = Bot.unixNow();
         long targetId = this.currentPlayerId;
+
         betManager.removeBets(players.keySet());
-        memoryManager.removeListener(gameHandler);
+        memoryManager.removeListener(this.gameHandler);
+        api.removeEventListener(this.messageDeleteHandler);
 
         int penaltyAmount = Math.round(this.prizeValue * TIMEOUT_PENALTY_RATE);
         try {
@@ -277,7 +294,7 @@ public class TicTacToeGame implements Bet<Character> {
             MessageEmbed embed = EmbedFactory.embedTicTacToeEnd(winner);
             message.editMessageEmbeds(embed)
                     .setReplace(true)
-                    .queue();
+                    .queue(null, DEF_ERR_HANDLER);
 
             persist(exitStatus, timeEnded);
 
@@ -390,6 +407,82 @@ public class TicTacToeGame implements Bet<Character> {
                 }
             }
             return '\0';
+        }
+    }
+
+    @DiscordEventHandler
+    public class MessageDeleteHandler extends ListenerAdapter {
+        private final AppUserBanRepository appBanRepo;
+
+        private MessageDeleteHandler(AppUserBanRepository appBanRepo) {
+            this.appBanRepo = appBanRepo;
+        }
+
+        @Override
+        public void onMessageDelete(MessageDeleteEvent e) {
+            if (e.getMessageIdLong() != message.getIdLong()) return;
+
+            Guild guild = e.getGuild();
+            long originalAuthorId = message.getAuthor().getIdLong();
+            guild.retrieveAuditLogs().type(ActionType.MESSAGE_DELETE).limit(1).queue((entries) -> {
+                AuditLogEntry entry = entries.isEmpty() ? null : entries.getFirst();
+
+                if (entry == null) return;
+
+                /*
+                 * Discord does not provide information on who originally sent a deleted message,
+                 * not even in an AuditLog entry.
+                 * We can only determine who deleted the message (`authorId`) and the author
+                 * of this message (`targetId`). We are limited to these two values.
+                 *
+                 * Since multiple messages from the same user (this bot) can be deleted
+                 * in a very short period of time (like milliseconds or even nanoseconds),
+                 * there's a chance we may retrieve data related to another message
+                 * from the same user a few milliseconds later.
+                 *
+                 * The best we can do here is to verify whether the authors of both messages are the same.
+                 * However, there is still a risk we must take.
+                 */
+                long delAuthorId = entry.getUserIdLong(); // The user who deleted the message
+                long targetId = entry.getTargetIdLong(); // The author of the deleted message
+
+                // Authors don't match, we fetched the wrong message :/
+                // (or the bot deleted its own message lol)
+                if (targetId != originalAuthorId) return;
+
+                // As the authors match, we ban this user and terminate the match.
+                // If we ban the wrong one, all they have to do is text me and ask for unban ^^
+                end(new GameArgs(false));
+                appBanUser(delAuthorId);
+            });
+        }
+
+        private void appBanUser(long userId) {
+            long validity = Bot.unixNow() + TimeUnit.DAYS.toSeconds(7);
+
+            AppUserBan ban = new AppUserBan(userId, "Deleted a TicTacToe message", validity);
+            try {
+                appBanRepo.save(ban);
+                sendWarning(userId);
+            } catch (DataAccessException e) {
+                LOGGER.error("Could not save application ban of user {}", userId, e);
+            }
+        }
+
+        private void sendWarning(long userId) {
+            MessageChannel chan = message.getChannel();
+
+            try {
+                User author = api.retrieveUserById(userId).complete();
+                MessageEmbed embed = EmbedFactory.embedTicTacToeDeleted(author, message.getGuild());
+
+                chan.sendMessage(author.getAsMention())
+                        .setEmbeds(embed)
+                        .queue();
+            } catch (ErrorResponseException e) {
+                // Well, its not our day :/
+                LOGGER.error("Could not fetch the user who deleted the message ({})", userId, e);
+            }
         }
     }
 }

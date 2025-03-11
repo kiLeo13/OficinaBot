@@ -3,9 +3,7 @@ package ofc.bot.listeners.discord.interactions.buttons.bets;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import ofc.bot.Main;
-import ofc.bot.domain.sqlite.repository.BetGameRepository;
-import ofc.bot.domain.sqlite.repository.GameParticipantRepository;
-import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
+import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.games.betting.GameArgs;
 import ofc.bot.handlers.games.betting.tictactoe.TicTacToeGame;
@@ -23,12 +21,14 @@ public class TicTacToeAcceptHandler implements InteractionListener<ButtonClickCo
     private final UserEconomyRepository ecoRepo;
     private final BetGameRepository betRepo;
     private final GameParticipantRepository betUsersRepo;
+    private final AppUserBanRepository appBanRepo;
 
     public TicTacToeAcceptHandler(UserEconomyRepository ecoRepo, BetGameRepository betRepo,
-                                  GameParticipantRepository betUsersRepo) {
+                                  GameParticipantRepository betUsersRepo, AppUserBanRepository appBanRepo) {
         this.ecoRepo = ecoRepo;
         this.betRepo = betRepo;
         this.betUsersRepo = betUsersRepo;
+        this.appBanRepo = appBanRepo;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class TicTacToeAcceptHandler implements InteractionListener<ButtonClickCo
         if (error != null) return error;
 
         Message msg = ctx.getMessage();
-        TicTacToeGame game = new TicTacToeGame(ecoRepo, betRepo, betUsersRepo, api, amount);
+        TicTacToeGame game = new TicTacToeGame(ecoRepo, betRepo, betUsersRepo, appBanRepo, api, amount);
         game.join(authorId, userId);
 
         game.start(new GameArgs(msg));

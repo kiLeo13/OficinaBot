@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.domain.entity.Birthday;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.sqlite.repository.BirthdayRepository;
-import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
+import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.util.content.Channels;
 import ofc.bot.util.content.annotations.jobs.CronJob;
 import org.quartz.Job;
@@ -49,12 +49,12 @@ public class BirthdayReminder implements Job {
 
         for (Birthday entry : birthdays) {
             ZoneOffset userOffset = ZoneOffset.ofHours(entry.getZoneHours());
-            LocalDateTime userLocalTime = LocalDateTime.now(Clock.system(userOffset));
+            LocalDateTime userLocalTime = LocalDateTime.now(userOffset);
             LocalDate birthdayDate = entry.getBirthday();
             Guild guild = channel.getGuild();
             String name = entry.getName();
             long userId = entry.getUserId();
-            int turnAge = resolveAge(birthdayDate);
+            int turnAge = resolveAge(birthdayDate, userOffset);
 
             // This cron job runs every hour, so we must check if this is equal to 0 (midnight)
             // to aviod notifying users like... 24 times in a day for the same birthday, yknow
@@ -107,8 +107,8 @@ public class BirthdayReminder implements Job {
         );
     }
 
-    private int resolveAge(LocalDate birth) {
-        LocalDate now = LocalDate.now();
+    private int resolveAge(LocalDate birth, ZoneOffset userOffset) {
+        LocalDate now = LocalDate.now(userOffset);
         return Period.between(birth, now).getYears();
     }
 }

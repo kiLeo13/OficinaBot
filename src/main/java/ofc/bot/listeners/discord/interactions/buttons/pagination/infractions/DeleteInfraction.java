@@ -61,7 +61,7 @@ public class DeleteInfraction implements InteractionListener<ButtonClickContext>
                     targetId, guildId, InfractionsCommand.PAGE_SIZE, newPageIndex, showInactive);
 
             if (infrs.isEmpty()) {
-                ctx.reply(Status.USER_HAS_NO_INFRACTIONS);
+                ctx.edit(Status.USER_HAS_NO_INFRACTIONS);
                 return;
             }
 

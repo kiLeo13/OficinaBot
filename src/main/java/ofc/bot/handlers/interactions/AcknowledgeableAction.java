@@ -136,13 +136,26 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
     }
 
     @NotNull
+    public final InteractionResult reply(@NotNull String content, boolean ephemeral) {
+        return create(ephemeral).setContent(content).send();
+    }
+
+    @NotNull
     public final InteractionResult reply(@NotNull String content) {
         return reply(content, false);
+    }
+
+    public final InteractionResult edit(@NotNull String content) {
+        return create().setContent(content).edit();
     }
 
     @NotNull
     public final InteractionResult replyEmbeds(boolean ephemeral, @NotNull MessageEmbed... embeds) {
         return create(ephemeral).setEmbeds(embeds).send();
+    }
+
+    public final InteractionResult editEmbeds(@NotNull MessageEmbed... embeds) {
+        return create().setEmbeds(embeds).edit();
     }
 
     @NotNull
@@ -156,8 +169,8 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
     }
 
     @NotNull
-    public final InteractionResult reply(@NotNull String content, boolean ephemeral) {
-        return create(ephemeral).setContent(content).send();
+    public final InteractionResult edit(InteractionResult res) {
+        return edit(res.getContent());
     }
 
     @NotNull
@@ -165,8 +178,14 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
         return replyEmbeds(false, embeds);
     }
 
+    @NotNull
     public final InteractionResult replyFiles(@NotNull FileUpload... files) {
         return create().setFiles(files).send();
+    }
+
+    @NotNull
+    public final InteractionResult editFiles(@NotNull FileUpload... files) {
+        return create().setFiles().send();
     }
 
     public final InteractionResult replyFile(@NotNull byte[] data, @NotNull String fileName) {

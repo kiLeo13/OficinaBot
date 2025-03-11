@@ -8,9 +8,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.entity.UserXP;
 import ofc.bot.domain.entity.enums.PolicyType;
-import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
-import ofc.bot.domain.sqlite.repository.Repositories;
-import ofc.bot.domain.sqlite.repository.UserXPRepository;
+import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.util.content.Channels;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,11 +18,13 @@ public final class LevelManager {
     private static LevelManager instance;
     private final UserXPRepository xpRepo;
     private final LevelRoleRepository lvlRoleRepo;
+    private final AppUserBanRepository appBanRepo;
     private final Set<Long> policyCache;
 
     private LevelManager() {
         this.xpRepo = Repositories.getUserXPRepository();
         this.lvlRoleRepo = Repositories.getLevelRoleRepository();
+        this.appBanRepo = Repositories.getAppUserBanRepository();
         this.policyCache = Repositories.getEntityPolicyRepository().findSetByType(PolicyType.BLOCK_XP_GAINS);
     }
 
@@ -41,7 +41,7 @@ public final class LevelManager {
         long userId = member.getIdLong();
         long chanId = channel.getIdLong();
 
-        if (isExcluded(member, chanId)) return;
+        if (appBanRepo.isBanned(userId) || isExcluded(member, chanId)) return;
 
         UserXP userXp = xpRepo.findByUserId(userId, UserXP.fromUserId(userId));
         int xpMod = userXp.getXp() + xp;
