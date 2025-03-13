@@ -14,6 +14,7 @@ import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
+import ofc.bot.internal.data.BotProperties;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
@@ -153,12 +154,24 @@ public class UserinfoCommand extends SlashCommand {
     }
 
     private String getTitle(User user) {
-        MemberEmoji emoji = emjRepo.findByUserId(user.getIdLong());
+        long userId = user.getIdLong();
+        boolean isDev = userId == BotProperties.DEV_ID;
         String name = user.getEffectiveName();
+        String emojiView = resolveEmoji(userId, isDev);
 
-        return emoji == null
+        return emojiView == null
                 ? String.format(CustomUserinfo.DEFAULT_TITLE_FORMAT, name)
-                : emoji.getEmoji() + " " + name;
+                : emojiView + " " + name;
+    }
+
+    private String resolveEmoji(long userId, boolean isDev) {
+        if (isDev) {
+            String emojiFormat = BotProperties.fetch("dev.emoji");
+            if (emojiFormat != null) return emojiFormat;
+        }
+
+        MemberEmoji emoji = emjRepo.findByUserId(userId);
+        return emoji == null ? null : emoji.getEmoji();
     }
 
     private String getDescription(UserinfoView cs, Member member) {
