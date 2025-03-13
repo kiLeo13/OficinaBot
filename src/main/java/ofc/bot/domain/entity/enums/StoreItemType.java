@@ -5,9 +5,9 @@ import java.util.List;
 public enum StoreItemType {
     GROUP(              "Grupo",                600_000),
     GROUP_TEXT_CHANNEL( "Chat de Texto",        412_500),
-    ADDITIONAL_BOT(     "Bot Adicional",        337_500),
     GROUP_VOICE_CHANNEL("Chat de Voz",          300_000),
     UPDATE_GROUP(       "Modificação de Grupo", 187_500),
+    ADDITIONAL_BOT(     "Bot Adicional",        80_000),
     GROUP_SLOT(         "Vaga de Grupo",        75_000),
     GROUP_PERMISSION(   "Permissão de Grupo",   15_000),
     PIN_MESSAGE(        "Fixar Mensagem",       8_000);
