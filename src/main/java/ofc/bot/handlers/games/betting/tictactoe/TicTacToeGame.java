@@ -51,7 +51,7 @@ public class TicTacToeGame implements Bet<Character> {
     public static final float TIMEOUT_PENALTY_RATE = 1.25f; // Yes, 125%
     private static final Logger LOGGER = LoggerFactory.getLogger(TicTacToeGame.class);
     private static final ErrorHandler DEF_ERR_HANDLER = new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE);
-    private static final int MAX_PLAYERS = 2;
+    private static final int REQUIRED_PLAYERS = 2;
     private static final InteractionMemoryManager memoryManager = InteractionMemoryManager.getManager();
     private static final Random RANDOM = new Random();
     private static final BetManager betManager = BetManager.getManager();
@@ -108,7 +108,7 @@ public class TicTacToeGame implements Bet<Character> {
     public void start(GameArgs args) {
         if (this.status == GameStatus.RUNNING) return;
 
-        if (players.size() != MAX_PLAYERS)
+        if (players.size() != REQUIRED_PLAYERS)
             failPlayers();
 
         this.message = args.get(0);
@@ -243,7 +243,12 @@ public class TicTacToeGame implements Bet<Character> {
 
     @Override
     public int getMaxUsers() {
-        return MAX_PLAYERS;
+        return REQUIRED_PLAYERS;
+    }
+
+    @Override
+    public int getMinUsers() {
+        return REQUIRED_PLAYERS;
     }
 
     private long findLoserId() {
@@ -346,7 +351,7 @@ public class TicTacToeGame implements Bet<Character> {
     @Contract("-> fail")
     private void failPlayers() {
         throw new BetGameCreationException(String.format("TicTacToe game must have exactly %d players, provided: %d",
-                MAX_PLAYERS, players.size()));
+                REQUIRED_PLAYERS, players.size()));
     }
 
     @Contract("_ -> fail")

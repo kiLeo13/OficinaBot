@@ -58,11 +58,20 @@ public interface Game {
     Set<Long> getWinners();
 
     /**
-     * Gets the max amount of users that can join this game.
+     * Gets the maximum amount of users that can join this game.
      *
      * @return The max amount of users allowed to join this game, or {@code 0} if there is no limit.
      */
     int getMaxUsers();
+
+    /**
+     * Gets the minimum amount of users that should join this game.
+     * <p>
+     * It is expected from the implementor to never return negative values.
+     *
+     * @return The always-positive min amount of users to start this game.
+     */
+    int getMinUsers();
 
     default boolean isParticipating(long userId) {
         return getParticipants().contains(userId);
