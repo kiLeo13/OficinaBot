@@ -133,7 +133,7 @@ public class UserinfoCommand extends SlashCommand {
 
     private UserinfoView fetchUserinfo(long userId) {
         CustomUserinfo csInfo = csInfoRepo.findByUserId(userId, CustomUserinfo.fromUserId(userId));
-        UserEconomy userEco = ecoRepo.findByUserId(userId);
+        UserEconomy userEco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId));
         OficinaGroup group = groupRepo.findByOwnerId(userId);
         List<MarriageView> rels = marrRepo.viewByUserId(userId, MAX_MARRIAGE_DISPLAY);
         int relCount = marrRepo.countByUserId(userId);
