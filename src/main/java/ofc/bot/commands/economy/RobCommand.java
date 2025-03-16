@@ -85,7 +85,7 @@ public class RobCommand extends SlashCommand {
 
                 // Here, we can just handle the operation as if it was a normal user-actioned transaction,
                 // this way, we simplify the code and also uses ACID operations.
-                ecoRepo.transfer(targetId, issuerId, moneyStolen);
+                ecoRepo.transferWallet(targetId, issuerId, moneyStolen);
                 dispatchRobEvent(issuer, target, moneyStolen);
 
                 MessageEmbed embed = embedSuccess(issuer, target, moneyStolen);

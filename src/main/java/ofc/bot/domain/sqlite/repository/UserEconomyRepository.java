@@ -77,42 +77,26 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
                 .orElse(0);
     }
 
-    /**
-     * Transfers the money from the {@code from}'s wallet to {@code to}.
-     * <p>
-     * This method does not run any checks, except for "int32" overflows.
-     * <p>
-     * This method has 2 parameters ({@code send} and {@code take}) because it allows
-     * the caller to define some taxes over the money to be transferred.
-     *
-     * @param from Who is sending the money to {@code to}.
-     * @param to Who is receiving the money from {@code from}.
-     * @param send The amount to be sent to {@code to}.
-     * @param take The amount to be removed from {@code from}.
-     * @throws IllegalArgumentException If:
-     *            <ul>
-     *              <li>{@code send} or {@code take} are negative or {@code 0}.</li>
-     *              <li>{@code from} or {@code to} are {@code null}.</li>
-     *            </ul>
-     */
-    public void transfer(@NotNull UserEconomy from, @NotNull UserEconomy to, int send, int take) {
+    public void transfer(@NotNull UserEconomy from, @NotNull UserEconomy to, int sendWallet, int takeWallet, int sendBank, int takeBank) {
         Checks.notNull(from, "From User");
         Checks.notNull(to, "To User");
-        Checks.positive(send, "Send");
-        Checks.positive(take, "Take");
+        Checks.notNegative(sendWallet, "Send Wallet");
+        Checks.notNegative(takeWallet, "Take Wallet");
+        Checks.notNegative(sendBank, "Send Bank");
+        Checks.notNegative(takeBank, "Take Bank");
 
         ctx.transaction((cfg) -> {
             DSLContext trsCtx = cfg.dsl();
 
-            from.modifyBalance(-take, 0).tickUpdate();
-            to.modifyBalance(send, 0).tickUpdate();
+            from.modifyBalance(-takeWallet, -takeBank).tickUpdate();
+            to.modifyBalance(sendWallet, sendBank).tickUpdate();
 
             upsert(trsCtx, from);
             upsert(trsCtx, to);
         });
     }
 
-    public void transfer(long fromId, long toId, int send, int take) {
+    public void transfer(long fromId, long toId, int sendWallet, int takeWallet, int sendBank, int takeBank) {
         UserEconomy from = findByUserId(fromId);
 
         if (from == null)
@@ -121,15 +105,31 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
 
         // The receiver user does not have to actually exist, we can pseudo-generate a new one
         UserEconomy to = findByUserId(toId, UserEconomy.fromUserId(toId));
-        transfer(from, to, send, take);
+        transfer(from, to, sendWallet, takeWallet, sendBank, takeBank);
     }
 
-    public void transfer(UserEconomy from, UserEconomy to, int amount) {
-        transfer(from, to, amount, amount);
+    public void transfer(UserEconomy from, UserEconomy to, int wallet, int bank) {
+        transfer(from, to, wallet, wallet, bank, bank);
     }
 
-    public void transfer(long fromId, long toId, int amount) {
-        transfer(fromId, toId, amount, amount);
+    public void transfer(long fromId, long toId, int wallet, int bank) {
+        transfer(fromId, toId, wallet, wallet, bank, bank);
+    }
+
+    public void transferWallet(long fromId, long toId, int send, int take) {
+        transfer(fromId, toId, send, take, 0, 0);
+    }
+
+    public void transferWallet(long fromId, long toId, int amount) {
+        transferWallet(fromId, toId, amount, amount);
+    }
+
+    public void transferBank(long fromId, long toId, int send, int take) {
+        transfer(fromId, toId, 0, 0, send, take);
+    }
+
+    public void transferBank(long fromId, long toId, int amount) {
+        transferBank(fromId, toId, amount, amount);
     }
 
     public UserEconomy findByUserId(long userId) {

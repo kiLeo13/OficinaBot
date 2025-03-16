@@ -269,7 +269,7 @@ public class TicTacToeGame implements Bet<Character> {
     private void handlePayment(User winner, User loser) {
         long loserId = loser.getIdLong();
 
-        ecoRepo.transfer(loserId, winnerId, prizeValue);
+        ecoRepo.transferBank(loserId, winnerId, prizeValue);
         dispatchBetWinEvent(winner, loser);
     }
 
