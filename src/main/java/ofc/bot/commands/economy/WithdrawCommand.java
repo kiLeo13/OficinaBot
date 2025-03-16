@@ -33,7 +33,7 @@ public class WithdrawCommand extends SlashCommand {
         User user = ctx.getUser();
         long userId = user.getIdLong();
         UserEconomy userEco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId));
-        String amountInput = ctx.getSafeOption("amount", OptionMapping::getAsString);
+        String amountInput = ctx.getOption("amount", "all", OptionMapping::getAsString);
         int bank = userEco.getBank();
 
         if (betManager.isBetting(userId))
@@ -64,7 +64,7 @@ public class WithdrawCommand extends SlashCommand {
     protected void init() {
         setDesc("Saque dinheiro da sua conta bancária.");
 
-        addOpt(OptionType.STRING, "amount", "A quantia a ser sacada (forneça \"all\" sem aspas para sacar tudo).", true);
+        addOpt(OptionType.STRING, "amount", "A quantia a ser sacada (forneça \"all\" sem aspas para sacar tudo).");
     }
 
     private MessageEmbed embedInsufficient(User user) {

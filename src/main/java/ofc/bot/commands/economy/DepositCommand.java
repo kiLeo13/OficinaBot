@@ -33,7 +33,7 @@ public class DepositCommand extends SlashCommand {
         User user = ctx.getUser();
         long userId = user.getIdLong();
         UserEconomy userEco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId));
-        String amountInput = ctx.getSafeOption("amount", OptionMapping::getAsString);
+        String amountInput = ctx.getOption("amount", "all", OptionMapping::getAsString);
         int wallet = userEco.getWallet();
 
         if (betManager.isBetting(userId))
@@ -64,7 +64,7 @@ public class DepositCommand extends SlashCommand {
     protected void init() {
         setDesc("Deposite dinheiro na sua conta bancária.");
 
-        addOpt(OptionType.STRING, "amount", "A quantia a ser depositada (forneça \"all\" sem aspas para depositar tudo).", true);
+        addOpt(OptionType.STRING, "amount", "A quantia a ser depositada (forneça \"all\" sem aspas para depositar tudo).");
     }
 
     private MessageEmbed embedInsfficient(User user, int wallet) {
