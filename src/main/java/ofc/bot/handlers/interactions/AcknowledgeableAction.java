@@ -60,7 +60,7 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
     }
 
     public final long getUserId() {
-        return getUser().getIdLong();
+        return this.getUser().getIdLong();
     }
 
     @NotNull
@@ -145,37 +145,51 @@ public abstract class AcknowledgeableAction<T extends Interaction & IReplyCallba
         return reply(content, false);
     }
 
+    @NotNull
     public final InteractionResult edit(@NotNull String content) {
         return create().setContent(content).edit();
     }
 
     @NotNull
     public final InteractionResult replyEmbeds(boolean ephemeral, @NotNull MessageEmbed... embeds) {
-        return create(ephemeral).setEmbeds(embeds).send();
+        return replyEmbeds(Status.OK, ephemeral, embeds);
     }
 
+    public final InteractionResult replyEmbeds(InteractionResult result, boolean ephemeral, @NotNull MessageEmbed... embeds) {
+        return create(ephemeral).setEmbeds(embeds).send(result);
+    }
+
+    @NotNull
     public final InteractionResult editEmbeds(@NotNull MessageEmbed... embeds) {
         return create().setEmbeds(embeds).edit();
     }
 
     @NotNull
     public final InteractionResult reply(InteractionResult res, boolean ephemeral) {
-        return reply(res.getContent(), ephemeral);
+        reply(res.getContent(), ephemeral);
+        return res;
     }
 
     @NotNull
     public final InteractionResult reply(InteractionResult result) {
-        return reply(result.getContent(), result.isEphemeral());
+        reply(result.getContent(), result.isEphemeral());
+        return result;
     }
 
     @NotNull
     public final InteractionResult edit(InteractionResult res) {
-        return edit(res.getContent());
+        edit(res.getContent());
+        return res;
     }
 
     @NotNull
     public final InteractionResult replyEmbeds(@NotNull MessageEmbed... embeds) {
         return replyEmbeds(false, embeds);
+    }
+
+    @NotNull
+    public final InteractionResult replyEmbeds(InteractionResult result, @NotNull MessageEmbed... embeds) {
+        return replyEmbeds(result, false, embeds);
     }
 
     @NotNull

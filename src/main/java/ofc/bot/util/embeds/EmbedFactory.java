@@ -29,7 +29,8 @@ import java.util.*;
  */
 public final class EmbedFactory {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final Color DANGER_RED = new Color(255, 50, 50);
+    public static final Color DANGER_RED = new Color(255, 50, 50);
+    public static final Color OK_GREEN = new Color(80, 255, 80);
 
     private EmbedFactory() {}
 
@@ -187,6 +188,16 @@ public final class EmbedFactory {
 
     public static MessageEmbed embedPunishment(User user, PunishmentType action, String reason) {
         return embedPunishment(user, action, reason, 0);
+    }
+
+    public static MessageEmbed embedBankAction(User user, Color color, String format, Object... args) {
+        EmbedBuilder builder = new EmbedBuilder();
+
+        return builder
+                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                .setColor(color)
+                .setDescription(String.format(format, args))
+                .build();
     }
 
     public static MessageEmbed embedTicTacToeCreate(Guild guild, User author, User other, int amount) {
@@ -476,6 +487,8 @@ public final class EmbedFactory {
                  BET_PENALTY,
                  MARRIAGE_CREATED,
                  DAILY_COLLECTED -> "Membro";
+            case AMOUNT_ROBBED -> "Assaltante";
+            case AMOUNT_FINED -> "Multado";
             case BALANCE_SET,
                  BALANCE_UPDATED -> "Moderador";
             case ITEM_BOUGHT -> "Comprador";

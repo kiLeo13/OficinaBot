@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.FileUpload;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "rolemembers", description = "Veja os membros de um cargo")
+@DiscordCommand(name = "rolemembers")
 public class RoleMembersCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleMembersCommand.class);
 
@@ -49,10 +48,10 @@ public class RoleMembersCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.ROLE, "role", "O cargo a verificar os membros.", true)
-        );
+    protected void init() {
+        setDesc("Veja os membros de um cargo.");
+
+        addOpt(OptionType.ROLE, "role", "O cargo a verificar os membros.", true);
     }
 
     private void handleResponse(String formattedMembers, String statistics, SlashCommandContext cmd) {

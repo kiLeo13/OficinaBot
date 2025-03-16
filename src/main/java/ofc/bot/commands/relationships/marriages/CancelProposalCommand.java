@@ -3,7 +3,6 @@ package ofc.bot.commands.relationships.marriages;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.MarriageRequest;
 import ofc.bot.domain.sqlite.repository.MarriageRequestRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -15,9 +14,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "marriage cancel", description = "Cancele uma proposta de casamento enviada à alguém.")
+@DiscordCommand(name = "marriage cancel")
 public class CancelProposalCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(CancelProposalCommand.class);
     private final MarriageRequestRepository mreqRepo;
@@ -48,9 +45,9 @@ public class CancelProposalCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "A pessoa na qual você quer remover a proposta de casamento.", true)
-        );
+    protected void init() {
+        setDesc("Cancele uma proposta de casamento enviada à alguém.");
+
+        addOpt(OptionType.USER, "user", "A pessoa na qual você quer remover a proposta de casamento.", true);
     }
 }

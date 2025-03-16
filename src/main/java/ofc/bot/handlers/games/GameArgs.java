@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.NoSuchElementException;
 
 public class GameArgs {
+    public static final GameArgs EMPTY = new GameArgs();
     private final Object[] args;
 
     public GameArgs(@NotNull Object... args) {

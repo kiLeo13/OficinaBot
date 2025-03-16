@@ -18,8 +18,9 @@ import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import java.awt.*;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "levels-roles", description = "Mostra o cargo para cada nível.", cooldown = 10)
+@DiscordCommand(name = "levels-roles")
 public class LevelsRolesCommand extends SlashCommand {
     private static final Color BACKGROUND_COLOR = new Color(45, 44, 60);
     private final LevelRoleRepository lvlRoleRepo;
@@ -81,5 +82,11 @@ public class LevelsRolesCommand extends SlashCommand {
                     .add(roleDTO);
         }
         return payload;
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Mostra o cargo para cada nível.");
+        setCooldown(10, TimeUnit.SECONDS);
     }
 }

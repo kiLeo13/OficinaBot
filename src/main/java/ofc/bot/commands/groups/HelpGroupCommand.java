@@ -11,7 +11,7 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
-@DiscordCommand(name = "group help", description = "Mostra ajuda/informações sobre os grupos.")
+@DiscordCommand(name = "group help")
 public class HelpGroupCommand extends SlashSubcommand {
 
     @Override
@@ -20,6 +20,11 @@ public class HelpGroupCommand extends SlashSubcommand {
         MessageEmbed embed = embed(guild);
 
         return ctx.replyEmbeds(true, embed);
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Mostra ajuda/informações sobre os grupos.");
     }
 
     private MessageEmbed embed(Guild guild) {

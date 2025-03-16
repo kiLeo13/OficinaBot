@@ -3,7 +3,6 @@ package ofc.bot.commands.birthday;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.Birthday;
 import ofc.bot.domain.sqlite.repository.BirthdayRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -15,9 +14,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "birthday remove", description = "Remove um aniversário da agenda.")
+@DiscordCommand(name = "birthday remove")
 public class BirthdayRemoveCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(BirthdayRemoveCommand.class);
     private final BirthdayRepository bdayRepo;
@@ -45,9 +42,9 @@ public class BirthdayRemoveCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "O ID do usuário a ser removido.", true)
-        );
+    protected void init() {
+        setDesc("Remove um aniversário da agenda.");
+
+        addOpt(OptionType.USER, "user", "O usuário a ser removido.", true);
     }
 }

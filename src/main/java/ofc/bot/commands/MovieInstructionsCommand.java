@@ -15,11 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.UncheckedIOException;
 
-@DiscordCommand(
-        name = "movie",
-        description = "Fornece instruções para os usuários sobre como participar do CineMyuu.",
-        permission = Permission.MESSAGE_MANAGE
-)
+@DiscordCommand(name = "movie", permission = Permission.MESSAGE_MANAGE)
 public class MovieInstructionsCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(MovieInstructionsCommand.class);
     private static final File IMAGE_MOBILE = new File(BotFiles.DIR_ASSETS, "movie_instructions_mobile.png");
@@ -50,5 +46,10 @@ public class MovieInstructionsCommand extends SlashCommand {
             LOGGER.error("Could not send movie instructions", e);
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
         }
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Fornece instruções para os usuários sobre como participar do CineMyuu.");
     }
 }

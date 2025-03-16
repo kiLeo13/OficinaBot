@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.Main;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -25,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
-@DiscordCommand(name = "events", description = "Abra/Feche um evento.", permission = Permission.MANAGE_CHANNEL)
+@DiscordCommand(name = "events", permission = Permission.MANAGE_CHANNEL)
 public class ToggleEventsCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ToggleEventsCommand.class);
 
@@ -60,15 +59,14 @@ public class ToggleEventsCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "scope", "Qual área de eventos deve ser aberta?", true)
-                        .addChoices(getScopeChoices()),
+    protected void init() {
+        setDesc("Abra/Feche um evento.");
 
-                new OptionData(OptionType.STRING, "action", "O que deve ser feito no canal de eventos.", true)
-                        .addChoice("Start", "START")
-                        .addChoice("End", "END")
-        );
+        addOpt(OptionType.STRING, "scope", "Qual área de eventos deve ser aberta?", (it) -> it.setRequired(true)
+                .addChoices(getScopeChoices()));
+        addOpt(OptionType.STRING, "action", "O que deve ser feito no canal de eventos.", (it) -> it.setRequired(true)
+                .addChoice("Start", "START")
+                .addChoice("End", "END"));
     }
 
     private void end(GuildChannel chan, Role role) {

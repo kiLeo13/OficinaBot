@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.FormerMemberRole;
 import ofc.bot.domain.sqlite.repository.FormerMemberRoleRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -20,11 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 
-@DiscordCommand(
-        name = "backup",
-        description = "Recupere todos os cargos de um membro que saiu anteriormente (ou não).",
-        permission = Permission.MANAGE_SERVER
-)
+@DiscordCommand(name = "backup", permission = Permission.MANAGE_SERVER)
 public class BackupMemberRolesCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackupMemberRolesCommand.class);
     private final FormerMemberRoleRepository bckpRepo;
@@ -67,11 +62,11 @@ public class BackupMemberRolesCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "O alvo a devolver os cargos.", true),
-                new OptionData(OptionType.BOOLEAN, "keep", "Se devemos manter os cargos do backup assim que eles forem devolvidos ao membro (Padrão: False).")
-        );
+    protected void init() {
+        setDesc("Recupere todos os cargos de um membro que saiu anteriormente (ou não).");
+
+        addOpt(OptionType.USER, "user", "O alvo a devolver os cargos.", true);
+        addOpt(OptionType.BOOLEAN, "keep", "Se devemos manter os cargos do backup assim que eles forem devolvidos ao membro (Padrão: False).");
     }
 
     private List<Role> resolveRoles(Guild guild, List<FormerMemberRole> roles) {

@@ -11,7 +11,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@DiscordCommand(name = "customize reset", description = "Redefine todos os dados customizados do userinfo.")
+@DiscordCommand(name = "customize reset")
 public class ResetUserinfoCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResetUserinfoCommand.class);
     private final CustomUserinfoRepository csinfoRepo;
@@ -33,5 +33,10 @@ public class ResetUserinfoCommand extends SlashSubcommand {
             LOGGER.error("Could not reset userinfo customization of user '{}'", userId, e);
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
         }
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Redefine todos os dados customizados do userinfo.");
     }
 }

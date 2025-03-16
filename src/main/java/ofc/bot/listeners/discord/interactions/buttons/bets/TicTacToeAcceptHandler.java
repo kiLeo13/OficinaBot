@@ -53,8 +53,8 @@ public class TicTacToeAcceptHandler implements InteractionListener<ButtonClickCo
         if (betManager.isBetting(authorId)) return Status.MEMBER_IS_BETTING_PLEASE_WAIT.args(authorId);
         if (betManager.isBetting(userId)) return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
-        if (!ecoRepo.hasEnough(authorId, amount)) return Status.MEMBER_INSUFFICIENT_BALANCE.args(authorId);
-        if (!ecoRepo.hasEnough(userId, amount)) return Status.INSUFFICIENT_BALANCE;
+        if (!ecoRepo.hasEnoughBank(authorId, amount)) return Status.MEMBER_INSUFFICIENT_BALANCE.args(authorId);
+        if (!ecoRepo.hasEnoughBank(userId, amount)) return Status.INSUFFICIENT_BALANCE;
         return null;
     }
 }

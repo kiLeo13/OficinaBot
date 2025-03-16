@@ -33,11 +33,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(
-        name = "refresh-staff",
-        description = "Atualize a lista de membros da staff.",
-        permission = Permission.ADMINISTRATOR
-)
+@DiscordCommand(name = "refresh-staff", permission = Permission.ADMINISTRATOR)
 public class RefreshStaffListMessageCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RefreshStaffListMessageCommand.class);
     protected static final File FILE = new File(BotFiles.DIR_CONTENT, "staffconfig.json");
@@ -185,5 +181,10 @@ public class RefreshStaffListMessageCommand extends SlashCommand {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Atualize a lista de membros da staff.");
     }
 }

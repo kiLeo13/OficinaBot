@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
-@DiscordCommand(name = "work", description = "Trabalhe para ganhar dinheiro.")
+@DiscordCommand(name = "work")
 public class WorkCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkCommand.class);
     private static final Random random = new Random();
@@ -76,7 +76,7 @@ public class WorkCommand extends SlashCommand {
         UserEconomy eco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId));
         long now = Bot.unixNow();
 
-        eco.modifyBalance(value)
+        eco.modifyBalance(value, 0)
                 .setLastWorkAt(now)
                 .setLastUpdated(now);
         ecoRepo.upsert(eco);
@@ -95,5 +95,10 @@ public class WorkCommand extends SlashCommand {
     private void dispatchWorkExecutedEvent(long userId, int amount) {
         BankTransaction tr = new BankTransaction(userId, amount, CurrencyType.OFICINA, TransactionType.WORK_EXECUTED);
         EventBus.dispatchEvent(new BankTransactionEvent(tr));
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Trabalhe para ganhar dinheiro.");
     }
 }

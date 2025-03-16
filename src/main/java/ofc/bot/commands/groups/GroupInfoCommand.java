@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
@@ -22,8 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "group info", description = "Mostra informações sobre o seu grupo.", cooldown = 30)
+@DiscordCommand(name = "group info")
 public class GroupInfoCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupInfoCommand.class);
     private final BankTransactionRepository bankTrRepo;
@@ -63,10 +63,11 @@ public class GroupInfoCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.INTEGER, "group", "O grupo que você deseja saber as informações", false, true)
-        );
+    protected void init() {
+        setDesc("Mostra informações sobre o seu grupo.");
+        setCooldown(30, TimeUnit.SECONDS);
+
+        addOpt(OptionType.INTEGER, "group", "O grupo que você deseja saber as informações", false, true);
     }
 
     private MessageEmbed embed(int color, List<Member> members, Guild guild, OficinaGroup group) {

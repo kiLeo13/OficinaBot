@@ -3,7 +3,6 @@ package ofc.bot.commands.policies;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.EntityPolicy;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.entity.enums.ResourceType;
@@ -23,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@DiscordCommand(name = "policies add", description = "Adiciona uma regra à um módulo do bot.")
+@DiscordCommand(name = "policies add")
 public class AddPolicyCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddPolicyCommand.class);
     private final PolicyService policyService = PolicyService.getService();
@@ -55,16 +54,14 @@ public class AddPolicyCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "policy", "A regra a ser definida.", true)
-                        .addChoices(getPolicyTypeChoices()),
+    protected void init() {
+        setDesc("Adiciona uma regra à um módulo do bot.");
 
-                new OptionData(OptionType.STRING, "resource-type", "O tipo de valor a ser fornecido.", true)
-                        .addChoices(getResourceTypeChoices()),
-
-                new OptionData(OptionType.STRING, "resource", "O valor a ser definido.", true, true)
-        );
+        addOpt(OptionType.STRING, "policy", "A regra a ser definida.", (it) -> it.setRequired(true)
+                .addChoices(getPolicyTypeChoices()));
+        addOpt(OptionType.STRING, "resource-type", "O tipo de valor a ser fornecido.", (it) -> it.setRequired(true)
+                .addChoices(getResourceTypeChoices()));
+        addOpt(OptionType.STRING, "resource", "O valor a ser definido.", true, true);
     }
 
     private String formatResourceTypes(List<ResourceType> types) {

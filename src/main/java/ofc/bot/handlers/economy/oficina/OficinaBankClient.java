@@ -32,8 +32,15 @@ public class OficinaBankClient implements PaymentManager {
 
     @Override
     public BankAccount set(long userId, long cash, long bank, String reason) {
+        if (cash < Integer.MIN_VALUE || cash > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("This economy supports only 32-bits values, provided for wallet: " + cash);
+
+        if (bank < Integer.MIN_VALUE || bank > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("This economy supports only 32-bits values, provided for bank: " + bank);
+
         UserEconomy eco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId))
-                .setBalance(bank)
+                .setWallet((int) cash)
+                .setBank((int) bank)
                 .tickUpdate();
 
         ecoRepo.upsert(eco);
@@ -47,8 +54,10 @@ public class OficinaBankClient implements PaymentManager {
 
     @Override
     public BankAccount update(long userId, long cash, long bank, String reason) {
+        // For update operations, there are not much checks we can run without unnecessary overhead,
+        // so lets just cross our fingers and bank it on SQLite if something goes wrong ^^
         UserEconomy eco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId))
-                .modifyBalance(bank)
+                .modifyBalance((int) cash, (int) bank)
                 .tickUpdate();
 
         ecoRepo.upsert(eco);

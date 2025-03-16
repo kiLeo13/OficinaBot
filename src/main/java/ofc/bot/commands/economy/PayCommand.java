@@ -3,14 +3,11 @@ package ofc.bot.commands.economy;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import ofc.bot.domain.entity.AppUser;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
-import ofc.bot.domain.sqlite.repository.UserRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -23,19 +20,18 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "pay", description = "Envie dinheiro para outro usuário.", cooldown = 30)
+@DiscordCommand(name = "pay")
 public class PayCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(PayCommand.class);
     private static final BetManager betManager = BetManager.getManager();
-    private static final double TAX_PER_EXECUTION = 1 - 0.05; // 5%
+    private static final float TAX_PER_EXECUTION = 0.95f; // 5%
+    private static final int TAX_THRESHOLD = 10;
     private final UserEconomyRepository ecoRepo;
-    private final UserRepository userRepo;
 
-    public PayCommand(UserEconomyRepository ecoRepo, UserRepository userRepo) {
+    public PayCommand(UserEconomyRepository ecoRepo) {
         this.ecoRepo = ecoRepo;
-        this.userRepo = userRepo;
     }
 
     @Override
@@ -47,17 +43,17 @@ public class PayCommand extends SlashCommand {
         if (betManager.isBetting(issuerId))
             return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
 
-        long senderBalance = ecoRepo.fetchBalanceByUserId(issuerId);
-        long amountTotal = parseAmountToPay(amountInput, senderBalance);
         long targetId = target.getIdLong();
-        long amountToSend = amountTotal >= 10
-                ? (long) (amountTotal * TAX_PER_EXECUTION)
-                : amountTotal;
+        int amountWallet = ecoRepo.fetchWalletByUserId(issuerId);
+        int total = Bot.parseAmount(amountInput, amountWallet);
+        int amountToSend = total >= TAX_THRESHOLD
+                ? (int) (total * TAX_PER_EXECUTION)
+                : total;
 
-        if (amountTotal > senderBalance)
-            return Status.INSUFFICIENT_BALANCE_VALUE.args(Bot.fmtNum(amountTotal - senderBalance));
+        if (total > amountWallet)
+            return Status.INSUFFICIENT_BALANCE_VALUE.args(Bot.fmtNum(total - amountWallet));
 
-        if (amountTotal <= 0)
+        if (total <= 0)
             return Status.INVALID_VALUE_PROVIDED.args(amountInput);
 
         if (targetId == issuerId)
@@ -67,10 +63,9 @@ public class PayCommand extends SlashCommand {
             return Status.CANNOT_TRANSFER_TO_BOTS;
 
         try {
-            ecoRepo.transfer(issuerId, targetId, amountToSend, amountTotal);
-            userRepo.upsert(AppUser.fromUser(target));
+            ecoRepo.transfer(issuerId, targetId, amountToSend, total);
 
-            dispatchSendMoneyEvent(issuerId, targetId, amountTotal);
+            dispatchSendMoneyEvent(issuerId, targetId, total);
 
             return Status.TRANSACTION_SUCCESSFUL.args(
                     Bot.fmtNum(amountToSend),
@@ -83,46 +78,12 @@ public class PayCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "O usuário para enviar o dinheiro.", true),
+    protected void init() {
+        setDesc("Envie dinheiro para outro usuário.");
+        setCooldown(30, TimeUnit.SECONDS);
 
-                // We use the String data type here to make the "all" shortcut possible
-                new OptionData(OptionType.STRING, "amount", "A quantia a ser enviada (forneça \"all\" sem aspas para transferir tudo).", true)
-        );
-    }
-
-    /**
-     * Attempts to parse a raw or shortened value (integer) provided directly by the user
-     * through the {@code amount} command argument.
-     * <p>
-     * If the amount cannot be resolved, {@code -1} is returned instead.
-     * <p>
-     * <strong>This method does not include taxes.</strong>
-     *
-     * @param input The input value provided by the issuer.
-     * @param userBalance The current balance of the issuer.
-     * @return The resolved amount intended to be sent.
-     */
-    private long parseAmountToPay(String input, long userBalance) {
-        if (input.equalsIgnoreCase("all"))
-            return userBalance;
-
-        String inputlc = input.toLowerCase();
-
-        // By using replaceFirst() we ensure that users will not make
-        // mistakes such as sending an obscene amount of money,
-        // by "unwantingly" providing "5mm" and sending, yknow... "5000000000000"
-        String parse = inputlc
-                .replaceFirst("k", "000")
-                .replaceFirst("kk", "000000")
-                .replaceFirst("m", "000000");
-
-        try {
-            return Long.parseLong(parse);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
+        addOpt(OptionType.USER, "user", "O usuário para enviar o dinheiro.", true);
+        addOpt(OptionType.STRING, "amount", "A quantia a ser enviada (forneça \"all\" sem aspas para transferir tudo).", true);
     }
 
     private void dispatchSendMoneyEvent(long senderId, long targetId, long amount) {

@@ -32,7 +32,6 @@ public @interface DiscordCommand {
      * @return the executable slash command name.
      */
     String name();
-    String description();
 
     /**
      * The permission the user must have in order to execute the command.
@@ -50,12 +49,4 @@ public @interface DiscordCommand {
      * @return the required permission to run the command.
      */
     Permission permission() default Permission.UNKNOWN;
-
-    /**
-     * The amount of seconds that EACH user must wait before
-     * using the same command again.
-     *
-     * @return The cooldown in seconds.
-     */
-    int cooldown() default 0;
 }

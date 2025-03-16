@@ -10,7 +10,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
-@DiscordCommand(name = "changelog", description = "Cria um novo registro no changelog.", permission = Permission.ADMINISTRATOR)
+@DiscordCommand(name = "changelog", permission = Permission.ADMINISTRATOR)
 public class CreateChangelogEntryCommand extends SlashCommand {
 
     @Override
@@ -28,5 +28,10 @@ public class CreateChangelogEntryCommand extends SlashCommand {
                 .build();
 
         return ctx.replyModal(modal);
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Cria um novo registro no changelog.");
     }
 }

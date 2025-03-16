@@ -1,50 +1,56 @@
 package ofc.bot.handlers.interactions.commands.slash.abstractions;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.exceptions.CommandCreationException;
-import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class AbstractSlashCommand implements ICommand<SlashCommandContext> {
-    // Mapping <UserID, LastUsed>
-    private final Map<Long, Long> cooldownMapper;
     private final String fullName;
-    private final String description;
     private final Permission permission;
-    private final int cooldown;
+    private final List<OptionData> options;
+    private String description;
+    private long cooldown; // In seconds
 
     public AbstractSlashCommand() {
         this.fullName = getValue(DiscordCommand::name).replace("/", "");
-        this.description = getValue(DiscordCommand::description);
         this.permission = getValue(DiscordCommand::permission);
-        this.cooldown = getValue(DiscordCommand::cooldown);
-        this.cooldownMapper = this.cooldown == 0 ? Collections.emptyMap() : new HashMap<>();
+        this.options = new ArrayList<>();
 
         // If the full qualified name contains spaces but is NOT a subcommand...
         // This is not allowed
         if (isCompoundName() && !isSubcommand())
             throw new IllegalStateException("Comand names cannot contain spaces");
 
-        if (this.cooldown < 0)
-            throw new CommandCreationException("Command cooldown may not be negative, provided: " + this.cooldown);
+        init();
     }
 
     public AbstractSlashCommand(String fullName, String description, Permission permission, int cooldown) {
         this.fullName = fullName;
         this.description = description;
         this.permission = permission;
+        this.options = new ArrayList<>();
         this.cooldown = cooldown;
-        this.cooldownMapper = this.cooldown == 0 ? Collections.emptyMap() : new HashMap<>();
 
         if (this.cooldown < 0)
             throw new CommandCreationException("Command cooldown may not be negative, provided: " + this.cooldown);
     }
+
+    /**
+     * Initializes options, description and other properties of a command.
+     * <p>
+     * Only called in the empty parameters constructor.
+     */
+    protected abstract void init();
 
     @Override
     public final String getQualifiedName() {
@@ -62,48 +68,85 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
     }
 
     @Override
-    public final int getCooldown() {
+    public final List<OptionData> getOptions() {
+        return this.options;
+    }
+
+    @Override
+    public final long getCooldown() {
         return this.cooldown;
     }
 
-    @Override
-    public long cooldownRemain(long userId) {
-        int cooldown = getCooldown();
-        long period = getUserCooldown(userId);
-
-        return cooldown == 0 ? 0 : cooldown - period;
+    protected final void setDesc(@NotNull String desc) {
+        this.description = desc;
     }
 
-    private boolean hasCooldown() {
-        return this.cooldown > 0;
+    protected final void setCooldown(int period, TimeUnit unit) {
+        this.cooldown = unit.toSeconds(period);
     }
 
-    @Override
-    public final void tickCooldown(long userId) {
-        if (!hasCooldown()) return;
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc,
+                                boolean required, boolean autoComplete, double minRange, double maxRange) {
+        OptionData opt = new OptionData(type, name, desc, required, autoComplete)
+                .setRequiredRange(minRange, maxRange);
 
-        this.cooldownMapper.put(userId, Bot.unixNow());
+        this.options.add(opt);
     }
 
-    /*
-     * Returns how many seconds have passed since the user ran the command
-     * for the last time.
-     *
-     * This method will always return "Long.MAX_VALUE" when either:
-     *
-     * - No cooldown is set for this command.
-     * - The user issued this command for the first time.
-     */
-    private long getUserCooldown(long userId) {
-        if (cooldown == 0)
-            return Long.MAX_VALUE;
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc,
+                                boolean required, boolean autoComplete, long minRange, long maxRange) {
+        OptionData opt = new OptionData(type, name, desc, required, autoComplete);
+        switch (type) {
+            case INTEGER, NUMBER -> opt.setRequiredRange(minRange, maxRange);
+            case STRING -> opt.setRequiredLength((int) minRange, (int) maxRange);
+            default -> throw new IllegalArgumentException("Ranges are not allowed for Option Type: " + type);
+        }
+        this.options.add(opt);
+    }
 
-        Long lastUsed = cooldownMapper.get(userId);
-        long now = Bot.unixNow();
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc,
+                                boolean required, boolean autoComplete) {
+        this.options.add(new OptionData(type, name, desc, required, autoComplete));
+    }
 
-        if (lastUsed == null)
-            return Long.MAX_VALUE;
-        return now - lastUsed;
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc, boolean required) {
+        this.addOpt(type, name, desc, required, false);
+    }
+
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc, boolean required,
+                                long minRange, long maxRange) {
+        this.addOpt(type, name, desc, required, false, minRange, maxRange);
+    }
+
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc, boolean required,
+                                double minRange, double maxRange) {
+        this.addOpt(type, name, desc, required, false, minRange, maxRange);
+    }
+
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc,
+                                double minRange, double maxRange) {
+        this.addOpt(type, name, desc, false, false, minRange, maxRange);
+    }
+
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc,
+                                long minRange, long maxRange) {
+        this.addOpt(type, name, desc, false, false, minRange, maxRange);
+    }
+
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc) {
+        this.addOpt(type, name, desc, false, false);
+    }
+
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name,
+                                @NotNull String desc, boolean required, @NotNull Consumer<OptionData> mod) {
+        OptionData opt = new OptionData(type, name, desc, required);
+        mod.accept(opt);
+        this.options.add(opt);
+    }
+
+    protected final void addOpt(@NotNull OptionType type, @NotNull String name,
+                                @NotNull String desc, @NotNull Consumer<OptionData> mod) {
+        this.addOpt(type, name, desc, false, mod);
     }
 
     private <T> T getValue(Function<DiscordCommand, T> mapper) {

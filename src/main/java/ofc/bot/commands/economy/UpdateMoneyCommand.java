@@ -4,13 +4,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -22,13 +21,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(
-        name = "update-money",
-        description = "ATUALIZA o saldo do usuário fornecido com a quantia fornecida, valores negativos removerão dinheiro.",
-        permission = Permission.MANAGE_SERVER
-)
+@DiscordCommand(name = "update-money", permission = Permission.MANAGE_SERVER)
 public class UpdateMoneyCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateMoneyCommand.class);
     private final UserEconomyRepository ecoRepo;
@@ -41,24 +34,31 @@ public class UpdateMoneyCommand extends SlashCommand {
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         User issuer = ctx.getUser();
         User target = ctx.getOption("target", issuer, OptionMapping::getAsUser);
-        long amount = ctx.getSafeOption("amount", OptionMapping::getAsLong);
+        int bank = ctx.getSafeOption("bank", OptionMapping::getAsInt);
+        int wallet = ctx.getSafeOption("cash", OptionMapping::getAsInt);
         long issuerId = ctx.getUserId();
         long targetId = target.getIdLong();
 
-        if (amount == 0)
-            return Status.NOTHING_CHANGED_WITH_REASON.args("`$0` foi fornecido");
+        if (bank == 0 && wallet == 0)
+            return Status.NOTHING_CHANGED_WITH_REASON.args("`$0` foi fornecido em ambos os argumentos");
 
         try {
             UserEconomy eco = ecoRepo.findByUserId(targetId, UserEconomy.fromUserId(targetId));
+            long walletResult = eco.getWallet() + (long) wallet;
+            long bankResult = eco.getBank() + (long) bank;
 
-            if (Bot.overflows(eco.getBalance(), amount))
+            if (walletResult < 0)
+                return Status.WALLET_CANNOT_BE_NEGATIVE;
+
+            if (bankResult > Integer.MAX_VALUE || walletResult > Integer.MAX_VALUE)
                 return Status.USER_CANNOT_RECEIVE_GIVEN_AMOUNT;
 
-            eco.modifyBalance(amount).tickUpdate();
+            eco.modifyBalance(wallet, bank).tickUpdate();
             ecoRepo.upsert(eco);
-            dispatchBalanceUpdateEvent(issuerId, targetId, amount);
 
-            return Status.ECONOMY_SUCCESSFULLY_UPDATED_BALANCE.args(target.getAsMention(), Bot.fmtNum(amount));
+            long total = eco.getTotal();
+            dispatchBalanceUpdateEvent(issuerId, targetId, total);
+            return Status.ECONOMY_SUCCESSFULLY_UPDATED_BALANCE.args(target.getAsMention(), Bot.fmtNum(total));
         } catch (DataAccessException e) {
             LOGGER.error("Could not access balance of '{}'", targetId, e);
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
@@ -66,13 +66,12 @@ public class UpdateMoneyCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.INTEGER, "amount", "A quantia a ser atualizada.", true)
-                        .setRequiredRange((long) OptionData.MIN_NEGATIVE_NUMBER, (long) OptionData.MAX_POSITIVE_NUMBER),
+    protected void init() {
+        setDesc("ATUALIZA o saldo do usuário fornecido com a quantia fornecida, valores negativos removerão dinheiro.");
 
-                new OptionData(OptionType.USER, "target", "O alvo a atualizar o saldo.")
-        );
+        addOpt(OptionType.INTEGER, "cash", "A quantia a ser atualizada no cash.", true, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        addOpt(OptionType.INTEGER, "bank", "A quantia a ser atualizada no bank.", true, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        addOpt(OptionType.USER, "target", "O alvo a atualizar o saldo.");
     }
 
     private void dispatchBalanceUpdateEvent(long userId, long targetId, long amount) {

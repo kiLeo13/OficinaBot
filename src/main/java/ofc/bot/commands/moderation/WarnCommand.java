@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.sqlite.repository.AutomodActionRepository;
 import ofc.bot.domain.sqlite.repository.MemberPunishmentRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -18,13 +17,7 @@ import ofc.bot.handlers.moderation.PunishmentManager;
 import ofc.bot.handlers.moderation.Reason;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
-import java.util.List;
-
-@DiscordCommand(
-        name = "warn",
-        description = "Puna um membro por alguma conduta indevida.",
-        permission = Permission.BAN_MEMBERS
-)
+@DiscordCommand(name = "warn", permission = Permission.BAN_MEMBERS)
 public class WarnCommand extends SlashCommand {
     private final PunishmentManager punishmentManager;
 
@@ -54,11 +47,10 @@ public class WarnCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "member", "O membro a ser advertido.", true),
-                new OptionData(OptionType.STRING, "reason", "O motivo da punição.", true)
-                        .setRequiredLength(5, 2000)
-        );
+    protected void init() {
+        setDesc("Puna um membro por alguma conduta indevida.");
+
+        addOpt(OptionType.USER, "member", "O membro a ser advertido.", true);
+        addOpt(OptionType.STRING, "reason", "O motivo da punição.", true, 5, 2000);
     }
 }

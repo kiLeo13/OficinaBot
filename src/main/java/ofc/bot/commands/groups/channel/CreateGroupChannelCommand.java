@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
@@ -18,13 +17,9 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(
-        name = "group channel create",
-        description = "Cria um novo canal ao grupo.",
-        cooldown = 10
-)
+@DiscordCommand(name = "group channel create")
 public class CreateGroupChannelCommand extends SlashSubcommand {
     private final OficinaGroupRepository grpRepo;
 
@@ -65,12 +60,13 @@ public class CreateGroupChannelCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "type", "O tipo de canal a ser criado", true)
+    protected void init() {
+        setDesc("Cria um novo canal ao grupo.");
+        setCooldown(10, TimeUnit.SECONDS);
+
+        addOpt(OptionType.STRING, "type", "O tipo de canal a ser criado", (it) -> it.setRequired(true)
                         .addChoice("🔊 Voice", ChannelType.VOICE.name())
-                        .addChoice("📖 Text", ChannelType.TEXT.name())
-        );
+                        .addChoice("📖 Text", ChannelType.TEXT.name()));
     }
 
     private boolean hasChannelOfType(OficinaGroup group, ChannelType type) {

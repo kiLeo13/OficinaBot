@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.ImageProxy;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -18,10 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.InputStream;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-@DiscordCommand(name = "avatar", description = "Mostra o avatar de um usuário.")
+@DiscordCommand(name = "avatar")
 public class AvatarCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(AvatarCommand.class);
 
@@ -72,11 +70,11 @@ public class AvatarCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "O usuário a verificar o avatar."),
-                new OptionData(OptionType.BOOLEAN, "local", "Se o avatar mostrado deve ser o específico do servidor atual (Padrão: False).")
-        );
+    protected void init() {
+        setDesc("Mostra o avatar de um usuário.");
+
+        addOpt(OptionType.USER, "user", "O usuário a verificar o avatar.");
+        addOpt(OptionType.BOOLEAN, "local", "Se o avatar mostrado deve ser o específico do servidor atual (Padrão: False).");
     }
 
     private boolean isAnimated(String url) {

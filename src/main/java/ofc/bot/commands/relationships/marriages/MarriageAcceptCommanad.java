@@ -5,16 +5,14 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.commands.relationships.MarryCommand;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.TransactionType;
-import ofc.bot.domain.sqlite.DB;
 import ofc.bot.domain.sqlite.repository.MarriageRepository;
 import ofc.bot.domain.sqlite.repository.MarriageRequestRepository;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -22,14 +20,13 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
-import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@DiscordCommand(name = "marriage accept", description = "Aceite uma proposta de casamento.")
+@DiscordCommand(name = "marriage accept")
 public class MarriageAcceptCommanad extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarriageAcceptCommanad.class);
     private final MarriageRequestRepository mreqRepo;
@@ -82,10 +79,10 @@ public class MarriageAcceptCommanad extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "A pessoa na qual você quer aceitar o pedido de casamento.", true)
-        );
+    protected void init() {
+        setDesc("Aceite uma proposta de casamento.");
+
+        addOpt(OptionType.USER, "user", "A pessoa na qual você quer aceitar o pedido de casamento.", true);
     }
 
     private boolean isAffordable(UserEconomy user1, UserEconomy user2) {
@@ -93,27 +90,17 @@ public class MarriageAcceptCommanad extends SlashSubcommand {
     }
 
     private boolean checkBalance(UserEconomy user) {
-        return user != null && user.getBalance() >= MarryCommand.INITIAL_MARRIAGE_COST;
+        return user != null && user.getWallet() >= MarryCommand.INITIAL_MARRIAGE_COST;
     }
 
-    private void chargeMarriage(UserEconomy ecoSender, UserEconomy ecoTarget, int price) {
-        DSLContext ctx = DB.getContext();
+    private void chargeMarriage(UserEconomy sender, UserEconomy target, int price) {
+        sender.modifyBalance(-price, 0).tickUpdate();
+        target.modifyBalance(-price, 0).tickUpdate();
 
-        ecoSender.modifyBalance(-price)
-                .tickUpdate();
-
-        ecoTarget.modifyBalance(-price)
-                .tickUpdate();
-
-        ctx.transaction((cfg) -> {
-            DSLContext trs = cfg.dsl();
-
-            ecoRepo.updateCtx(trs, ecoSender);
-            ecoRepo.updateCtx(trs, ecoTarget);
-        });
-
-        dispatchMarriageCreateEvent(ecoSender.getUserId(), price);
-        dispatchMarriageCreateEvent(ecoTarget.getUserId(), price);
+        ecoRepo.transactionUpserts(List.of(sender, target), (s) -> {
+            dispatchMarriageCreateEvent(sender.getUserId(), price);
+            dispatchMarriageCreateEvent(target.getUserId(), price);
+        }, (err) -> LOGGER.error("Could not send marriages to the database", err));
     }
 
     private void accept(MarriageRequest req) {

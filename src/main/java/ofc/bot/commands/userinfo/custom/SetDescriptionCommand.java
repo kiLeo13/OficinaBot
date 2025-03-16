@@ -3,7 +3,6 @@ package ofc.bot.commands.userinfo.custom;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.CustomUserinfo;
 import ofc.bot.domain.sqlite.repository.CustomUserinfoRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -15,9 +14,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "customize description", description = "Define/reseta a descrição da embed apresentada no userinfo.")
+@DiscordCommand(name = "customize description")
 public class SetDescriptionCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(SetDescriptionCommand.class);
     private final CustomUserinfoRepository csinfoRepo;
@@ -48,10 +45,9 @@ public class SetDescriptionCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "description", "A descrição da embed do userinfo. Ignore ou forneça \"remove\" para remover.")
-                        .setRequiredLength(1, 200)
-        );
+    protected void init() {
+        setDesc("Define/reseta a descrição da embed apresentada no userinfo.");
+
+        addOpt(OptionType.STRING, "description", "A descrição da embed do userinfo. Ignore ou forneça \"remove\" para remover.", 1, 200);
     }
 }

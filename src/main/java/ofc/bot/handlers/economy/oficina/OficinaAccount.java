@@ -8,15 +8,17 @@ import ofc.bot.handlers.economy.CurrencyType;
 
 public class OficinaAccount implements BankAccount {
     private final long userId;
-    private long balance;
+    private int wallet;
+    private int bank;
 
-    protected OficinaAccount(long userId, long balance) {
+    protected OficinaAccount(long userId, int wallet, int bank) {
         this.userId = userId;
-        this.balance = balance;
+        this.wallet = wallet;
+        this.bank = bank;
     }
 
     protected static OficinaAccount from(UserEconomy eco) {
-        return new OficinaAccount(eco.getUserId(), eco.getBalance());
+        return new OficinaAccount(eco.getUserId(), eco.getWallet(), eco.getBank());
     }
 
     @Override
@@ -31,17 +33,17 @@ public class OficinaAccount implements BankAccount {
 
     @Override
     public long getCash() {
-        return 0L;
+        return this.wallet;
     }
 
     @Override
     public long getBank() {
-        return this.balance;
+        return this.bank;
     }
 
     @Override
     public long getTotal() {
-        return this.balance;
+        return this.wallet + this.bank;
     }
 
     @Override
@@ -57,23 +59,45 @@ public class OficinaAccount implements BankAccount {
 
     @Override
     public BankAccount setCash(long cash) {
+        if (cash < Integer.MIN_VALUE || cash > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("This economy only supports 32-bits values, provided: " + cash);
+
+        this.wallet = (int) cash;
         return this;
     }
 
     @Override
     public BankAccount modifyCash(long cash) {
+        long result = this.wallet + cash;
+
+        if (result < Integer.MIN_VALUE || result > Integer.MAX_VALUE)
+            throw new UnsupportedOperationException(String.format(
+                    "This economy only supports 32-bits values, but the result of (%d + %d) is %d",
+                    this.wallet, cash, result));
+
+        this.wallet = (int) result;
         return this;
     }
 
     @Override
     public BankAccount setBank(long bank) {
-        this.balance = bank;
+        if (bank < Integer.MIN_VALUE || bank > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("This economy only supports 32-bits values, provided: " + bank);
+
+        this.bank = (int) bank;
         return this;
     }
 
     @Override
     public BankAccount modifyBank(long bank) {
-        this.balance += bank;
+        long result = this.bank + bank;
+
+        if (result < Integer.MIN_VALUE || result > Integer.MAX_VALUE)
+            throw new UnsupportedOperationException(String.format(
+                    "This economy only supports 32-bits values, but the result of (%d + %d) is %d",
+                    this.bank, bank, result));
+
+        this.bank = (int) result;
         return this;
     }
 

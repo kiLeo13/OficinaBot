@@ -56,6 +56,27 @@ public final class Bot {
         return obj == null ? fallback : obj;
     }
 
+    public static int parseAmount(String input, int balance) {
+        if (input.equalsIgnoreCase("all"))
+            return balance;
+
+        String inputlc = input.toLowerCase();
+
+        // By using replaceFirst() we ensure that users will not make
+        // mistakes such as sending an obscene amount of money,
+        // by "unwantingly" providing "5mm" and sending, yknow... "5000000000000"
+        String parse = inputlc
+                .replaceFirst("k", "000")
+                .replaceFirst("kk", "000000")
+                .replaceFirst("m", "000000");
+
+        try {
+            return Integer.parseInt(parse);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
     public static String limitStr(String str, int limit) {
         if (limit <= 3)
             throw new IllegalArgumentException("Limit cannot be less than or equal to 3");

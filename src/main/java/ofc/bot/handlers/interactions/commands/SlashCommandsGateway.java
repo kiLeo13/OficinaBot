@@ -61,19 +61,20 @@ public class SlashCommandsGateway extends ListenerAdapter {
 
         // Is the user banned from our application?
         if (appBanRepo.isBanned(userId)) {
+            LOGGER.warn("User {} attempted to invoke {} but is banned", user.getName(), fullName);
             ctx.reply(Status.YOU_ARE_BANNED_FROM_THIS_BOT);
             return;
         }
 
-        long remains = cmd.cooldownRemain(userId);
-        if (!member.hasPermission(Permission.MANAGE_SERVER) && cmd.inCooldown(userId)) {
-            ctx.reply(Status.PLEASE_WAIT_COOLDOWN.args(Bot.parsePeriod(remains)));
-            LOGGER.warn("User '@{} [{}]' hit command \"/{}\" rate-limit, time remain: {}s", user.getName(), userId, fullName, remains);
+        long remain = member.hasPermission(Permission.MANAGE_SERVER) ? 0 : checkCooldown(userId, cmd);
+        if (remain > 0) {
+            ctx.reply(Status.PLEASE_WAIT_COOLDOWN.args(Bot.parsePeriod(remain)));
+            LOGGER.warn("User '@{} [{}]' hit command \"/{}\" rate-limit, time remain: {}s",
+                    user.getName(), userId, fullName, remain);
             return;
         }
 
         handleCommand(ctx, cmd);
-        cmd.tickCooldown(userId);
     }
 
     private void handleCommand(SlashCommandContext ctx, ICommand<SlashCommandContext> cmd) {
@@ -102,7 +103,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
                     ctx.reply(res);
                 }
 
-                CommandHistory entry = new CommandHistory(cmdName, status, guildId, userId);
+                CommandHistory entry = new CommandHistory(cmdName, status, res.ticksCooldown(), guildId, userId);
                 cmdRepo.save(entry);
             } catch (DataAccessException e) {
                 LOGGER.warn("Could not save Slash Command activity to database", e);
@@ -113,5 +114,14 @@ public class SlashCommandsGateway extends ListenerAdapter {
                 ctx.reply("Ocorreu um erro :/", true);
             }
         });
+    }
+
+    private long checkCooldown(long userId, ICommand<?> cmd) {
+        long cooldown = cmd.getCooldown();
+        if (cooldown == 0) return 0;
+
+        long lastCall = cmdRepo.getLastCall(userId, cmd.getQualifiedName());
+        long now = Bot.unixNow();
+        return lastCall + cooldown - now;
     }
 }

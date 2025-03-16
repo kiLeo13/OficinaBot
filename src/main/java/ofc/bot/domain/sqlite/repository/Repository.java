@@ -8,6 +8,7 @@ import org.jooq.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * The abstract repository for database operations.
@@ -15,7 +16,6 @@ import java.util.List;
  * @param <T> the type of the entity.
  */
 public abstract class Repository<T extends OficinaRecord<T>> {
-    public static final int MAX_BATCH_SIZE = 1000;
     protected final DSLContext ctx;
 
     public Repository(@NotNull DSLContext ctx) {
@@ -38,6 +38,10 @@ public abstract class Repository<T extends OficinaRecord<T>> {
      * @see #upsert(OficinaRecord)
      */
     public final void save(@NotNull T rec) {
+        save(this.getContext(), rec);
+    }
+
+    public final void save(@NotNull DSLContext ctx, @NotNull T rec) {
         ctx.insertInto(rec.getTable())
                 .set(rec.intoMap())
                 .onConflictDoNothing()
@@ -52,6 +56,20 @@ public abstract class Repository<T extends OficinaRecord<T>> {
      * @see #save(OficinaRecord)
      */
     public final void upsert(@NotNull T rec) {
+        upsert(this.getContext(), rec);
+    }
+
+    public final void transactionUpserts(List<T> recs, Consumer<Void> success, Consumer<Throwable> failure) {
+        this.ctx.transaction((cfg) -> {
+            DSLContext trsCtx = cfg.dsl();
+
+            for (T rec : recs) {
+                upsert(trsCtx, rec);
+            }
+        });
+    }
+
+    public final void upsert(@NotNull DSLContext ctx, @NotNull T rec) {
         ctx.insertInto(rec.getTable())
                 .set(rec.intoMap())
                 .onDuplicateKeyUpdate()

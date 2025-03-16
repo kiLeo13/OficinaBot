@@ -2,7 +2,6 @@ package ofc.bot.commands.policies;
 
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.EntityPolicy;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
@@ -16,9 +15,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "policies remove", description = "Remove uma regra de um módulo do bot.")
+@DiscordCommand(name = "policies remove")
 public class RemovePolicyCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemovePolicyCommand.class);
     private final PolicyService policyService = PolicyService.getService();
@@ -49,12 +46,11 @@ public class RemovePolicyCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "policy", "A regra a ser removida.", true)
-                        .addChoices(AddPolicyCommand.getPolicyTypeChoices()),
+    protected void init() {
+        setDesc("Remove uma regra de um módulo do bot.");
 
-                new OptionData(OptionType.STRING, "resource", "O valor a ser removido.", true)
-        );
+        addOpt(OptionType.STRING, "policy", "A regra a ser removida.", (it) -> it.setRequired(true)
+                .addChoices(AddPolicyCommand.getPolicyTypeChoices()));
+        addOpt(OptionType.STRING, "resource", "O valor a ser removido.", true);
     }
 }

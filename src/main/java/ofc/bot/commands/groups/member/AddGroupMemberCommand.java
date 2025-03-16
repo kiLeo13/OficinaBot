@@ -3,7 +3,6 @@ package ofc.bot.commands.groups.member;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
@@ -21,10 +20,7 @@ import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@DiscordCommand(
-        name = "group member add",
-        description = "Adiciona um membro ao seu grupo."
-)
+@DiscordCommand(name = "group member add")
 public class AddGroupMemberCommand extends SlashSubcommand {
     private final BankTransactionRepository bankTrRepo;
     private final OficinaGroupRepository grpRepo;
@@ -75,10 +71,10 @@ public class AddGroupMemberCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "member", "O membro que você deseja adicionar no seu grupo.", true)
-        );
+    protected void init() {
+        setDesc("Adiciona um membro ao seu grupo.");
+
+        addOpt(OptionType.USER, "member", "O membro que você deseja adicionar no seu grupo.", true);
     }
 
     private boolean hasFreeSlots(OficinaGroup group) {

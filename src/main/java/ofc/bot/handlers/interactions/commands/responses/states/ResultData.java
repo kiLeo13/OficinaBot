@@ -43,4 +43,9 @@ public class ResultData implements InteractionResult {
     public boolean isEphemeral() {
         return this.ephemeral;
     }
+
+    @Override
+    public boolean ticksCooldown() {
+        return getStatus().ticksCooldown();
+    }
 }

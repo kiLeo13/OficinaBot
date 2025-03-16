@@ -18,11 +18,7 @@ import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import java.util.ArrayList;
 import java.util.List;
 
-@DiscordCommand(
-        name = "staff-regenerate",
-        description = "Regenere as mensagens do chat staffs-oficina.",
-        permission = Permission.ADMINISTRATOR
-)
+@DiscordCommand(name = "staff-regenerate", permission = Permission.ADMINISTRATOR)
 public class StaffListMessagesRegenerateCommand extends SlashCommand {
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
@@ -65,5 +61,10 @@ public class StaffListMessagesRegenerateCommand extends SlashCommand {
         Bot.writeToFile(json, RefreshStaffListMessageCommand.FILE);
 
         return ctx.reply("Todas as mensagens foram regeneradas! Use `.staffs` para atualizar os dados.");
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Regenere as mensagens do chat staffs-oficina.");
     }
 }

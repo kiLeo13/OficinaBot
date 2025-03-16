@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.sqlite.repository.UserNameUpdateRepository;
@@ -27,11 +26,7 @@ import java.util.stream.Stream;
  * Pagination handled at
  * {@link ofc.bot.listeners.discord.interactions.buttons.pagination.NamesPageUpdate NamesPageUpdate}.
  */
-@DiscordCommand(
-        name = "names",
-        description = "Veja o histórico de apelidos de um usuário.",
-        permission = Permission.MANAGE_SERVER
-)
+@DiscordCommand(name = "names", permission = Permission.MANAGE_SERVER)
 public class NamesHistoryCommand extends SlashCommand {
     private final UserNameUpdateRepository namesRepo;
 
@@ -62,13 +57,12 @@ public class NamesHistoryCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "O usuário a procurar pelo histórico de apelidos.", true),
+    protected void init() {
+        setDesc("Veja o histórico de apelidos de um usuário.");
 
-                new OptionData(OptionType.STRING, "type", "O tipo de nome a ser recuperado.", true)
-                        .addChoices(getTypeChoices())
-        );
+        addOpt(OptionType.USER, "user", "O usuário a procurar pelo histórico de apelidos.", true);
+        addOpt(OptionType.STRING, "type", "O tipo de nome a ser recuperado.", (it) -> it.setRequired(true)
+                .addChoices(getTypeChoices()));
     }
 
     private List<Command.Choice> getTypeChoices() {

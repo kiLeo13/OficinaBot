@@ -129,13 +129,16 @@ public final class CommandsInitializer {
                 new BirthdaysCommand(bdayRepo),
 
                 // Economy
-                new DailyCommand(ecoRepo),
                 new BalanceCommand(ecoRepo),
+                new DailyCommand(ecoRepo),
+                new DepositCommand(ecoRepo),
                 new LeaderboardCommand(ecoRepo),
-                new PayCommand(ecoRepo, userRepo),
+                new PayCommand(ecoRepo),
+                new RobCommand(ecoRepo),
                 new SetMoneyCommand(ecoRepo),
                 new TransactionsCommand(),
                 new UpdateMoneyCommand(ecoRepo),
+                new WithdrawCommand(ecoRepo),
                 new WorkCommand(ecoRepo),
 
                 // Levels

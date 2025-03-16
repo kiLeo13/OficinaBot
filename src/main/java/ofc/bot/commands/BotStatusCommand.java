@@ -12,7 +12,7 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
-@DiscordCommand(name = "status", description = "Veja os status do bot :)")
+@DiscordCommand(name = "status")
 public class BotStatusCommand extends SlashCommand {
     private static final long megaBytes = 1024 * 1024;
 
@@ -66,5 +66,10 @@ public class BotStatusCommand extends SlashCommand {
                 .addField("🤝 Active Threads", threads, true)
                 .setColor(Bot.Colors.DISCORD)
                 .build();
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Veja os status do bot :)");
     }
 }

@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -18,13 +17,7 @@ import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(
-        name = "among",
-        description = "Permite staffs em Ajudantes Superior+ a darem o cargo de Já Participou Among Us.",
-        permission = Permission.MANAGE_ROLES
-)
+@DiscordCommand(name = "among", permission = Permission.MANAGE_ROLES)
 public class RoleAmongUsCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleAmongUsCommand.class);
 
@@ -62,9 +55,9 @@ public class RoleAmongUsCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "member", "O usuário a dar o cargo.", true)
-        );
+    protected void init() {
+        setDesc("Permite staffs em Ajudantes Superior+ a darem o cargo de Já Participou Among Us.");
+
+        addOpt(OptionType.USER, "member", "O usuário a dar o cargo.", true);
     }
 }

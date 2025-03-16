@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -20,7 +19,7 @@ import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 
 import java.util.List;
 
-@DiscordCommand(name = "group leave", description = "Saia de um grupo específico.")
+@DiscordCommand(name = "group leave")
 public class LeaveGroupCommand extends SlashSubcommand {
     private static final String PI_VALUE = "3141592653";
     private static final String FAKE_PI = "3141593428";
@@ -74,13 +73,12 @@ public class LeaveGroupCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.INTEGER, "group", "O grupo que deseja sair (pesquise pelo nome, emoji ou id do cargo).", true, true),
-                new OptionData(OptionType.STRING, "pi-confirmation", "Insira os 10 primeiros dígitos de PI (sem vírgula e/ou ponto).", true, true)
-                        .setRequiredLength(10, 10),
-                new OptionData(OptionType.BOOLEAN, "silent", "Sair sem avisar no chat (Padrão: false).")
-        );
+    protected void init() {
+        setDesc("Saia de um grupo específico.");
+
+        addOpt(OptionType.INTEGER, "group", "O grupo que deseja sair (pesquise pelo nome, emoji ou id do cargo).", true, true);
+        addOpt(OptionType.STRING, "pi-confirmation", "Insira os 10 primeiros dígitos de PI (sem vírgula e/ou ponto).", true, true, 10, 10);
+        addOpt(OptionType.BOOLEAN, "silent", "Sair sem avisar no chat (Padrão: false).");
     }
 
     private boolean isPresent(List<Role> roles, long roleId) {

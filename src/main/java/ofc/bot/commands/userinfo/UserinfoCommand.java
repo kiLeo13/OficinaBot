@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.User.Profile;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.domain.viewmodels.MarriageView;
@@ -22,7 +21,7 @@ import java.awt.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-@DiscordCommand(name = "userinfo", description = "Comando usado para saber informaçõe gerais do membro no servidor e do usuário do Discord.")
+@DiscordCommand(name = "userinfo")
 public class UserinfoCommand extends SlashCommand {
     private static final int MAX_MARRIAGE_DISPLAY = 20;
     private final CustomUserinfoRepository csInfoRepo;
@@ -64,10 +63,10 @@ public class UserinfoCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "member", "O usuário a verificar as informações.")
-        );
+    protected void init() {
+        setDesc("Comando usado para saber informaçõe gerais do membro no servidor e do usuário do Discord.");
+
+        addOpt(OptionType.USER, "member", "O usuário a verificar as informações.");
     }
 
     private MessageEmbed embed(UserinfoView cs, Member target, Profile profile) {
@@ -139,7 +138,7 @@ public class UserinfoCommand extends SlashCommand {
         List<MarriageView> rels = marrRepo.viewByUserId(userId, MAX_MARRIAGE_DISPLAY);
         int relCount = marrRepo.countByUserId(userId);
 
-        return new UserinfoView(csInfo, group, rels, relCount, userId, userEco.getBalance());
+        return new UserinfoView(csInfo, group, rels, relCount, userId, userEco.getTotal());
     }
 
     private Color getColor(UserinfoView cs, Member member) {

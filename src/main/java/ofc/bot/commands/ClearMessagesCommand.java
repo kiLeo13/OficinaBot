@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -15,14 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(
-        name = "clear",
-        description = "Limpa de 2 a 100 mensagens do chat de uma só vez.",
-        cooldown = 1,
-        permission = Permission.MESSAGE_MANAGE
-)
+@DiscordCommand(name = "clear", permission = Permission.MESSAGE_MANAGE)
 public class ClearMessagesCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClearMessagesCommand.class);
 
@@ -48,14 +42,12 @@ public class ClearMessagesCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.INTEGER, "amount", "A quantidade de mensagens a ser limpada.", true)
-                        .setRequiredRange(2, 100),
+    protected void init() {
+        setDesc("Limpa de 2 a 100 mensagens do chat de uma só vez.");
+        setCooldown(1, TimeUnit.SECONDS);
 
-                new OptionData(OptionType.CHANNEL, "channel", "O canal ser limpado as mensagens (Padrão: atual).")
-                        .setChannelTypes(getTextChannelTypes())
-        );
+        addOpt(OptionType.INTEGER, "amount", "A quantidade de mensagens a ser limpada.", true, 2, 100);
+        addOpt(OptionType.CHANNEL, "channel", "O canal ser limpado as mensagens (Padrão: atual).", (it) -> it.setChannelTypes(getTextChannelTypes()));
     }
 
     private static ChannelType[] getTextChannelTypes() {

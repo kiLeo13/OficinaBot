@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.domain.viewmodels.LevelView;
@@ -20,7 +19,7 @@ import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@DiscordCommand(name = "levels", description = "Mostra o placar de líderes de nível.")
+@DiscordCommand(name = "levels")
 public class LevelsCommand extends SlashCommand {
     public static final int PAGE_SIZE = 10;
     private final UserXPRepository xpRepo;
@@ -54,10 +53,9 @@ public class LevelsCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.INTEGER, "page", "A página a ser mostrada.")
-                        .setRequiredRange(1, Integer.MAX_VALUE)
-        );
+    protected void init() {
+        setDesc("Mostra o placar de líderes de nível.");
+
+        addOpt(OptionType.INTEGER, "page", "A página a ser mostrada.", 1, Integer.MAX_VALUE);
     }
 }

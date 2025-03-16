@@ -6,10 +6,8 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.AppUser;
 import ofc.bot.domain.entity.MarriageRequest;
-import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -21,7 +19,7 @@ import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
 import java.util.List;
 
-@DiscordCommand(name = "marry", description = "Se case com outra pessoa.")
+@DiscordCommand(name = "marry")
 public class MarryCommand extends SlashCommand {
     public static final int INITIAL_MARRIAGE_COST = 25000;
     public static final int DAILY_COST = 150;
@@ -89,15 +87,14 @@ public class MarryCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "member", "O usuário com quem você quer se casar.", true)
-        );
+    protected void init() {
+        setDesc("Se case com outra pessoa.");
+
+        addOpt(OptionType.USER, "member", "O usuário com quem você quer se casar.", true);
     }
 
     private boolean hasEnoughBalance(long userId) {
-        UserEconomy ec = ecoRepo.findByUserId(userId);
-        return ec != null && ec.getBalance() >= MarryCommand.INITIAL_MARRIAGE_COST;
+        return ecoRepo.hasEnoughWallet(userId, MarryCommand.INITIAL_MARRIAGE_COST);
     }
 
     private boolean hitLimit(Member member) {

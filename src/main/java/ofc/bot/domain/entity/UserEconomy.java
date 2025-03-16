@@ -9,6 +9,8 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
 
     public static final String LEADERBOARD_ROW_FORMAT = "%d. `%s`**・**$%s";
     public static final String SYMBOL = "<a:coin:1160091618746060811>";
+    public static final String BANK_SYMBOL = "\uD83C\uDFE6";
+    public static final String WALLET_SYMBOL = "\uD83D\uDCB5";
     public static final String RANK_SYMBOL = "⬆️";
     public static final String BANK_ICON = "https://media.discordapp.net/attachments/506838906872922145/506899959816126493/h5D6Ei0.png";
     private boolean isGenerated;
@@ -18,10 +20,11 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
         this.isGenerated = false;
     }
 
-    public UserEconomy(long userId, long balance, long lastDailyAt, long lastWorkAt, long createdAt, long updatedAt) {
+    public UserEconomy(long userId, int wallet, int bank, long lastDailyAt, long lastWorkAt, long createdAt, long updatedAt) {
         this();
         set(USERS_ECONOMY.USER_ID, userId);
-        set(USERS_ECONOMY.BALANCE, balance);
+        set(USERS_ECONOMY.WALLET, wallet);
+        set(USERS_ECONOMY.BANK, bank);
         set(USERS_ECONOMY.LAST_DAILY_AT, lastDailyAt);
         set(USERS_ECONOMY.LAST_WORK_AT, lastWorkAt);
         set(USERS_ECONOMY.CREATED_AT, createdAt);
@@ -43,15 +46,23 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
      */
     public static UserEconomy fromUserId(long userId) {
         long now = Bot.unixNow();
-        return new UserEconomy(userId, 0, 0, 0, now, now);
+        return new UserEconomy(userId, 0, 0, 0, 0, now, now);
     }
 
     public long getUserId() {
         return get(USERS_ECONOMY.USER_ID);
     }
 
-    public long getBalance() {
-        return get(USERS_ECONOMY.BALANCE);
+    public int getBank() {
+        return get(USERS_ECONOMY.BANK);
+    }
+
+    public int getWallet() {
+        return get(USERS_ECONOMY.WALLET);
+    }
+
+    public long getTotal() {
+        return getWallet() + getBank();
     }
 
     public long getLastDailyAt() {
@@ -76,7 +87,7 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
      * Checks if this is a "generated" record.
      * <p>
      * Generated records are those from {@link #fromUserId(long)} calls
-     * and through the {@link #UserEconomy(long, long, long, long, long, long)} constructor.
+     * and through the {@link #UserEconomy(long, int, int, long, long, long, long)} constructor.
      * <p>
      * If the current record came from a database fetch, then this method will return {@code false}.
      *
@@ -91,8 +102,13 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
         return this;
     }
 
-    public UserEconomy setBalance(long balance) {
-        set(USERS_ECONOMY.BALANCE, balance);
+    public UserEconomy setBank(int value) {
+        set(USERS_ECONOMY.BANK, value);
+        return this;
+    }
+
+    public UserEconomy setWallet(int value) {
+        set(USERS_ECONOMY.WALLET, value);
         return this;
     }
 
@@ -106,8 +122,9 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
         return this;
     }
 
-    public UserEconomy modifyBalance(long amount) {
-        setBalance(getBalance() + amount);
+    public UserEconomy modifyBalance(int wallet, int bank) {
+        setWallet(getWallet() + wallet);
+        setBank(getBank() + bank);
         return this;
     }
 

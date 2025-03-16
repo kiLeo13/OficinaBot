@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import ofc.bot.handlers.interactions.EntityContextFactory;
@@ -14,12 +13,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
-import java.util.List;
-
-@DiscordCommand(
-        name = "additionals roles",
-        description = "Configura uma mensagem para membros ganharem cargos adicionais."
-)
+@DiscordCommand(name = "additionals roles")
 public class AdditionalRolesCommand extends SlashSubcommand {
 
     @Override
@@ -41,18 +35,14 @@ public class AdditionalRolesCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.CHANNEL, "channel", "O canal a ser enviado a mensagem do menu.", true)
-                        .setChannelTypes(ChannelType.TEXT),
+    protected void init() {
+        setDesc("Configura uma mensagem para membros ganharem cargos adicionais.");
 
-                new OptionData(OptionType.ATTACHMENT, "attachment", "A imagem/banner da embed."),
+        addOpt(OptionType.CHANNEL, "channel", "O canal a ser enviado a mensagem do menu.", true,
+                (it) -> it.setChannelTypes(ChannelType.TEXT));
 
-                new OptionData(OptionType.STRING, "color", "A cor da embed.")
-                        .setRequiredLength(6, 6),
-
-                new OptionData(OptionType.INTEGER, "max-choices", "Quantas opções o usuário pode, no máximo, escolher.")
-                        .setRequiredRange(1, SelectMenu.OPTIONS_MAX_AMOUNT)
-        );
+        addOpt(OptionType.ATTACHMENT, "attachment", "A imagem/banner da embed.");
+        addOpt(OptionType.STRING, "color", "A cor da embed.", 6, 6);
+        addOpt(OptionType.INTEGER, "max-choices", "Quantas opções o usuário pode, no máximo, escolher.", 1, SelectMenu.OPTIONS_MAX_AMOUNT);
     }
 }

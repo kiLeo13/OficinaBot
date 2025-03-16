@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.GroupBot;
 import ofc.bot.domain.entity.OficinaGroup;
@@ -20,9 +19,7 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "group bots", description = "Adicione bots ao seu grupo.")
+@DiscordCommand(name = "group bots")
 public class GroupBotsCommand extends SlashSubcommand {
     private final GroupBotRepository grpBotRepo;
     private final OficinaGroupRepository grpRepo;
@@ -63,9 +60,9 @@ public class GroupBotsCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.INTEGER, "bot", "O bot para ser adicionado ao grupo.", true, true)
-        );
+    protected void init() {
+        setDesc("Adicione bots ao seu grupo.");
+
+        addOpt(OptionType.INTEGER, "bot", "O bot para ser adicionado ao grupo.", true, true);
     }
 }

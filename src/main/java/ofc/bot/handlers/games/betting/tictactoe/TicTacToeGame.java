@@ -170,7 +170,7 @@ public class TicTacToeGame implements Bet<Character> {
         try {
             User target = api.retrieveUserById(targetId).complete();
             UserEconomy userEco = ecoRepo.findByUserId(targetId, UserEconomy.fromUserId(targetId))
-                    .modifyBalance(-penaltyAmount)
+                    .modifyBalance(0, -penaltyAmount)
                     .tickUpdate();
 
             ecoRepo.upsert(userEco);

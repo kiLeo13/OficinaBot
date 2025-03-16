@@ -3,7 +3,6 @@ package ofc.bot.commands.userinfo.custom;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.CustomUserinfo;
 import ofc.bot.domain.sqlite.repository.CustomUserinfoRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -16,9 +15,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "customize color", description = "Define/reseta a cor da barra lateral da embed apresentada no userinfo.")
+@DiscordCommand(name = "customize color")
 public class SetUserinfoColorCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(SetUserinfoColorCommand.class);
     private final CustomUserinfoRepository csinfoRepo;
@@ -50,10 +47,9 @@ public class SetUserinfoColorCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "color", "A cor em HEX a reset definida. Ignore para remover.")
-                        .setRequiredLength(6, 6)
-        );
+    protected void init() {
+        setDesc("Define/reseta a cor da barra lateral da embed apresentada no userinfo.");
+
+        addOpt(OptionType.STRING, "color", "A cor em HEX a reset definida. Ignore para remover.", 6, 6);
     }
 }

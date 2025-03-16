@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
@@ -17,9 +16,9 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "group modify", description = "Modifica dados do seu grupo, como nome e cor.", cooldown = 60)
+@DiscordCommand(name = "group modify")
 public class ModifyGroupCommand extends SlashSubcommand {
     private final OficinaGroupRepository grpRepo;
 
@@ -68,13 +67,11 @@ public class ModifyGroupCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "new-name", "O novo nome do grupo.")
-                        .setRequiredLength(OficinaGroup.MIN_NAME_LENGTH, OficinaGroup.MAX_NAME_LENGTH),
+    protected void init() {
+        setDesc("Modifica dados do seu grupo, como nome e cor.");
+        setCooldown(1, TimeUnit.MINUTES);
 
-                new OptionData(OptionType.STRING, "new-color", "A nova cor do grupo.")
-                        .setRequiredLength(6, 6)
-        );
+        addOpt(OptionType.STRING, "new-name", "O novo nome do grupo.", OficinaGroup.MIN_NAME_LENGTH, OficinaGroup.MAX_NAME_LENGTH);
+        addOpt(OptionType.STRING, "new-color", "A nova cor do grupo.", 6, 6);
     }
 }

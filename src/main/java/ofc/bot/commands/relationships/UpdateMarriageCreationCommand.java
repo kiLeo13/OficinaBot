@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.Marriage;
 import ofc.bot.domain.sqlite.repository.MarriageRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -21,13 +20,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 
-@DiscordCommand(
-        name = "marriage-date",
-        description = "Altere a data de um casamento. Utilize o horário de Brasília (GMT -3).",
-        permission = Permission.MANAGE_SERVER
-)
+@DiscordCommand(name = "marriage-date", permission = Permission.MANAGE_SERVER)
 public class UpdateMarriageCreationCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateMarriageCreationCommand.class);
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -80,13 +74,13 @@ public class UpdateMarriageCreationCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "spouse", "O \"primeiro\" parceiro do casamento.", true),
-                new OptionData(OptionType.STRING, "date", "A data do casamento (Formato: DD/MM/AAAA).", true),
-                new OptionData(OptionType.USER, "partner", "O \"segundo\" parceiro do casamento (ignore esta opção se for você mesmo)."),
-                new OptionData(OptionType.STRING, "time", "O tempo do casamento (Formato: HH:MM:SS).")
-        );
+    protected void init() {
+        setDesc("Altere a data de um casamento. Utilize o horário de Brasília (GMT -3).");
+
+        addOpt(OptionType.USER, "spouse", "O \"primeiro\" parceiro do casamento.", true);
+        addOpt(OptionType.STRING, "date", "A data do casamento (Formato: DD/MM/AAAA).", true);
+        addOpt(OptionType.USER, "partner", "O \"segundo\" parceiro do casamento (ignore esta opção se for você mesmo).");
+        addOpt(OptionType.STRING, "time", "O tempo do casamento (Formato: HH:MM:SS).");
     }
 
     private Instant parseDate(String date, String time) {

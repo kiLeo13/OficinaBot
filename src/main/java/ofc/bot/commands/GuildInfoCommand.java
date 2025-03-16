@@ -14,7 +14,7 @@ import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import java.awt.*;
 import java.util.List;
 
-@DiscordCommand(name = "serverinfo", description = "Informações gerais sobre o servidor.")
+@DiscordCommand(name = "serverinfo")
 public class GuildInfoCommand extends SlashCommand {
 
     @Override
@@ -68,5 +68,10 @@ public class GuildInfoCommand extends SlashCommand {
                 .setImage(banner)
                 .setFooter(guild.getName(), guild.getIconUrl())
                 .build();
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Informações gerais sobre o servidor.");
     }
 }

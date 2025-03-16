@@ -3,7 +3,6 @@ package ofc.bot.commands.userinfo.custom;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.CustomUserinfo;
 import ofc.bot.domain.sqlite.repository.CustomUserinfoRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -15,9 +14,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "customize footer", description = "Define/reseta o rodapé da embed apresentada no userinfo.")
+@DiscordCommand(name = "customize footer")
 public class SetUserinfoFooterCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(SetUserinfoFooterCommand.class);
     private final CustomUserinfoRepository csinfoRepo;
@@ -48,10 +45,9 @@ public class SetUserinfoFooterCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "footer", "O rodapé da embed do userinfo. Ignore ou forneça \"remove\" para remover.")
-                        .setRequiredLength(1, 50)
-        );
+    protected void init() {
+        setDesc("Define/reseta o rodapé da embed apresentada no userinfo.");
+
+        addOpt(OptionType.STRING, "footer", "O rodapé da embed do userinfo. Ignore ou forneça \"remove\" para remover.", 1, 50);
     }
 }

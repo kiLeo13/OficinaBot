@@ -13,19 +13,21 @@ public class CommandHistory extends OficinaRecord<CommandHistory> {
         super(COMMANDS_HISTORY);
     }
 
-    public CommandHistory(@NotNull String cmdName, @NotNull Status status, long guildId, long userId, long createdAt) {
+    public CommandHistory(@NotNull String cmdName, @NotNull Status status, boolean ticksCooldown,
+                          long guildId, long userId, long createdAt) {
         this();
         Checks.notNull(cmdName, "Command Name");
         Checks.notNull(status, "Status");
         set(COMMANDS_HISTORY.COMMAND_NAME, cmdName);
         set(COMMANDS_HISTORY.EXIT_STATUS, status.name());
+        set(COMMANDS_HISTORY.TICKS_COOLDOWN, ticksCooldown);
         set(COMMANDS_HISTORY.GUILD_ID, guildId);
         set(COMMANDS_HISTORY.USER_ID, userId);
         set(COMMANDS_HISTORY.CREATED_AT, createdAt);
     }
 
-    public CommandHistory(@NotNull String cmdName, @NotNull Status status, long guildId, long userId) {
-        this(cmdName, status, guildId, userId, Bot.unixNow());
+    public CommandHistory(@NotNull String cmdName, @NotNull Status status, boolean ticksCooldown, long guildId, long userId) {
+        this(cmdName, status, ticksCooldown, guildId, userId, Bot.unixNow());
     }
 
     public int getId() {
@@ -39,6 +41,10 @@ public class CommandHistory extends OficinaRecord<CommandHistory> {
     public Status getExitStatus() {
         String status = get(COMMANDS_HISTORY.EXIT_STATUS);
         return Status.valueOf(status);
+    }
+
+    public boolean ticksCooldown() {
+        return get(COMMANDS_HISTORY.TICKS_COOLDOWN);
     }
 
     public long getGuildId() {

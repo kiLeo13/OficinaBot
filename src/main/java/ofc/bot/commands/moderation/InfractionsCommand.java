@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.MemberPunishment;
 import ofc.bot.handlers.interactions.EntityContextFactory;
@@ -21,11 +20,7 @@ import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@DiscordCommand(
-        name = "infractions",
-        description = "Veja as infrações de um usuário.",
-        permission = Permission.MANAGE_SERVER
-)
+@DiscordCommand(name = "infractions", permission = Permission.MANAGE_SERVER)
 public class InfractionsCommand extends SlashCommand {
     public static final int PAGE_SIZE = 1;
 
@@ -55,10 +50,10 @@ public class InfractionsCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "O usuário que deseja ver as infrações.", true),
-                new OptionData(OptionType.BOOLEAN, "show-inactive", "Mostrar até infrações já apagadas? (Padrão: False).")
-        );
+    protected void init() {
+        setDesc("Veja as infrações de um usuário.");
+
+        addOpt(OptionType.USER, "user", "O usuário que deseja ver as infrações.", true);
+        addOpt(OptionType.BOOLEAN, "show-inactive", "Mostrar até infrações já apagadas? (Padrão: False).");
     }
 }

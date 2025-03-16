@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.enums.PunishmentType;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -17,9 +16,7 @@ import ofc.bot.util.embeds.EmbedFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "unmute", description = "Desmute um usuário do seu servidor.", permission = Permission.MODERATE_MEMBERS)
+@DiscordCommand(name = "unmute", permission = Permission.MODERATE_MEMBERS)
 public class UnmuteCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnmuteCommand.class);
 
@@ -51,11 +48,10 @@ public class UnmuteCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "member", "O membro a ter o timeout removido.", true),
-                new OptionData(OptionType.STRING, "reason", "O motivo da remoção do timeout.")
-                        .setMaxLength(500)
-        );
+    protected void init() {
+        setDesc("Dessilencie um usuário do seu servidor.");
+
+        addOpt(OptionType.USER, "member", "O membro a ter o timeout removido.", true);
+        addOpt(OptionType.STRING, "reason", "O motivo da remoção do timeout.", (it) -> it.setMaxLength(500));
     }
 }

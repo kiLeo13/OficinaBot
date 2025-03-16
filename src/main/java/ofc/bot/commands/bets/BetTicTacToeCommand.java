@@ -3,7 +3,6 @@ package ofc.bot.commands.bets;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.handlers.games.betting.BetManager;
@@ -16,9 +15,9 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "bets tictactoe", description = "Compita Jogo da velha contra outro usuário.", cooldown = 120)
+@DiscordCommand(name = "bets tictactoe")
 public class BetTicTacToeCommand extends SlashSubcommand {
     private static final BetManager betManager = BetManager.getManager();
     private final UserEconomyRepository ecoRepo;
@@ -56,20 +55,21 @@ public class BetTicTacToeCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "member", "O membro a competir contra.", true),
-                new OptionData(OptionType.INTEGER, "amount", "A quantia a ser apostada.", true)
-                        .setRequiredRange(TicTacToeGame.MIN_AMOUNT, TicTacToeGame.MAX_AMOUNT)
-        );
+    protected void init() {
+        setDesc("Compita Jogo da velha contra outro usuário.");
+        setCooldown(2, TimeUnit.MINUTES);
+
+        addOpt(OptionType.USER, "member", "O membro a competir contra.", true);
+        addOpt(OptionType.INTEGER, "amount", "A quantia a ser apostada.", true, false,
+                TicTacToeGame.MIN_AMOUNT, TicTacToeGame.MAX_AMOUNT);
     }
 
     private InteractionResult checks(long issuerId, long otherId, int amount) {
         if (betManager.isBetting(issuerId)) return Status.YOU_CANNOT_DO_THIS_WHILE_BETTING;
         if (betManager.isBetting(otherId)) return Status.MEMBER_IS_BETTING_PLEASE_WAIT.args(otherId);
 
-        if (!ecoRepo.hasEnough(issuerId, amount)) return Status.INSUFFICIENT_BALANCE;
-        if (!ecoRepo.hasEnough(otherId, amount)) return Status.MEMBER_INSUFFICIENT_BALANCE.args(otherId);
+        if (!ecoRepo.hasEnoughBank(issuerId, amount)) return Status.INSUFFICIENT_BALANCE;
+        if (!ecoRepo.hasEnoughBank(otherId, amount)) return Status.MEMBER_INSUFFICIENT_BALANCE.args(otherId);
         return null;
     }
 }

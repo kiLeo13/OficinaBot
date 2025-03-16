@@ -14,11 +14,9 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 
-@DiscordCommand(
-        name = "group pay-invoice",
-        description = "Pague a fatura do seu grupo (normalmente será apenas o aluguel).",
-        cooldown = 5
-)
+import java.util.concurrent.TimeUnit;
+
+@DiscordCommand(name = "group pay-invoice")
 public class GroupPayInvoiceCommand extends SlashSubcommand {
     private final OficinaGroupRepository grpRepo;
 
@@ -49,5 +47,11 @@ public class GroupPayInvoiceCommand extends SlashSubcommand {
                 .setEmbeds(embed)
                 .setActionRow(confirm)
                 .send();
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Pague a fatura do seu grupo (normalmente será apenas o aluguel).");
+        setCooldown(2, TimeUnit.MINUTES);
     }
 }

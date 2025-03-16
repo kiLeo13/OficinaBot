@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -17,11 +16,7 @@ import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
 import java.util.List;
 
-@DiscordCommand(
-        name = "disconnect-all",
-        description = "Desconecta todos os usuários do canal de voz fornecido.",
-        permission = Permission.VOICE_MOVE_OTHERS
-)
+@DiscordCommand(name = "disconnect-all", permission = Permission.VOICE_MOVE_OTHERS)
 public class DisconnectAllCommand extends SlashCommand {
 
     @Override
@@ -44,11 +39,10 @@ public class DisconnectAllCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.CHANNEL, "channel", "De qual canal os membros devem ser desconectados.")
-                        .setChannelTypes(ChannelType.VOICE)
-        );
+    protected void init() {
+        setDesc("Desconecta todos os usuários do canal de voz fornecido.");
+
+        addOpt(OptionType.CHANNEL, "channel", "De qual canal os membros devem ser desconectados.", (it) -> it.setChannelTypes(ChannelType.VOICE));
     }
 
     // We can safely ignore the null warning at this point,

@@ -10,7 +10,7 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
-@DiscordCommand(name = "server-icon", description = "Envia a imagem atual do servidor.")
+@DiscordCommand(name = "server-icon")
 public class GuildLogoCommand extends SlashCommand {
 
     @Override
@@ -44,5 +44,10 @@ public class GuildLogoCommand extends SlashCommand {
                 .setColor(Bot.Colors.DEFAULT)
                 .setFooter(name, icon)
                 .build();
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Envia a imagem atual do servidor.");
     }
 }

@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.Main;
 import ofc.bot.domain.entity.Marriage;
@@ -18,9 +17,7 @@ import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-@DiscordCommand(name = "divorce", description = "Divorcie-se de algum usuário. (ZERO REEMBOLSO).")
+@DiscordCommand(name = "divorce")
 public class DivorceCommand extends SlashCommand {
     private static final long JANJO = 742729586659295283L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DivorceCommand.class);
@@ -60,10 +57,10 @@ public class DivorceCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "O usuário a se divorciar.", true)
-        );
+    protected void init() {
+        setDesc("Divorcie-se de algum usuário.");
+
+        addOpt(OptionType.USER, "user", "O usuário a se divorciar.", true);
     }
 
     private void informTarget(String requesterName, long targetId) {

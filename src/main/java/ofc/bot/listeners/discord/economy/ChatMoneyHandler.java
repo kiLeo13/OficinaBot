@@ -32,14 +32,14 @@ public class ChatMoneyHandler extends ListenerAdapter {
         long userId = author.getIdLong();
         boolean isCooldown = isCooldown(userId);
 
-        if (author.isBot() || isCooldown || !event.isFromGuild()) return;
+        if (author.isBot() || event.isWebhookMessage() || isCooldown || !event.isFromGuild()) return;
 
         long now = System.currentTimeMillis();
         int amount = getRandom();
 
         try {
             UserEconomy userEconomy = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId))
-                    .modifyBalance(amount)
+                    .modifyBalance(amount, 0)
                     .tickUpdate();
             ecoRepo.upsert(userEconomy);
 

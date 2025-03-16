@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.MarriageRequestRepository;
 import ofc.bot.domain.viewmodels.ProposalsView;
@@ -19,7 +18,7 @@ import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.List;
 
-@DiscordCommand(name = "marriage proposals", description = "Veja as propostas de casamento pendentes.")
+@DiscordCommand(name = "marriage proposals")
 public class ProposalsListCommand extends SlashSubcommand {
     private final MarriageRequestRepository mreqRepo;
 
@@ -49,11 +48,11 @@ public class ProposalsListCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "type", "O tipo de proposta a ser listado.", true)
-                        .addChoice("Outgoing", "out")
-                        .addChoice("Incoming", "in")
-        );
+    protected void init() {
+        setDesc("Veja as propostas de casamento pendentes.");
+
+        addOpt(OptionType.STRING, "type", "O tipo de proposta a ser listado.", (it) -> it.setRequired(true)
+                .addChoice("Outgoing", "out")
+                .addChoice("Incoming", "in"));
     }
 }

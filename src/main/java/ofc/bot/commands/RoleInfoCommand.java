@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -16,7 +15,7 @@ import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
 import java.util.List;
 
-@DiscordCommand(name = "roleinfo", description = "Informações gerais sobre um cargo.")
+@DiscordCommand(name = "roleinfo")
 public class RoleInfoCommand extends SlashCommand {
 
     @Override
@@ -42,10 +41,10 @@ public class RoleInfoCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.ROLE, "role", "O cargo a saber as informações.", true)
-        );
+    protected void init() {
+        setDesc("Informações gerais sobre um cargo.");
+
+        addOpt(OptionType.ROLE, "role", "O cargo a saber as informações.", true);
     }
 
     private MessageEmbed embed(List<Member> members, Role role) {

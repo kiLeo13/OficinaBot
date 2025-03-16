@@ -8,6 +8,8 @@ public enum TransactionType {
     BET_RESULT(       false, "Quantia Apostada"),
     BET_PENALTY(      false, "Penalidade em Aposta"),
     BALANCE_UPDATED(  false, "Saldo Actualizado"),
+    AMOUNT_ROBBED(    false, "Quantia Roubada"),
+    AMOUNT_FINED(     false, "Multado"),
     BALANCE_SET(      false, "Saldo Definido"),
     DAILY_COLLECTED(  false, "Daily Coletado"),
     WORK_EXECUTED(    false, "Trabalhou"),

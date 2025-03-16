@@ -29,4 +29,7 @@ public final class EmptySlashCommand extends SlashCommand {
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
         throw new UnsupportedOperationException("Cannot execute this command");
     }
+
+    @Override
+    protected void init() {}
 }

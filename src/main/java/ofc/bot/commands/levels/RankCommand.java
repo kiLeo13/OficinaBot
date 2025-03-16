@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.entity.UserXP;
@@ -20,9 +19,9 @@ import ofc.bot.handlers.requests.Route;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
 import java.util.Base64;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "rank", description = "Mostra o rank (global) de um usuário.", cooldown = 10)
+@DiscordCommand(name = "rank")
 public class RankCommand extends SlashCommand {
     private final UserXPRepository xpRepo;
     private final LevelRoleRepository lvlRoleRepo;
@@ -66,10 +65,11 @@ public class RankCommand extends SlashCommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.USER, "user", "O membro que você deseja saber o rank global.")
-        );
+    protected void init() {
+        setDesc("Mostra o rank (global) de um usuário.");
+        setCooldown(10, TimeUnit.SECONDS);
+
+        addOpt(OptionType.USER, "user", "O membro que você deseja saber o rank global.");
     }
 
     private static byte[] getRankCard(RankData data) {

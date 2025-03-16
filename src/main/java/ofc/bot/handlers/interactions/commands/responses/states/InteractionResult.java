@@ -9,6 +9,8 @@ public interface InteractionResult {
 
     boolean isEphemeral();
 
+    boolean ticksCooldown();
+
     default boolean isOk() {
         return getStatus().isOk();
     }

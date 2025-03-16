@@ -10,12 +10,13 @@ import org.jooq.Query;
 public class CommandsHistoryTable extends InitializableTable<CommandHistory> {
     public static final CommandsHistoryTable COMMANDS_HISTORY = new CommandsHistoryTable();
 
-    public final Field<Integer> ID          = newField("id",           INT.identity(true));
-    public final Field<String> COMMAND_NAME = newField("command_name", CHAR.notNull());
-    public final Field<String> EXIT_STATUS  = newField("exit_status",  CHAR.notNull());
-    public final Field<Long> GUILD_ID       = newField("guild_id",     BIGINT.notNull());
-    public final Field<Long> USER_ID        = newField("user_id",      BIGINT.notNull());
-    public final Field<Long> CREATED_AT     = newField("created_at",   BIGINT.notNull());
+    public final Field<Integer> ID             = newField("id",             INT.identity(true));
+    public final Field<String> COMMAND_NAME    = newField("command_name",   CHAR.notNull());
+    public final Field<String> EXIT_STATUS     = newField("exit_status",    CHAR.notNull());
+    public final Field<Boolean> TICKS_COOLDOWN = newField("ticks_cooldown", BOOL.notNull());
+    public final Field<Long> GUILD_ID          = newField("guild_id",       BIGINT.notNull());
+    public final Field<Long> USER_ID           = newField("user_id",        BIGINT.notNull());
+    public final Field<Long> CREATED_AT        = newField("created_at",     BIGINT.notNull());
 
     public CommandsHistoryTable() {
         super("commands_history");

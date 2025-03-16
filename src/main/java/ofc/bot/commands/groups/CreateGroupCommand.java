@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
@@ -22,12 +21,13 @@ import ofc.bot.util.embeds.EmbedFactory;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Group creation after user confirmation is handled at
  * {@link ofc.bot.listeners.discord.interactions.buttons.groups.GroupCreationHandler GroupCreationHandler}.
  */
-@DiscordCommand(name = "group create", description = "Cria um grupo novo em seu nome.", cooldown = 60)
+@DiscordCommand(name = "group create")
 public class CreateGroupCommand extends SlashSubcommand {
     private final OficinaGroupRepository grpRepo;
 
@@ -90,20 +90,15 @@ public class CreateGroupCommand extends SlashSubcommand {
     }
 
     @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.STRING, "name", "O nome do grupo. Você pode usar fontes custom, mas não pode usar emojis.", true)
-                        .setRequiredLength(OficinaGroup.MIN_NAME_LENGTH, OficinaGroup.MAX_NAME_LENGTH),
+    protected void init() {
+        setDesc("Cria um grupo novo em seu nome.");
+        setCooldown(1, TimeUnit.MINUTES);
 
-                new OptionData(OptionType.STRING, "color", "A cor do grupo em formato HEX (sem o #).", true)
-                        .setRequiredLength(6, 6),
-
-                new OptionData(OptionType.STRING, "currency", "Qual o tipo de economia deve ser usada para efetuar cobranças nesse grupo.", true)
-                        .addChoices(getCurrencyChoices()),
-
-                new OptionData(OptionType.STRING, "emoji", "O emoji utilizado para criar chats e calls (forneça o emoji em si, ex: 💪).", true)
-                        .setRequiredLength(1, 50)
-        );
+        addOpt(OptionType.STRING, "name", "O nome do grupo. Você não pode usar emojis.", true, OficinaGroup.MIN_NAME_LENGTH, OficinaGroup.MAX_NAME_LENGTH);
+        addOpt(OptionType.STRING, "color", "A cor do grupo em formato HEX (sem o #).", true, 6, 6);
+        addOpt(OptionType.STRING, "currency", "Qual o tipo de economia deve ser usada para efetuar cobranças nesse grupo.", (it) -> it.setRequired(true)
+                .addChoices(getCurrencyChoices()));
+        addOpt(OptionType.STRING, "emoji", "O emoji utilizado para criar chats e calls (forneça o emoji em si, ex: 💪).", true, 1, 50);
     }
 
     private boolean hasGroup(long userId) {

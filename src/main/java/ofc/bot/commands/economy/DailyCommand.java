@@ -23,7 +23,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Random;
 
-@DiscordCommand(name = "daily", description = "Colete a sua recompensa diária.")
+@DiscordCommand(name = "daily")
 public class DailyCommand extends SlashCommand {
     private static final Random RANDOM = new Random();
     private static final Logger LOGGER = LoggerFactory.getLogger(DailyCommand.class);
@@ -71,7 +71,7 @@ public class DailyCommand extends SlashCommand {
         UserEconomy eco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId));
         long now = Bot.unixNow();
 
-        eco.modifyBalance(value)
+        eco.modifyBalance(value, 0)
                 .setLastDailyAt(now)
                 .setLastUpdated(now);
         ecoRepo.upsert(eco);
@@ -98,5 +98,10 @@ public class DailyCommand extends SlashCommand {
     private void dispatchDailyCollectEvent(long userId, int amount) {
         BankTransaction tr = new BankTransaction(userId, amount, CurrencyType.OFICINA, TransactionType.DAILY_COLLECTED);
         EventBus.dispatchEvent(new BankTransactionEvent(tr));
+    }
+
+    @Override
+    protected void init() {
+        setDesc("Colete a sua recompensa diária.");
     }
 }

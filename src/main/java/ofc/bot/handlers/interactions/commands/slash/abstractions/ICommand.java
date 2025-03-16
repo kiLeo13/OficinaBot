@@ -48,30 +48,9 @@ public interface ICommand<T extends OptionsContainer> {
 
     List<OptionData> getOptions();
 
-    int getCooldown();
+    long getCooldown();
 
-    /**
-     * Determines the remaining cooldown time (in seconds) before the user can execute the same command again.
-     * <p>
-     * Negative values may be returned, indicating that the cooldown expectation has been exceeded.
-     * For example, if the cooldown is set to 30s but the user has waited 40s, -10 will be returned.
-     *
-     * @param userId The user's ID attempting command usage.
-     * @return The remaining cooldown time (in seconds).
-     */
-    long cooldownRemain(long userId);
-
-    default boolean inCooldown(long userId) {
-        return cooldownRemain(userId) > 0;
+    default boolean hasCooldown() {
+        return getCooldown() > 0;
     }
-
-    /**
-     * Updates the rate-limit/cooldown of this command for the given user.
-     * <p>
-     * If the current command does not have any rate-limit,
-     * then nothing should happen.
-     *
-     * @param userId The id of the user who ran the command.
-     */
-    void tickCooldown(long userId);
 }
