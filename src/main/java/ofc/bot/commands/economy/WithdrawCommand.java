@@ -72,7 +72,6 @@ public class WithdrawCommand extends SlashCommand {
     }
 
     private MessageEmbed embedSuccess(User user, int amount) {
-        return EmbedFactory.embedBankAction(user, EmbedFactory.OK_GREEN, "✅ Sacou %s%s do seu banco!",
-                UserEconomy.SYMBOL, Bot.fmtNum(amount));
+        return EmbedFactory.embedBankAction(user, EmbedFactory.OK_GREEN, "✅ Sacou $%s do seu banco!", Bot.fmtNum(amount));
     }
 }

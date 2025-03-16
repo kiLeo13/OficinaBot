@@ -69,12 +69,10 @@ public class DepositCommand extends SlashCommand {
 
     private MessageEmbed embedInsfficient(User user, int wallet) {
         return EmbedFactory.embedBankAction(user, EmbedFactory.DANGER_RED,
-                "❌ Você não tem essa quantia para depositar. Você tem %s%s na carteira agora.",
-                UserEconomy.SYMBOL, Bot.fmtNum(wallet));
+                "❌ Você não tem essa quantia para depositar. Você tem $%s na carteira agora.", Bot.fmtNum(wallet));
     }
 
     private MessageEmbed embedSuccess(User user, int amount) {
-        return EmbedFactory.embedBankAction(user, EmbedFactory.OK_GREEN, "✅ Depositou %s%s no seu banco!",
-                UserEconomy.SYMBOL, Bot.fmtNum(amount));
+        return EmbedFactory.embedBankAction(user, EmbedFactory.OK_GREEN, "✅ Depositou $%s no seu banco!", Bot.fmtNum(amount));
     }
 }
