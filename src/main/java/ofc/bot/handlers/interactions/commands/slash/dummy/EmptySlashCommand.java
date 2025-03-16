@@ -18,7 +18,7 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
  */
 public final class EmptySlashCommand extends SlashCommand {
     public EmptySlashCommand(String name, String desc, Permission perm) {
-        super(name, desc, perm, 0);
+        super(name, desc, perm);
     }
 
     public EmptySlashCommand(String name, String desc) {

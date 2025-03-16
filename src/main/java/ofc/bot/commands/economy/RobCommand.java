@@ -20,7 +20,6 @@ import ofc.bot.util.Bot;
 import ofc.bot.util.OficinaEmbed;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
-import org.jetbrains.annotations.Contract;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,15 +97,10 @@ public class RobCommand extends SlashCommand {
         }
     }
 
-    @Contract("-> null")
-    public static Object getNull() {
-        return null;
-    }
-
     @Override
     protected void init() {
         setDesc("Roube o dinheiro da carteira de um usuário.");
-        setCooldown(4, TimeUnit.HOURS);
+        setCooldown(false, 4, TimeUnit.HOURS);
 
         addOpt(OptionType.USER, "user", "O usuário a ser roubado.", true);
     }

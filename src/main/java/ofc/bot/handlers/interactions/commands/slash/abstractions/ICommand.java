@@ -2,8 +2,11 @@ package ofc.bot.handlers.interactions.commands.slash.abstractions;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.OptionsContainer;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,6 +26,7 @@ public interface ICommand<T extends OptionsContainer> {
      * @return the last argument of the command's qualified name.
      * @see #getQualifiedName()
      */
+    @NotNull
     default String getName() {
         String[] args = getQualifiedName().split(" ");
         return args[args.length - 1];
@@ -40,17 +44,22 @@ public interface ICommand<T extends OptionsContainer> {
      *
      * @return the full qualified name.
      */
+    @NotNull
     String getQualifiedName();
 
+    @NotNull
     String getDescription();
 
+    @Nullable
     Permission getPermission();
 
+    @NotNull
     List<OptionData> getOptions();
 
-    long getCooldown();
+    @NotNull
+    Cooldown getCooldown();
 
     default boolean hasCooldown() {
-        return getCooldown() > 0;
+        return getCooldown().isZero();
     }
 }

@@ -1,9 +1,6 @@
 package ofc.bot.handlers.interactions.commands;
 
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -18,6 +15,7 @@ import ofc.bot.handlers.interactions.commands.slash.SlashCommandsRegistryManager
 import ofc.bot.handlers.interactions.commands.slash.abstractions.ICommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
+import ofc.bot.util.embeds.EmbedFactory;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +44,10 @@ public class SlashCommandsGateway extends ListenerAdapter {
 
         if (guild == null || member == null) return;
 
+        // This is one of those "will never happen" moments.
+        // But just in case Discord is in a bad day and
+        // somehow lets a command that does not even exist slip through,
+        // we're here to nicely catch this. Better safe than sorry ^^
         if (cmd == null) {
             e.reply("""
             > :x: Este comando não foi encontrado ou não existe mais.
@@ -66,15 +68,10 @@ public class SlashCommandsGateway extends ListenerAdapter {
             return;
         }
 
-        long remain = member.hasPermission(Permission.MANAGE_SERVER) ? 0 : checkCooldown(userId, cmd);
-        if (remain > 0) {
-            ctx.reply(Status.PLEASE_WAIT_COOLDOWN.args(Bot.parsePeriod(remain)));
-            LOGGER.warn("User '@{} [{}]' hit command \"/{}\" rate-limit, time remain: {}s",
-                    user.getName(), userId, fullName, remain);
-            return;
+        boolean ok = handleCooldown(ctx, cmd);
+        if (ok) {
+            handleCommand(ctx, cmd);
         }
-
-        handleCommand(ctx, cmd);
     }
 
     private void handleCommand(SlashCommandContext ctx, ICommand<SlashCommandContext> cmd) {
@@ -116,12 +113,27 @@ public class SlashCommandsGateway extends ListenerAdapter {
         });
     }
 
-    private long checkCooldown(long userId, ICommand<?> cmd) {
-        long cooldown = cmd.getCooldown();
-        if (cooldown == 0) return 0;
+    private boolean handleCooldown(SlashCommandContext ctx, ICommand<?> cmd) {
+        Member issuer = ctx.getIssuer();
+        User user = issuer.getUser();
+        Cooldown cooldown = cmd.getCooldown();
+        String cmdName = cmd.getQualifiedName();
+        long userId = issuer.getIdLong();
 
-        long lastCall = cmdRepo.getLastCall(userId, cmd.getQualifiedName());
+        if (cooldown.isZero()) return true;
+
         long now = Bot.unixNow();
-        return lastCall + cooldown - now;
+        long lastCall = cmdRepo.getLastCall(userId, cmdName);
+        long nextCall = cooldown.getNextCall(issuer, lastCall);
+
+        if (nextCall > now) {
+            MessageEmbed resp = EmbedFactory.embedRateLimited(user, nextCall);
+            ctx.replyEmbeds(Status.PLEASE_WAIT_COOLDOWN, true, resp);
+
+            LOGGER.warn("User '@{} [{}]' hit command \"/{}\" rate-limit, time remain: {}s",
+                    user.getName(), userId, cmdName, nextCall - now);
+            return false;
+        }
+        return true;
     }
 }

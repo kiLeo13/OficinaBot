@@ -3,6 +3,7 @@ package ofc.bot.handlers.interactions.commands.slash.abstractions;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.exceptions.CommandCreationException;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
@@ -19,12 +20,13 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
     private final Permission permission;
     private final List<OptionData> options;
     private String description;
-    private long cooldown; // In seconds
+    private Cooldown cooldown;
 
     public AbstractSlashCommand() {
-        this.fullName = getValue(DiscordCommand::name).replace("/", "");
+        this.fullName = getValue(DiscordCommand::name);
         this.permission = getValue(DiscordCommand::permission);
         this.options = new ArrayList<>();
+        this.cooldown = Cooldown.EMPTY;
 
         // If the full qualified name contains spaces but is NOT a subcommand...
         // This is not allowed
@@ -34,15 +36,12 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
         init();
     }
 
-    public AbstractSlashCommand(String fullName, String description, Permission permission, int cooldown) {
+    public AbstractSlashCommand(String fullName, String description, Permission permission) {
         this.fullName = fullName;
         this.description = description;
         this.permission = permission;
         this.options = new ArrayList<>();
-        this.cooldown = cooldown;
-
-        if (this.cooldown < 0)
-            throw new CommandCreationException("Command cooldown may not be negative, provided: " + this.cooldown);
+        this.cooldown = Cooldown.EMPTY;
     }
 
     /**
@@ -52,11 +51,13 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
      */
     protected abstract void init();
 
+    @NotNull
     @Override
     public final String getQualifiedName() {
         return this.fullName;
     }
 
+    @NotNull
     @Override
     public final String getDescription() {
         return this.description;
@@ -67,13 +68,15 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
         return this.permission == Permission.UNKNOWN ? null : this.permission;
     }
 
+    @NotNull
     @Override
     public final List<OptionData> getOptions() {
         return this.options;
     }
 
+    @NotNull
     @Override
-    public final long getCooldown() {
+    public final Cooldown getCooldown() {
         return this.cooldown;
     }
 
@@ -81,8 +84,12 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
         this.description = desc;
     }
 
+    protected final void setCooldown(boolean staffBypass, int period, TimeUnit unit) {
+        this.cooldown = new Cooldown(staffBypass, unit.toSeconds(period));
+    }
+
     protected final void setCooldown(int period, TimeUnit unit) {
-        this.cooldown = unit.toSeconds(period);
+        this.setCooldown(true, period, unit);
     }
 
     protected final void addOpt(@NotNull OptionType type, @NotNull String name, @NotNull String desc,

@@ -260,6 +260,16 @@ public final class EmbedFactory {
                 .build();
     }
 
+    public static MessageEmbed embedRateLimited(User user, long nextAvailable) {
+        OficinaEmbed builder = new OficinaEmbed();
+
+        return builder
+                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                .setDescf("\uD83D\uDD52 Você poderá usar este comando novamente <t:%d:R>.", nextAvailable)
+                .setColor(DANGER_RED)
+                .build();
+    }
+
     public static MessageEmbed embedTicTacToeGame(User current) {
         EmbedBuilder builder = new EmbedBuilder();
         String name = "Vez de " + current.getEffectiveName();

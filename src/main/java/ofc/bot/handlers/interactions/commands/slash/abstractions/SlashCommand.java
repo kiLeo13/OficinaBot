@@ -20,8 +20,8 @@ public abstract class SlashCommand extends AbstractSlashCommand {
         this.subCmds = new ArrayList<>();
     }
 
-    public SlashCommand(String name, String description, Permission permission, int cooldown) {
-        super(name, description, permission, cooldown);
+    public SlashCommand(String name, String description, Permission permission) {
+        super(name, description, permission);
         this.groups = new ArrayList<>();
         this.subCmds = new ArrayList<>();
     }
