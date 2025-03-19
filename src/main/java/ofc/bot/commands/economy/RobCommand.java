@@ -107,11 +107,10 @@ public class RobCommand extends SlashCommand {
 
     private MessageEmbed embedSuccess(User issuer, User target, int amount) {
         OficinaEmbed builder = new OficinaEmbed();
-        String symbol = UserEconomy.SYMBOL;
 
         return builder
                 .setAuthor(issuer.getName(), null, issuer.getEffectiveAvatarUrl())
-                .setDescf("\uD83D\uDCB0 Você roubou %s%s de %s.", symbol, Bot.fmtNum(amount), target.getName())
+                .setDescf("\uD83D\uDCB0 Você roubou $%s de %s.", Bot.fmtNum(amount), target.getName())
                 .setColor(EmbedFactory.OK_GREEN)
                 .build();
     }
@@ -121,8 +120,8 @@ public class RobCommand extends SlashCommand {
 
         return builder
                 .setAuthor(issuer.getName(), null, issuer.getEffectiveAvatarUrl())
-                .setDescf("\uD83D\uDC6E Você foi pego tentando roubar %s e foi multado em %s%s.",
-                        target.getName(), UserEconomy.SYMBOL, Bot.fmtNum(amount))
+                .setDescf("\uD83D\uDC6E Você foi pego tentando roubar %s e foi multado em $%s.",
+                        target.getName(), Bot.fmtNum(amount))
                 .setColor(EmbedFactory.DANGER_RED)
                 .build();
     }
