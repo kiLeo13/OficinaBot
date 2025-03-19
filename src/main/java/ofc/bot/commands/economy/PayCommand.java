@@ -63,7 +63,7 @@ public class PayCommand extends SlashCommand {
             return Status.CANNOT_TRANSFER_TO_BOTS;
 
         try {
-            ecoRepo.transfer(issuerId, targetId, amountToSend, total);
+            ecoRepo.transferWallet(issuerId, targetId, amountToSend, total);
 
             dispatchSendMoneyEvent(issuerId, targetId, total);
 
