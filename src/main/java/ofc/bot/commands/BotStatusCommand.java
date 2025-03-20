@@ -3,54 +3,85 @@ package ofc.bot.commands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import ofc.bot.Main;
+import ofc.bot.commands.levels.LevelsRolesCommand;
+import ofc.bot.domain.entity.LevelRole;
+import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
+import ofc.bot.handlers.economy.PaymentManagerProvider;
+import ofc.bot.handlers.economy.unb.UnbelievaBoatClient;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 @DiscordCommand(name = "status")
 public class BotStatusCommand extends SlashCommand {
-    private static final long megaBytes = 1024 * 1024;
+    private static final long MEGABYTES = 1024 * 1024;
+    private final UnbelievaBoatClient unbelievaBoatClient = PaymentManagerProvider.getUnbelievaBoatClient();
+    private final LevelRoleRepository lvlRoleRepo;
+
+    public BotStatusCommand(LevelRoleRepository lvlRoleRepo) {
+        this.lvlRoleRepo = lvlRoleRepo;
+    }
 
     @Override
     public InteractionResult onSlashCommand(SlashCommandContext ctx) {
-        ctx.ack();
-
         JDA api = Main.getApi();
         Guild guild = ctx.getGuild();
+        Member self = guild.getSelfMember();
+        List<LevelRole> roles = lvlRoleRepo.findAll();
 
-        api.getRestPing().queue((apiPing) -> {
-            String javaVersion = System.getProperty("java.version");
-            Runtime runtime = Runtime.getRuntime();
-            long totalMemory = runtime.totalMemory();
-            long freeMemory = runtime.freeMemory();
-            long usedMemory = totalMemory - freeMemory;
-            long gatewayPing = api.getGatewayPing();
-            long initTime = Main.getInitTime();
-            int activeThreads = Thread.activeCount();
+        ctx.ack();
+        String javaVersion = System.getProperty("java.version");
+        Runtime runtime = Runtime.getRuntime();
+        long apiPing = api.getRestPing().complete();
+        long gatewayPing = api.getGatewayPing();
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        long usedMemory = totalMemory - freeMemory;
+        long initTime = Main.getInitTime();
+        long unbPing = findUnbelievaLatency(self);
+        long imageryPing = findImageryLatency(guild, roles);
+        int activeThreads = Thread.activeCount();
 
-            MessageEmbed embed = embed(
-                    guild,
-                    javaVersion,
-                    usedMemory / megaBytes,
-                    apiPing,
-                    gatewayPing,
-                    initTime,
-                    activeThreads
-            );
-            ctx.replyEmbeds(embed);
-        });
-        return Status.OK;
+        MessageEmbed embed = embed(guild, javaVersion, usedMemory / MEGABYTES, apiPing,
+                gatewayPing, unbPing, imageryPing, initTime, activeThreads);
+
+        return ctx.replyEmbeds(embed);
     }
 
-    private MessageEmbed embed(Guild guild, String javaVersion, long usedMemoryMB, long apiPing, long gatewayPing, long initTime, int threadCount) {
+    @Override
+    protected void init() {
+        setDesc("Veja os status do bot :)");
+
+        setCooldown(false, true, 30, TimeUnit.SECONDS);
+    }
+
+    private long findUnbelievaLatency(Member self) {
+        long init = System.currentTimeMillis();
+        unbelievaBoatClient.get(self.getIdLong(), self.getGuild().getIdLong());
+        long end = System.currentTimeMillis();
+        return end - init;
+    }
+
+    private long findImageryLatency(Guild guild, List<LevelRole> roles) {
+        long init = System.currentTimeMillis();
+        LevelsRolesCommand.getRolesImage(guild, roles);
+        long end = System.currentTimeMillis();
+        return end - init;
+    }
+
+    private MessageEmbed embed(Guild guild, String javaVersion, long usedMemoryMB, long apiPing,
+                               long gatewayPing, long unbPing, long imageryPing, long initTime, int threadCount) {
         EmbedBuilder builder = new EmbedBuilder();
 
-        String formattedPing = String.format("Gateway Ping: `%dms`.\nAPI Ping: `%dms`.", gatewayPing, apiPing);
+        String formattedPing = formatPing(apiPing, gatewayPing, unbPing, imageryPing);
         String threads = String.format("%02d", threadCount);
         String uptime = String.format("<t:%d>\n<t:%1$d:R>", initTime);
         int guildCount = Main.getApi().getGuilds().size();
@@ -68,8 +99,12 @@ public class BotStatusCommand extends SlashCommand {
                 .build();
     }
 
-    @Override
-    protected void init() {
-        setDesc("Veja os status do bot :)");
+    private String formatPing(long apiPing, long gatewayPing, long unbPing, long imageryPing) {
+        return String.format("""
+                Gateway Ping: `%dms`.
+                API Ping: `%dms`.
+                Unbelieva Ping: `%dms`.
+                Imagery Ping: `%dms`.
+                """, apiPing, gatewayPing, unbPing, imageryPing);
     }
 }

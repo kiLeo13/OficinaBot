@@ -45,7 +45,7 @@ public class LevelsRolesCommand extends SlashCommand {
         return ctx.replyFile(img, "levels.png");
     }
 
-    private byte[] getRolesImage(Guild guild, List<LevelRole> roles) {
+    public static byte[] getRolesImage(Guild guild, List<LevelRole> roles) {
         DataObject payload = finalizeData(guild, roles);
         RequestMapper result = Route.Images.CREATE_ROLES_CARD.create()
                 .setBody(payload)
@@ -59,7 +59,7 @@ public class LevelsRolesCommand extends SlashCommand {
         return Base64.getDecoder().decode(cardImage);
     }
 
-    private DataObject finalizeData(Guild guild, List<LevelRole> roles) {
+    private static DataObject finalizeData(Guild guild, List<LevelRole> roles) {
         DataObject guildDTO = DataObject.empty()
                 .put("name", guild.getName())
                 .put("icon_url", guild.getIconUrl());
