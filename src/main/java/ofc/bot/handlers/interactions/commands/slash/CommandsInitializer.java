@@ -170,7 +170,7 @@ public final class CommandsInitializer {
                 // Generic
                 new AvatarCommand(),
                 new BackupMemberRolesCommand(bckpRepo),
-                new BotStatusCommand(),
+                new BotStatusCommand(lvlRoleRepo),
                 new ClearMessagesCommand(),
                 new CreateChangelogEntryCommand(),
                 new GuildInfoCommand(),

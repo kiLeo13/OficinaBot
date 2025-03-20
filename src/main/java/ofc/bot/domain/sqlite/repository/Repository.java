@@ -41,6 +41,10 @@ public abstract class Repository<T extends OficinaRecord<T>> {
         save(this.getContext(), rec);
     }
 
+    public final int countAll() {
+        return ctx.fetchCount(getTable());
+    }
+
     public final void save(@NotNull DSLContext ctx, @NotNull T rec) {
         ctx.insertInto(rec.getTable())
                 .set(rec.intoMap())

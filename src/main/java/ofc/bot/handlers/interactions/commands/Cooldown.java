@@ -6,8 +6,8 @@ import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 
-public record Cooldown(boolean managerBypass, long waitSeconds) {
-    public static final Cooldown EMPTY = new Cooldown(true, 0);
+public record Cooldown(boolean managerBypass, boolean global, long waitSeconds) {
+    public static final Cooldown EMPTY = new Cooldown(true, false, 0);
 
     public Cooldown {
         Checks.notNegative(waitSeconds, "Wait Seconds");

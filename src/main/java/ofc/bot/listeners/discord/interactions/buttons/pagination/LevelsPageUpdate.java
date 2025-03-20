@@ -12,8 +12,8 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
-import ofc.bot.handlers.paginations.PaginationItem;
-import ofc.bot.handlers.paginations.Paginators;
+import ofc.bot.handlers.paginations.PageItem;
+import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import ofc.bot.util.embeds.EmbedFactory;
@@ -33,7 +33,7 @@ public class LevelsPageUpdate implements InteractionListener<ButtonClickContext>
         int pageIndex = ctx.get("page_index");
         long userId = ctx.get("user_id");
         Guild guild = ctx.getGuild();
-        PaginationItem<LevelView> pageItem = Paginators.viewLevels(LevelsCommand.PAGE_SIZE, pageIndex);
+        PageItem<LevelView> pageItem = Paginator.viewLevels(LevelsCommand.PAGE_SIZE, pageIndex);
 
         if (pageItem.isEmpty())
             return Status.LEADERBOARD_IS_EMPTY;

@@ -129,7 +129,7 @@ public final class EntityInitializerManager {
 
                 // Pagination
                 new BirthdayPageUpdate(bdayRepo),
-                new LeaderboardOffsetUpdate(ecoRepo),
+                new LeaderboardOffsetUpdate(),
                 new LevelsPageUpdate(xpRepo),
                 new NamesPageUpdate(namesRepo),
                 new ProposalListPagination(mreqRepo),

@@ -47,7 +47,7 @@ public final class MapperFactory {
         return new LeaderboardUser(
                 rec.get(USERS.NAME),
                 rec.get(USERS_ECONOMY.USER_ID),
-                rec.get(USERS_ECONOMY.BANK)
+                rec.get("balance", long.class)
         );
     }
 

@@ -2,14 +2,14 @@ package ofc.bot.handlers.paginations;
 
 import java.util.List;
 
-public class PaginationItem<T>{
+public class PageItem<T>{
     private final List<T> entities;
     private final int pageIndex;
     private final int offset;
     private final int pageCount;
     private final int rowCount;
 
-    protected PaginationItem(List<T> entities, int pageIndex, int offset, int pageCount, int rowCount) {
+    protected PageItem(List<T> entities, int pageIndex, int offset, int pageCount, int rowCount) {
         this.entities = entities;
         this.pageIndex = pageIndex;
         this.offset = offset;

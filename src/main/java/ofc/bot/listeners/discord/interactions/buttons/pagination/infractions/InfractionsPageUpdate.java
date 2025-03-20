@@ -11,8 +11,8 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
-import ofc.bot.handlers.paginations.PaginationItem;
-import ofc.bot.handlers.paginations.Paginators;
+import ofc.bot.handlers.paginations.PageItem;
+import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
@@ -30,7 +30,7 @@ public class InfractionsPageUpdate implements InteractionListener<ButtonClickCon
         long targetId = ctx.get("target_id");
         long guildId = ctx.getGuildId();
         Guild guild = ctx.getGuild();
-        PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(
+        PageItem<MemberPunishment> infrs = Paginator.viewInfractions(
                 targetId, guildId, InfractionsCommand.PAGE_SIZE, pageIndex, showInactive);
 
         if (infrs.isEmpty())

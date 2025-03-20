@@ -39,6 +39,17 @@ public class CommandHistoryRepository extends Repository<CommandHistory> {
                 .orElse(0L);
     }
 
+    public long getLastGlobalCall(String cmdName) {
+        return ctx.select(COMMANDS_HISTORY.CREATED_AT)
+                .from(COMMANDS_HISTORY)
+                .where(COMMANDS_HISTORY.COMMAND_NAME.eq(cmdName))
+                .and(COMMANDS_HISTORY.TICKS_COOLDOWN.eq(true))
+                .orderBy(COMMANDS_HISTORY.CREATED_AT.desc())
+                .limit(1)
+                .fetchOptionalInto(long.class)
+                .orElse(0L);
+    }
+
     @NotNull
     @Override
     public InitializableTable<CommandHistory> getTable() {

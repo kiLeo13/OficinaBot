@@ -16,10 +16,12 @@ import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.GroupPermission;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.entity.enums.TransactionType;
+import ofc.bot.domain.viewmodels.LeaderboardUser;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.games.betting.tictactoe.GameGrid;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonContext;
 import ofc.bot.handlers.interactions.modals.contexts.ModalContext;
+import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
 
@@ -117,17 +119,19 @@ public final class EntityContextFactory {
         return List.of(prev.getEntity(), next.getEntity(), delete.getEntity());
     }
 
-    public static List<Button> createLeaderboardButtons(int pageIndex, boolean hasNext) {
+    public static List<Button> createLeaderboardButtons(Paginator<LeaderboardUser> paginator, int pageIndex, boolean hasNext) {
         boolean hasPrevious = pageIndex > 0;
 
         ButtonContext prev = ButtonContext.primary("Previous")
                 .setScope(Scopes.Economy.VIEW_LEADERBOARD)
                 .put("page_index", pageIndex - 1)
+                .put("paginator", paginator)
                 .setEnabled(hasPrevious);
 
         ButtonContext next = ButtonContext.primary("Next")
                 .setScope(Scopes.Economy.VIEW_LEADERBOARD)
                 .put("page_index", pageIndex + 1)
+                .put("paginator", paginator)
                 .setEnabled(hasNext);
 
         INTERACTION_MANAGER.save(prev, next);

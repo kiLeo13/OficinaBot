@@ -14,8 +14,8 @@ import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
-import ofc.bot.handlers.paginations.PaginationItem;
-import ofc.bot.handlers.paginations.Paginators;
+import ofc.bot.handlers.paginations.PageItem;
+import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 
@@ -35,7 +35,7 @@ public class TransactionsCommand extends SlashCommand {
         User user = ctx.getUser();
         List<TransactionType> actions = getTypes(hasChatMoney);
         List<CurrencyType> currencies = getCurrencies(crossEconomy);
-        PaginationItem<BankTransaction> trs = Paginators.viewTransactions(
+        PageItem<BankTransaction> trs = Paginator.viewTransactions(
                 userId, pageIndex, PAGE_SIZE, currencies, actions);
 
         if (trs.isEmpty())

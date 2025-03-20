@@ -12,8 +12,8 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
-import ofc.bot.handlers.paginations.PaginationItem;
-import ofc.bot.handlers.paginations.Paginators;
+import ofc.bot.handlers.paginations.PageItem;
+import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
@@ -57,7 +57,7 @@ public class DeleteInfraction implements InteractionListener<ButtonClickContext>
 
         Bot.fetchUser(targetId).queue(target -> {
             int newPageIndex = Math.max(pageIndex - 1, 0);
-            PaginationItem<MemberPunishment> infrs = Paginators.viewInfractions(
+            PageItem<MemberPunishment> infrs = Paginator.viewInfractions(
                     targetId, guildId, InfractionsCommand.PAGE_SIZE, newPageIndex, showInactive);
 
             if (infrs.isEmpty()) {

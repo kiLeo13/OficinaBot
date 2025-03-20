@@ -123,7 +123,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
         if (cooldown.isZero()) return true;
 
         long now = Bot.unixNow();
-        long lastCall = cmdRepo.getLastCall(userId, cmdName);
+        long lastCall = cooldown.global() ? cmdRepo.getLastGlobalCall(cmdName) : cmdRepo.getLastCall(userId, cmdName);
         long nextCall = cooldown.getNextCall(issuer, lastCall);
 
         if (nextCall > now) {

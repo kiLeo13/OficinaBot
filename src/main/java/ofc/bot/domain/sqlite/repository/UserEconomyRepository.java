@@ -8,8 +8,6 @@ import ofc.bot.domain.sqlite.MapperFactory;
 import ofc.bot.domain.tables.UsersEconomyTable;
 import ofc.bot.domain.tables.UsersTable;
 import ofc.bot.domain.viewmodels.LeaderboardUser;
-import ofc.bot.domain.viewmodels.LeaderboardView;
-import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
@@ -211,20 +209,22 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
         return findRankByUser(findByUserId(userId));
     }
 
-    public LeaderboardView viewLeaderboard(int pageIndex) {
-        int offset = pageIndex * LeaderboardCommand.MAX_USERS_PER_PAGE;
-        int rowsCount = ctx.fetchCount(USERS_ECONOMY);
-        Result<?> userEconomyData = ctx.select(USERS_ECONOMY.USER_ID, USERS_ECONOMY.WALLET, USERS_ECONOMY.BANK, USERS.NAME)
+    public List<LeaderboardUser> viewLeaderboard(LeaderboardCommand.Scope scope, int offset) {
+        var valueField = switch (scope) {
+            case WALLET -> USERS_ECONOMY.WALLET;
+            case BANK -> USERS_ECONOMY.BANK;
+            case ALL -> USERS_ECONOMY.WALLET.plus(USERS_ECONOMY.BANK);
+        };
+
+        Result<?> userEconomyData = ctx.select(USERS_ECONOMY.USER_ID, valueField.cast(long.class).as("balance"), USERS.NAME)
                 .from(USERS_ECONOMY)
                 .leftJoin(USERS).on(USERS_ECONOMY.USER_ID.eq(USERS.ID))
                 .groupBy(USERS_ECONOMY.USER_ID)
-                .orderBy(USERS_ECONOMY.BANK.plus(USERS_ECONOMY.WALLET).desc())
+                .orderBy(valueField.desc())
                 .offset(offset)
                 .limit(10)
                 .fetch();
 
-        int maxPages = Bot.calcMaxPages(rowsCount, LeaderboardCommand.MAX_USERS_PER_PAGE);
-        List<LeaderboardUser> usersView = userEconomyData.map(MapperFactory::mapLeaderboardUsers);
-        return new LeaderboardView(usersView, pageIndex, maxPages);
+        return userEconomyData.map(MapperFactory::mapLeaderboardUsers);
     }
 }

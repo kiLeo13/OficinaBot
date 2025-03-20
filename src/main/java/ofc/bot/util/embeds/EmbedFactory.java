@@ -8,7 +8,7 @@ import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.*;
 import ofc.bot.domain.viewmodels.*;
 import ofc.bot.handlers.economy.CurrencyType;
-import ofc.bot.handlers.paginations.PaginationItem;
+import ofc.bot.handlers.paginations.PageItem;
 import ofc.bot.util.Bot;
 import ofc.bot.util.OficinaEmbed;
 
@@ -60,7 +60,7 @@ public final class EmbedFactory {
                 .build();
     }
 
-    public static MessageEmbed embedTransactions(User user, Guild guild, PaginationItem<BankTransaction> trs) {
+    public static MessageEmbed embedTransactions(User user, Guild guild, PageItem<BankTransaction> trs) {
         OficinaEmbed builder = new OficinaEmbed();
         String title = String.format("Transações de %s", user.getEffectiveName());
         String resultsFound = String.format("Resultados encontrados: `%s`.", Bot.fmtNum(trs.getRowCount()));
@@ -76,7 +76,7 @@ public final class EmbedFactory {
     }
 
     public static MessageEmbed embedInfractions(
-            User user, Guild guild, PaginationItem<MemberPunishment> infrs, long moderatorId
+            User user, Guild guild, PageItem<MemberPunishment> infrs, long moderatorId
     ) {
         OficinaEmbed builder = new OficinaEmbed();
         MemberPunishment infr = infrs.get(0);
@@ -100,23 +100,22 @@ public final class EmbedFactory {
                 .build();
     }
 
-    public static MessageEmbed embedLeaderboard(Guild guild, LeaderboardView leaderboard) {
+    public static MessageEmbed embedLeaderboard(Guild guild, PageItem<LeaderboardUser> lb) {
         EmbedBuilder builder = new EmbedBuilder();
 
-        int page = leaderboard.pageIndex() + 1;
-        String pages = String.format("Pág %s/%s", Bot.fmtNum(page), Bot.fmtNum(leaderboard.maxPages()));
-        List<LeaderboardUser> users = leaderboard.usersData();
+        int page = lb.getPage();
+        String pages = String.format("Pág %s/%s", Bot.fmtNum(page), Bot.fmtNum(lb.getPageCount()));
+        List<LeaderboardUser> users = lb.getEntities();
 
-        builder
+        return builder
                 .setAuthor("Economy Leaderboard", null, UserEconomy.BANK_ICON)
                 .setDescription("💸 Placar de Líderes Global.\n\n" + formatLeaderboardUsers(users, page))
                 .setColor(Bot.Colors.DEFAULT)
-                .setFooter(pages, guild.getIconUrl());
-
-        return builder.build();
+                .setFooter(pages, guild.getIconUrl())
+                .build();
     }
 
-    public static MessageEmbed embedLevels(Guild guild, LevelView user, PaginationItem<LevelView> levels) {
+    public static MessageEmbed embedLevels(Guild guild, LevelView user, PageItem<LevelView> levels) {
         EmbedBuilder builder = new EmbedBuilder();
 
         int page = levels.getPage();
@@ -548,7 +547,7 @@ public final class EmbedFactory {
         ).strip();
     }
 
-    private static String formatLevelUsers(PaginationItem<LevelView> levels) {
+    private static String formatLevelUsers(PageItem<LevelView> levels) {
         StringBuilder builder = new StringBuilder();
         List<LevelView> entities = levels.getEntities();
         int offset = levels.getOffset();
@@ -567,7 +566,7 @@ public final class EmbedFactory {
 
     private static String formatLeaderboardUsers(List<LeaderboardUser> users, int page) {
         StringBuilder builder = new StringBuilder();
-        int offset = (page - 1) * LeaderboardCommand.MAX_USERS_PER_PAGE;
+        int offset = (page - 1) * LeaderboardCommand.PAGE_SIZE;
         int pos = 1;
 
         for (LeaderboardUser er : users) {

@@ -13,8 +13,8 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.EntityContextFactory;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
-import ofc.bot.handlers.paginations.PaginationItem;
-import ofc.bot.handlers.paginations.Paginators;
+import ofc.bot.handlers.paginations.PageItem;
+import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.Bot;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
@@ -32,7 +32,7 @@ public class TransactionsPagination implements InteractionListener<ButtonClickCo
         List<CurrencyType> currencies = ctx.get("currencies");
         List<TransactionType> actions = ctx.get("actions");
         Guild guild = ctx.getGuild();
-        PaginationItem<BankTransaction> trs = Paginators.viewTransactions(
+        PageItem<BankTransaction> trs = Paginator.viewTransactions(
                 userId, pageIndex, TransactionsCommand.PAGE_SIZE, currencies, actions);
 
         if (trs.isEmpty())

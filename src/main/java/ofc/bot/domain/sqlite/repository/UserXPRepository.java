@@ -63,10 +63,6 @@ public class UserXPRepository extends Repository<UserXP> {
                 .orElse(0);
     }
 
-    public int countAll() {
-        return ctx.fetchCount(USERS_XP);
-    }
-
     public LevelView viewLevelByUserId(long userId) {
         Record levelData = ctx.select(USERS_XP.USER_ID, USERS_XP.LEVEL, USERS_XP.XP, USERS.NAME)
                 .from(USERS_XP)

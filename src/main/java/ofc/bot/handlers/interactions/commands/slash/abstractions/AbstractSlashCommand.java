@@ -84,8 +84,12 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
         this.description = desc;
     }
 
+    protected final void setCooldown(boolean staffBypass, boolean global, int period, TimeUnit unit) {
+        this.cooldown = new Cooldown(staffBypass, global, unit.toSeconds(period));
+    }
+
     protected final void setCooldown(boolean staffBypass, int period, TimeUnit unit) {
-        this.cooldown = new Cooldown(staffBypass, unit.toSeconds(period));
+        this.setCooldown(staffBypass, false, period, unit);
     }
 
     protected final void setCooldown(int period, TimeUnit unit) {
