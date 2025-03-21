@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public final class DefaultRequester implements Requester {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRequester.class);
-    private static final OkHttpClient client = new OkHttpClient();
+    private static final OkHttpClient CLIENT = new OkHttpClient();
     private static final DefaultRequester INSTANCE = new DefaultRequester();
 
     private DefaultRequester() {}
@@ -26,7 +26,7 @@ public final class DefaultRequester implements Requester {
     @Override
     public RequestMapper makeRequest(@NotNull Supplier<Request> supplier) throws HttpRequestException {
         Request req = supplier.get();
-        try (Response resp = client.newCall(req).execute()) {
+        try (Response resp = CLIENT.newCall(req).execute()) {
             ResponseBody body = resp.body();
             byte[] bytes = body == null ? new byte[0] : body.bytes();
             int code = resp.code();
