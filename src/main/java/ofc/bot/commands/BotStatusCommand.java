@@ -65,14 +65,18 @@ public class BotStatusCommand extends SlashCommand {
 
     private long findUnbelievaLatency(Member self) {
         long init = System.currentTimeMillis();
-        unbelievaBoatClient.get(self.getIdLong(), self.getGuild().getIdLong());
+        boolean ok = unbelievaBoatClient.get(self.getIdLong(), self.getGuild().getIdLong()) != null;
+        if (!ok) return 0;
+
         long end = System.currentTimeMillis();
         return end - init;
     }
 
     private long findImageryLatency(Guild guild, List<LevelRole> roles) {
         long init = System.currentTimeMillis();
-        LevelsRolesCommand.getRolesImage(guild, roles);
+        boolean ok = LevelsRolesCommand.getRolesImage(guild, roles).length != 0;
+        if (!ok) return 0;
+
         long end = System.currentTimeMillis();
         return end - init;
     }
@@ -103,8 +107,12 @@ public class BotStatusCommand extends SlashCommand {
         return String.format("""
                 Gateway Ping: `%dms`.
                 API Ping: `%dms`.
-                Unbelieva Ping: `%dms`.
-                Imagery Ping: `%dms`.
-                """, apiPing, gatewayPing, unbPing, imageryPing);
+                Unbelieva Ping: %s.
+                Imagery Ping: %s.
+                """, apiPing, gatewayPing,
+
+                // Non Discord-related
+                unbPing == 0 ? "❌" : String.format("`%dms`", unbPing),
+                imageryPing == 0 ? "❌" : String.format("`%dms`", imageryPing));
     }
 }
