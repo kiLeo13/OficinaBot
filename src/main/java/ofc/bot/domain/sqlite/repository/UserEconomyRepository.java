@@ -209,7 +209,7 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
         return findRankByUser(findByUserId(userId));
     }
 
-    public List<LeaderboardUser> viewLeaderboard(LeaderboardCommand.Scope scope, int offset) {
+    public List<LeaderboardUser> viewLeaderboard(LeaderboardCommand.Scope scope, int offset, int limit) {
         var valueField = switch (scope) {
             case WALLET -> USERS_ECONOMY.WALLET;
             case BANK -> USERS_ECONOMY.BANK;
@@ -222,7 +222,7 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
                 .groupBy(USERS_ECONOMY.USER_ID)
                 .orderBy(valueField.desc())
                 .offset(offset)
-                .limit(10)
+                .limit(limit)
                 .fetch();
 
         return userEconomyData.map(MapperFactory::mapLeaderboardUsers);

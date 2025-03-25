@@ -34,7 +34,7 @@ public class LeaderboardCommand extends SlashCommand {
         int pageIndex = ctx.getOption("page", 1, OptionMapping::getAsInt) - 1;
         Scope scope = ctx.getEnumOption("scope", Scope.ALL, Scope.class);
         Guild guild = ctx.getGuild();
-        Paginator<LeaderboardUser> paginator = Paginator.of((i) -> ecoRepo.viewLeaderboard(scope, i), ecoRepo::countAll, PAGE_SIZE);
+        Paginator<LeaderboardUser> paginator = Paginator.of((o) -> ecoRepo.viewLeaderboard(scope, o, PAGE_SIZE), ecoRepo::countAll, PAGE_SIZE);
         PageItem<LeaderboardUser> lb = paginator.next(pageIndex);
         int lastPageIndex = lb.lastPageIndex();
 

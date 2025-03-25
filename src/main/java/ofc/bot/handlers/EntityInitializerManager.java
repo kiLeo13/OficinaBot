@@ -37,6 +37,8 @@ import ofc.bot.listeners.discord.interactions.buttons.groups.*;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.*;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.DeleteInfraction;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.InfractionsPageUpdate;
+import ofc.bot.listeners.discord.interactions.buttons.pagination.reminders.DeleteReminder;
+import ofc.bot.listeners.discord.interactions.buttons.pagination.reminders.RemindersPageUpdate;
 import ofc.bot.listeners.discord.interactions.dm.DirectMessageReceived;
 import ofc.bot.listeners.discord.interactions.menus.ChoosableRolesListener;
 import ofc.bot.listeners.discord.interactions.modals.ChangelogCreationHandler;
@@ -88,6 +90,7 @@ public final class EntityInitializerManager {
                     new HappyNewYearAnnouncement(),
                     new NickTimeUpdate(),
                     new QueryCountPrinter(),
+                    new RemindersHandler(),
                     new ToddyMedicineReminder(),
 
                     // Voice Income
@@ -119,6 +122,7 @@ public final class EntityInitializerManager {
         var ecoRepo      = Repositories.getUserEconomyRepository();
         var appBanRepo   = Repositories.getAppUserBanRepository();
         var bdayRepo     = Repositories.getBirthdayRepository();
+        var remRepo      = Repositories.getReminderRepository();
         var betRepo      = Repositories.getBetGameRepository();
         var xpRepo       = Repositories.getUserXPRepository();
 
@@ -126,6 +130,10 @@ public final class EntityInitializerManager {
                 // Infractions
                 new DeleteInfraction(pnshRepo),
                 new InfractionsPageUpdate(),
+
+                // Reminders
+                new DeleteReminder(remRepo),
+                new RemindersPageUpdate(),
 
                 // Pagination
                 new BirthdayPageUpdate(bdayRepo),

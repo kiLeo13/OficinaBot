@@ -20,6 +20,7 @@ import ofc.bot.commands.policies.AddPolicyCommand;
 import ofc.bot.commands.policies.RemovePolicyCommand;
 import ofc.bot.commands.relationships.*;
 import ofc.bot.commands.relationships.marriages.*;
+import ofc.bot.commands.reminders.*;
 import ofc.bot.commands.stafflist.RefreshStaffListMessageCommand;
 import ofc.bot.commands.stafflist.StaffListMessagesRegenerateCommand;
 import ofc.bot.commands.userinfo.UserinfoCommand;
@@ -58,6 +59,7 @@ public final class CommandsInitializer {
         var namesRepo   = Repositories.getUserNameUpdateRepository();
         var userRepo    = Repositories.getUserRepository();
         var xpRepo      = Repositories.getUserXPRepository();
+        var remRepo     = Repositories.getReminderRepository();
 
         // Additionals
         SlashCommand additionals = new EmptySlashCommand("additionals", "Gerencia recursos adicionais/misc do bot.", Permission.MANAGE_SERVER)
@@ -110,6 +112,14 @@ public final class CommandsInitializer {
                 .addSubcommand(new LeaveGroupCommand(grpRepo))
                 .addSubcommand(new ModifyGroupCommand(grpRepo));
 
+        // Reminders
+        SlashCommand remind = new EmptySlashCommand("remind", "Crie lembretes para organizar sua rotina.")
+                .addSubcommand(new CreateAtReminderCommand(remRepo))
+                .addSubcommand(new CreateCronReminderCommand(remRepo))
+                .addSubcommand(new CreateFixedReminderCommand(remRepo))
+                .addSubcommand(new CreatePeriodicReminderCommand(remRepo))
+                .addSubcommand(new ListRemindersCommand());
+
         List<SlashCommand> cmds = List.of(
                 // Compound Commands
                 additionals,
@@ -117,6 +127,7 @@ public final class CommandsInitializer {
                 birthday,
                 policies,
                 marriage,
+                remind,
                 customizeUserinfo,
                 group,
 

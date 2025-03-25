@@ -52,6 +52,17 @@ public class OficinaEmbed extends EmbedBuilder {
         return setDesc(String.format(format, args));
     }
 
+    public OficinaEmbed setDescIf(boolean expression, @Nullable String desc) {
+        if (expression) {
+            setDesc(desc);
+        }
+        return this;
+    }
+
+    public OficinaEmbed setDescfIf(boolean expression, @NotNull String format, Object... args) {
+        return setDescIf(expression, String.format(format, args));
+    }
+
     @NotNull
     @Override
     public OficinaEmbed appendDescription(@NotNull CharSequence description) {

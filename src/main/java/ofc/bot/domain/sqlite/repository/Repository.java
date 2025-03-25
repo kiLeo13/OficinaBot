@@ -47,7 +47,7 @@ public abstract class Repository<T extends OficinaRecord<T>> {
 
     public final void save(@NotNull DSLContext ctx, @NotNull T rec) {
         ctx.insertInto(rec.getTable())
-                .set(rec.intoMap())
+                .set(rec)
                 .onConflictDoNothing()
                 .execute();
     }
@@ -64,13 +64,18 @@ public abstract class Repository<T extends OficinaRecord<T>> {
     }
 
     public final void transactionUpserts(List<T> recs, Consumer<Void> success, Consumer<Throwable> failure) {
-        this.ctx.transaction((cfg) -> {
-            DSLContext trsCtx = cfg.dsl();
+        try {
+            this.ctx.transaction((cfg) -> {
+                DSLContext trsCtx = cfg.dsl();
 
-            for (T rec : recs) {
-                upsert(trsCtx, rec);
-            }
-        });
+                for (T rec : recs) {
+                    upsert(trsCtx, rec);
+                }
+            });
+            success.accept(null);
+        } catch (Exception e) {
+            failure.accept(e);
+        }
     }
 
     public final void upsert(@NotNull DSLContext ctx, @NotNull T rec) {

@@ -3,6 +3,7 @@ package ofc.bot.handlers.paginations;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.MemberPunishment;
+import ofc.bot.domain.entity.Reminder;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.domain.viewmodels.LevelView;
@@ -35,41 +36,40 @@ public final class Paginator<T> {
     public static PageItem<BankTransaction> viewTransactions(long userId, int pageIndex, int pageSize,
                                                              List<CurrencyType> currencies,
                                                              List<TransactionType> types) {
-        BankTransactionRepository bankTrRepo = Repositories.getBankTransactionRepository();
+        final BankTransactionRepository bankTrRepo = Repositories.getBankTransactionRepository();
         int offset = pageIndex * pageSize;
         int rowCount = bankTrRepo.countUserTransactions(userId, currencies, types);
         int maxPages = Bot.calcMaxPages(rowCount, pageSize);
         List<BankTransaction> transactions = bankTrRepo.findUserTransactions(userId, currencies, types, pageSize, offset);
 
-        return new PageItem<>(
-                transactions,
-                pageIndex,
-                offset,
-                maxPages,
-                rowCount
-        );
+        return new PageItem<>(transactions, pageIndex, offset, maxPages, rowCount);
     }
 
     public static PageItem<MemberPunishment> viewInfractions(long targetId, long guildId,
                                                              int pageSize, int pageIndex, boolean showInactive) {
-        MemberPunishmentRepository pnshRepo = Repositories.getMemberPunishmentRepository();
+        final MemberPunishmentRepository pnshRepo = Repositories.getMemberPunishmentRepository();
         int offset = pageIndex * pageSize;
         int rowCount = pnshRepo.countByUserAndGuildId(targetId, guildId);
         int maxPages = Bot.calcMaxPages(rowCount, pageSize);
         List<MemberPunishment> punishments = pnshRepo.findByUserAndGuildId(
                 targetId, guildId, pageSize, offset, showInactive);
 
-        return new PageItem<>(
-                punishments,
-                pageIndex,
-                offset,
-                maxPages,
-                rowCount
-        );
+        return new PageItem<>(punishments, pageIndex, offset, maxPages, rowCount);
+    }
+
+    public static PageItem<Reminder> viewReminders(long userId, int pageIndex) {
+        final ReminderRepository remRepo = Repositories.getReminderRepository();
+
+        // In this case, we don't need to calculate the offset, as only 1 result
+        // can be shown per page, the offset is already the pageIndex itself.
+        List<Reminder> rems = remRepo.viewReminderByUserId(userId, pageIndex, 1);
+        int count = remRepo.countByUserId(userId);
+
+        return new PageItem<>(rems, pageIndex, pageIndex, count, count);
     }
 
     public static PageItem<LevelView> viewLevels(int pageSize, int pageIndex) {
-        UserXPRepository xpRepo = Repositories.getUserXPRepository();
+        final UserXPRepository xpRepo = Repositories.getUserXPRepository();
         int offset = pageIndex * pageSize;
         int rowCount = xpRepo.countAll();
         int maxPages = Bot.calcMaxPages(rowCount, pageSize);

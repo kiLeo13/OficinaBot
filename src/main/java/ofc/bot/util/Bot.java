@@ -52,6 +52,25 @@ public final class Bot {
         );
     }
 
+    public static boolean isZero(Number val) {
+        return val == null || val.doubleValue() == 0;
+    }
+
+    public static boolean isNegative(Number val) {
+        return val == null || val.doubleValue() < 0;
+    }
+
+    /**
+     * Checks whether a number is positive.
+     * {@code 0} is considered a positive value.
+     *
+     * @param val The value to be checked.
+     * @return {@code true} if the provided value is positive, {@code false} otherwise.
+     */
+    public static boolean isPositive(Number val) {
+        return !isNegative(val);
+    }
+
     public static <T> T ifNull(T obj, T fallback) {
         return obj == null ? fallback : obj;
     }

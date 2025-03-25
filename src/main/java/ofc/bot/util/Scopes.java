@@ -18,6 +18,11 @@ public final class Scopes {
         public static final String DELETE_INFRACTION = "DELETE_INFRACTION";
     }
 
+    public static class Reminders {
+        public static final String VIEW_REMINDERS  = "VIEW_REMINDERS";
+        public static final String DELETE_REMINDER = "DELETE_REMINDER";
+    }
+
     public static class Economy {
         public static final String VIEW_LEADERBOARD  = "LEADERBOARD";
         public static final String VIEW_TRANSACTIONS = "VIEW_TRANSACTIONS";

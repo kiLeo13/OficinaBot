@@ -3,6 +3,7 @@ package ofc.bot.util.embeds;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.redhogs.cronparser.CronExpressionDescriptor;
 import ofc.bot.commands.economy.LeaderboardCommand;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.*;
@@ -13,9 +14,8 @@ import ofc.bot.util.Bot;
 import ofc.bot.util.OficinaEmbed;
 
 import java.awt.*;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneOffset;
+import java.text.ParseException;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.List;
@@ -97,6 +97,93 @@ public final class EmbedFactory {
                 .addFieldIf(!active, "🚫 Removido por", delAuthorMention)
                 .addField("📖 Motivo", infr.getReason(), false)
                 .setFooter(pages, guild.getIconUrl())
+                .build();
+    }
+
+    public static MessageEmbed embedReminder(User user, Reminder rem) {
+        OficinaEmbed builder = new OficinaEmbed();
+
+        int times = rem.getTriggerTimes();
+        int timesLeft = rem.getTriggersLeft();
+        long timeCreated = rem.getTimeCreated();
+        long lastTrigger = rem.getLastTimeTriggered();
+        ChannelType chanType = rem.getChannelType();
+        String channel = chanType ==  ChannelType.PRIVATE ? "Privado" : String.format("<#%d>", rem.getChannelId());
+        String head = String.format("Lembrete de %s", user.getEffectiveName());
+        String message = rem.getMessage();
+        String execDescription = formatReminderValue(rem);
+        String execTimes = times == 1 ? "1 vez" : times + " vezes";
+        String execTimesLeft = timesLeft == 1 ? "1 execução" : timesLeft + " execuções";
+        String execLastTime = String.format("<t:%d:F>", lastTrigger);
+        Color color = rem.isExpired() ? DANGER_RED : Bot.Colors.DEFAULT;
+        ReminderType type = rem.getType();
+
+        return builder
+                .setAuthor(head, null, user.getEffectiveAvatarUrl())
+                .setDesc(message)
+                .setColor(color)
+                .addField("📖 Canal", channel, true)
+                .addField("🎈 Tipo", type.getName(), true)
+                .addField("⏰ Lembrete", execDescription, true)
+                .addFieldIf(times != -1, "⚙️ Execuções", execTimes, true)
+                .addFieldIf(lastTrigger > 0, "⌛ Última Execução", execLastTime)
+                .addFieldIf(timesLeft > 0, "🕒 Restam", execTimesLeft)
+                .setTimestamp(Instant.ofEpochSecond(timeCreated))
+                .build();
+    }
+    
+    public static MessageEmbed embedReminderDeleted(User user) {
+        EmbedBuilder builder = new EmbedBuilder();
+        
+        return builder
+                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                .setColor(DANGER_RED)
+                .setDescription("🗑 Lembrete apagado com sucesso!")
+                .build();
+    }
+
+    public static MessageEmbed embedReminderTrigger(String message, long timeCreated) {
+        EmbedBuilder builder = new EmbedBuilder();
+
+        return builder
+                .setTitle("Lembrete")
+                .setColor(Bot.Colors.DEFAULT)
+                .setDescription(message)
+                .setTimestamp(Instant.ofEpochSecond(timeCreated))
+                .build();
+    }
+
+    public static MessageEmbed embedAtReminder(User user, ZonedDateTime moment) {
+        OficinaEmbed builder = new OficinaEmbed();
+        long epoch = moment.toInstant().getEpochSecond();
+
+        return builder
+                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                .setColor(OK_GREEN)
+                .setDescf("Lembrarei você em <t:%d:F>.", epoch)
+                .build();
+    }
+
+    public static MessageEmbed embedCronReminder(User user, String expression) {
+        OficinaEmbed builder = new OficinaEmbed();
+
+        return builder
+                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                .setColor(OK_GREEN)
+                .setDescf("Lembrarei você baseado na expressão: `%s`.", expression)
+                .build();
+    }
+
+    public static MessageEmbed embedPeriodicReminder(User user, long period, int repeat) {
+        OficinaEmbed builder = new OficinaEmbed();
+        int times = repeat + 1;
+        String timesText = times == 1 ? "vez" : "vezes";
+        String fmtPeriod = Bot.parsePeriod(period);
+
+        return builder
+                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                .setColor(OK_GREEN)
+                .setDescf("Lembrarei você %d %s a cada %s.", times, timesText, fmtPeriod)
                 .build();
     }
 
@@ -585,6 +672,23 @@ public final class EmbedFactory {
     private static String getMonthDisplay(Month month) {
         String rawDisplay = month.getDisplayName(TextStyle.FULL, Bot.defaultLocale());
         return Bot.upperFirst(rawDisplay);
+    }
+
+    private static String formatReminderValue(Reminder rem) {
+        return switch (rem.getType()) {
+            case AT -> String.format("<t:%d:F>", rem.getReminderValue());
+            case PERIOD -> String.format("A cada %s", Bot.parsePeriod(rem.getReminderValue()));
+            case CRON -> String.format("`%s`\n> %s", rem.getExpression(), describeExpression(rem.getExpression()));
+        };
+    }
+
+    private static String describeExpression(String exp) {
+        if (exp == null || exp.isBlank()) return null;
+        try {
+            return CronExpressionDescriptor.getDescription(exp, Bot.defaultLocale()) + '.';
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     private static final class TransactionEntryBuilder {

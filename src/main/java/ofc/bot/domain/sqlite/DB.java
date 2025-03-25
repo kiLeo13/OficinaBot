@@ -65,6 +65,7 @@ public final class DB {
                 MembersEmojisTable.MEMBERS_EMOJIS,
                 MembersPunishmentsTable.MEMBERS_PUNISHMENTS,
                 OficinaGroupsTable.OFICINA_GROUPS,
+                RemindersTable.REMINDERS,
                 TempBansTable.TEMP_BANS,
                 UserNamesUpdatesTable.USERNAMES_UPDATES,
                 UsersEconomyTable.USERS_ECONOMY,

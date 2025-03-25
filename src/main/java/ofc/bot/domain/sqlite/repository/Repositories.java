@@ -25,6 +25,7 @@ public final class Repositories {
     private static MemberEmojiRepository memberEmojiRepository;
     private static MemberPunishmentRepository memberPunishmentRepository;
     private static OficinaGroupRepository oficinaGroupRepository;
+    private static ReminderRepository reminderRepository;
     private static TempBanRepository tempBanRepository;
     private static UserEconomyRepository userEconomyRepository;
     private static UserNameUpdateRepository userNameUpdateRepository;
@@ -137,6 +138,11 @@ public final class Repositories {
     public static OficinaGroupRepository getOficinaGroupRepository() {
         if (oficinaGroupRepository == null) oficinaGroupRepository = new OficinaGroupRepository(getDSLContext());
         return oficinaGroupRepository;
+    }
+
+    public static ReminderRepository getReminderRepository() {
+        if (reminderRepository == null) reminderRepository = new ReminderRepository(getDSLContext());
+        return reminderRepository;
     }
 
     public static TempBanRepository getTempBanRepository() {

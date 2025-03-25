@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import ofc.bot.domain.entity.GroupBot;
 import ofc.bot.domain.entity.OficinaGroup;
+import ofc.bot.domain.entity.Reminder;
 import ofc.bot.domain.entity.enums.GroupPermission;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.entity.enums.TransactionType;
@@ -136,6 +137,33 @@ public final class EntityContextFactory {
 
         INTERACTION_MANAGER.save(prev, next);
         return List.of(prev.getEntity(), next.getEntity());
+    }
+
+    public static List<Button> createRemindersButtons(Reminder rem, int pageIndex, boolean hasNext) {
+        long userId = rem.getUserId();
+        boolean hasPrevious = pageIndex > 0;
+
+        ButtonContext prev = ButtonContext.primary("Previous")
+                .setScope(Scopes.Reminders.VIEW_REMINDERS)
+                .put("page_index", pageIndex - 1)
+                .addUser(userId)
+                .setEnabled(hasPrevious);
+
+        ButtonContext next = ButtonContext.primary("Next")
+                .setScope(Scopes.Reminders.VIEW_REMINDERS)
+                .put("page_index", pageIndex + 1)
+                .addUser(userId)
+                .setEnabled(hasNext);
+
+        ButtonContext delete = ButtonContext.danger(Emoji.fromUnicode("🗑"))
+                .setScope(Scopes.Reminders.DELETE_REMINDER)
+                .addUser(userId)
+                .put("page_index", pageIndex)
+                .put("reminder_id", rem.getId())
+                .setEnabled(!rem.isExpired());
+
+        INTERACTION_MANAGER.save(prev, next, delete);
+        return List.of(prev.getEntity(), next.getEntity(), delete.getEntity());
     }
 
     public static List<Button> createLevelsButtons(long userId, int pageIndex, boolean hasNext) {
