@@ -1,15 +1,12 @@
 package ofc.bot.listeners.discord.interactions.buttons.groups;
 
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.exceptions.ErrorHandler;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.events.eventbus.EventBus;
+import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
@@ -36,7 +33,6 @@ public class GroupInvoicePaymentHandler implements InteractionListener<ButtonCli
         OficinaGroup group = ctx.get("group");
         CurrencyType currency = group.getCurrency();
         PaymentManager bank = PaymentManagerProvider.fromType(currency);
-        User user = ctx.getUser();
         long guildId = ctx.getGuildId();
         long ownerId = ctx.getUserId();
         int value = ctx.get("amount");
@@ -55,25 +51,12 @@ public class GroupInvoicePaymentHandler implements InteractionListener<ButtonCli
         try {
             grpRepo.upsert(group);
             dispatchInvoicePaymentEvent(currency, ownerId, value);
-            sendPaymentConfirmation(user, value);
 
             return Status.INVOICE_SUCCESSFULLY_PAID.args(Bot.fmtMoney(value));
         } catch (DataAccessException e) {
             chargeAction.rollback();
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
         }
-    }
-
-    private void sendPaymentConfirmation(User user, int amount) {
-        String msg = getConfirmationMessage(user, amount);
-        user.openPrivateChannel()
-                .flatMap(chan -> chan.sendMessage(msg))
-                .queue(null, new ErrorHandler().ignore(ErrorResponse.CANNOT_SEND_TO_USER));
-    }
-
-    private String getConfirmationMessage(User user, int amount) {
-        return String.format("Olá, %s! Gostaria de informar que recebemos o pagamento da sua fatura de %s! Obrigado 😊",
-                user.getEffectiveName(), Bot.fmtMoney(amount));
     }
 
     private void dispatchInvoicePaymentEvent(CurrencyType curr, long userId, int amount) {
