@@ -91,7 +91,6 @@ public final class EntityInitializerManager {
                     new NickTimeUpdate(),
                     new QueryCountPrinter(),
                     new RemindersHandler(),
-                    new ToddyMedicineReminder(),
 
                     // Voice Income
                     new VoiceChatMoneyHandler(),
