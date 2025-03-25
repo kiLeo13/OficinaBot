@@ -208,6 +208,8 @@ public class Reminder extends OficinaRecord<Reminder> {
     }
 
     public int getTriggersLeft() {
+        if (getType().isExpression()) return -1;
+
         if (isExpired()) return 0;
 
         int left = get(REMINDERS.TRIGGERS_LEFT);
