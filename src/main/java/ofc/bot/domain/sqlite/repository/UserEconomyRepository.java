@@ -11,6 +11,7 @@ import ofc.bot.domain.viewmodels.LeaderboardUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Result;
 
 import java.util.List;
@@ -195,13 +196,13 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
     public int findRankByUser(@Nullable UserEconomy eco) {
         if (eco == null) return 0;
 
+        Field<Long> fieldTotal = USERS_ECONOMY.WALLET.cast(long.class).plus(USERS_ECONOMY.BANK.cast(long.class));
         long userId = eco.getUserId();
         long total = eco.getTotal();
         return ctx.fetchCount(
                 USERS_ECONOMY,
-                USERS_ECONOMY.WALLET.plus(USERS_ECONOMY.BANK).cast(long.class).gt(total)
-                        .or(USERS_ECONOMY.WALLET.plus(USERS_ECONOMY.BANK).cast(long.class).eq(total)
-                                .and(USERS_ECONOMY.USER_ID.gt(userId)))
+                fieldTotal.gt(total)
+                        .or(fieldTotal.eq(total).and(USERS_ECONOMY.USER_ID.gt(userId)))
         ) + 1;
     }
 

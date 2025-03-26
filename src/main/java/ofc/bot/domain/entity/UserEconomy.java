@@ -62,7 +62,7 @@ public class UserEconomy extends OficinaRecord<UserEconomy> {
     }
 
     public long getTotal() {
-        return getWallet() + getBank();
+        return ((long) getWallet()) + ((long) getBank());
     }
 
     public long getLastDailyAt() {
