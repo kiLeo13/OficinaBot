@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 
 public class UserXP extends OficinaRecord<UserXP> {
     private static final UsersXPTable USERS_XP = UsersXPTable.USERS_XP;
-    public static final int MIN_CYCLE = 12 * 2;
+    public static final int MIN_CYCLE = 12 * 2 + 1;
     public static final int MAX_CYCLE = 25 * 2;
     public static final String LEADERBOARD_ROW_FORMAT = "` #%d ` **%s** ` nível %s `";
 
