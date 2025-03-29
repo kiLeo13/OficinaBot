@@ -53,6 +53,10 @@ public final class Route {
         return new Route(GET, route);
     }
 
+    public static Route post(String route) {
+        return new Route(POST, route);
+    }
+
     public RequestBuilder create(Object... params) {
         return new RequestBuilder(this.method, String.format(this.route, params));
     }
