@@ -10,6 +10,7 @@ import ofc.bot.handlers.ConsoleQueryHandler;
 import ofc.bot.handlers.EntityInitializerManager;
 import ofc.bot.internal.data.BotData;
 import ofc.bot.internal.data.BotFiles;
+import ofc.bot.twitch.TwitchService;
 import ofc.bot.util.Bot;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
@@ -54,6 +55,9 @@ public final class Main {
         EntityInitializerManager.registerListeners();
         EntityInitializerManager.registerSlashCommands();
         EntityInitializerManager.registerComposedInteractions();
+
+        // Twitch
+        TwitchService.init();
     }
 
     public static JDA getApi() {
