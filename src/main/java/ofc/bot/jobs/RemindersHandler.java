@@ -135,11 +135,11 @@ public class RemindersHandler implements Job {
     }
 
     private void updatePeriodicReminder(Reminder rem) {
-        int repeatsLeft = rem.getTriggersLeft();
+        int triggersLeft = rem.getTriggersLeft();
 
         // Update the amount of repeats left
-        if (repeatsLeft > 0) {
-            rem.setTriggersLeft(repeatsLeft - 1);
+        if (triggersLeft > 0) {
+            rem.setTriggersLeft(triggersLeft - 1);
         }
 
         // Checks if we should set this reminder as expired
