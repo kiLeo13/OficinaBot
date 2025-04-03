@@ -12,6 +12,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.handlers.requests.RequestMapper;
 import ofc.bot.handlers.requests.Route;
+import ofc.bot.internal.data.BotData;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
@@ -46,8 +47,10 @@ public class LevelsRolesCommand extends SlashCommand {
     }
 
     public static byte[] getRolesImage(Guild guild, List<LevelRole> roles) {
+        String key = BotData.get("oficina.aws.api.key");
         DataObject payload = finalizeData(guild, roles);
         RequestMapper result = Route.Images.CREATE_ROLES_CARD.create()
+                .addHeader("x-api-key", key)
                 .setBody(payload)
                 .send();
 
