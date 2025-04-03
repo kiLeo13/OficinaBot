@@ -92,7 +92,7 @@ public class TicTacToeGame implements Bet<Character> {
         this.appBanRepo = appBanRepo;
         this.api = api;
         this.grid = new GameGrid(gridSize);
-        this.players = new HashMap<>(2);
+        this.players = new HashMap<>(REQUIRED_PLAYERS);
         this.status = GameStatus.WAITING;
         this.scheduler = new ElasticScheduler(this::timeout, TIMEOUT);
         this.winnerId = 0;
