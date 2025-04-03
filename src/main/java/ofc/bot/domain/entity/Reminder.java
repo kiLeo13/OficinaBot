@@ -213,7 +213,7 @@ public class Reminder extends OficinaRecord<Reminder> {
         if (isExpired()) return 0;
 
         int left = get(REMINDERS.TRIGGERS_LEFT);
-        return left <= 0 ? 1 : left;
+        return Math.max(left, 0);
     }
 
     public long getLastTimeTriggered() {

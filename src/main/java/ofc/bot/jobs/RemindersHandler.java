@@ -60,15 +60,18 @@ public class RemindersHandler implements Job {
     }
 
     private void handlePeriod(Reminder rem, long now) {
+        // Just a safeguard for reminders that may be never marked as expired
+        if (rem.getTriggersLeft() <= 0) {
+            markAsExpired(rem);
+            return;
+        }
+
         /*
          * We need to determine the correct "anchor time" to calculate when the reminder should trigger.
-         * By default, `getLastTimeTriggered()` is initially stored as `0` in the database when the reminder is created.
+         * As `getLastTimeTriggered()` is initially stored as `0` in the database
+         * when the reminder is created (as it has never been triggered before).
          * If we only relied on `getLastTimeTriggered()`, the reminder would trigger in the next minute
-         * (since `0` would be treated as a past date).
-         *
-         * To fix this, we can run the following "checks":
-         * - If `getLastTimeTriggered() == 0`, we use `getTimeCreated()` as the starting point.
-         * - Otherwise, we can safely stick with the `getLastTimeTriggered()`.
+         * (since `0` would be treated as 01/01/1970 at 00:00 lol).
          */
         long lastTrigger = rem.getLastTimeTriggered();
         long anchorTime = lastTrigger == 0 ? rem.getTimeCreated() : lastTrigger;
