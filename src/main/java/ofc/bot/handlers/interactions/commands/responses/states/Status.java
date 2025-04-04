@@ -143,7 +143,7 @@ public enum Status implements InteractionResult {
     USER_IS_NOT_BANNED_FROM_GUILD(              State.FAILURE, true,  "O usuário %s não está banido deste dservidor."),
     INCORRECT_PASSWORD(                         State.FAILURE, true,  "A senha está incorreta."),
     TARGET_IS_IMMUNE_TO_PUNISHMENTS(            State.FAILURE, true,  "O usuário fornecido é imune à punições."),
-    DAILY_ALREADY_COLLECTED(                    State.FAILURE, true,  "Você já pegou o daily hoje! Aguarde meia noite para usar novamente."),
+    DAILY_ALREADY_COLLECTED(                    State.FAILURE, true,  "> ❌ Você já coletou seu daily hoje! Aguarde <t:946692000:t> para usar novamente."),
     YOU_DO_NOT_OWN_A_GROUP(                     State.FAILURE, true,  "Você não possui nenhum grupo."),
     YOU_CAN_NO_LONGER_PAY_THIS_INVOICE(         State.FAILURE, true,  "Você não pode mais pagar esta fatura."),
     CANNOT_TRANSFER_TO_YOURSELF(                State.FAILURE, true,  "Você não pode transferir dinheiro para você mesmo."),
