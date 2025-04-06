@@ -4,28 +4,28 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
-import ofc.bot.domain.entity.BankTransaction;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import ofc.bot.domain.entity.OficinaGroup;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
-import ofc.bot.events.eventbus.EventBus;
-import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.economy.BankAction;
+import ofc.bot.handlers.economy.PaymentManager;
+import ofc.bot.handlers.economy.PaymentManagerProvider;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
+import org.jooq.exception.DataAccessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@InteractionHandler(
-        scope = Scopes.Group.UPDATE_GROUP,
-        autoResponseType = AutoResponseType.THINKING
-)
+@InteractionHandler(scope = Scopes.Group.UPDATE_GROUP, autoResponseType = AutoResponseType.THINKING)
 public class GroupUpdateHandler implements InteractionListener<ButtonClickContext> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GroupUpdateHandler.class);
     private static final BetManager betManager = BetManager.getManager();
     private final OficinaGroupRepository grpRepo;
 
@@ -56,16 +56,23 @@ public class GroupUpdateHandler implements InteractionListener<ButtonClickContex
             return Status.INSUFFICIENT_BALANCE;
         }
 
-        modifyRole(guild, group, newColor);
+        try {
+            modifyRole(guild, group, newColor);
 
-        if (changedName)
-            modifyChannels(group);
+            if (changedName) {
+                modifyChannels(group);
+            }
 
-        grpRepo.upsert(group.tickUpdate());
+            grpRepo.upsert(group.tickUpdate());
+            GroupHelper.registerGroupUpdated(group, price);
 
-        ctx.disable();
-        dispatchGroupUpdateEvent(group.getCurrency(), ownerId, price);
-        return Status.GROUP_SUCCESSFULLY_UPDATED;
+            ctx.disable();
+            return Status.GROUP_SUCCESSFULLY_UPDATED;
+        } catch (DataAccessException | ErrorResponseException e) {
+            LOGGER.error("Failed to update group for ID {}", group.getId(), e);
+            chargeAction.rollback();
+            return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
+        }
     }
 
     private void modifyRole(Guild guild, OficinaGroup group, int newColor) {
@@ -78,7 +85,7 @@ public class GroupUpdateHandler implements InteractionListener<ButtonClickContex
         role.getManager()
                 .setName(roleName)
                 .setColor(newColor == -1 ? role.getColorRaw() : newColor)
-                .queue();
+                .complete();
     }
 
     private void modifyChannels(OficinaGroup group) {
@@ -88,16 +95,11 @@ public class GroupUpdateHandler implements InteractionListener<ButtonClickContex
         if (textChan != null)
             textChan.getManager()
                     .setName(group.getTextChannelName())
-                    .queue();
+                    .complete();
 
         if (voiceChan != null)
             voiceChan.getManager()
                     .setName(group.getVoiceChannelName())
-                    .queue();
-    }
-
-    private void dispatchGroupUpdateEvent(CurrencyType currency, long buyerId, int price) {
-        BankTransaction tr = new BankTransaction(buyerId, -price, currency, TransactionType.ITEM_BOUGHT, StoreItemType.UPDATE_GROUP);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
+                    .complete();
     }
 }

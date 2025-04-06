@@ -4,12 +4,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.RestAction;
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
-import ofc.bot.events.impl.BankTransactionEvent;
-import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
@@ -17,6 +12,7 @@ import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
@@ -75,7 +71,7 @@ public class GroupPinsHandler implements InteractionListener<ButtonClickContext>
         getAction(msg, shouldPin).queue(v -> {
             if (shouldPin) {
                 ctx.reply(Status.MESSAGE_SUCCESSFULLY_PINNED);
-                dispatchPinEvent(currency, ownerId, price);
+                GroupHelper.registerMessagePinned(group, price);
             } else
                 ctx.reply(Status.MESSAGE_SUCCESSFULLY_UNPINNED);
         }, err -> {
@@ -101,10 +97,5 @@ public class GroupPinsHandler implements InteractionListener<ButtonClickContext>
             case UNKNOWN_MESSAGE -> Status.MESSAGE_NOT_FOUND;
             default -> Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
         };
-    }
-
-    private void dispatchPinEvent(CurrencyType curr, long userId, int amount) {
-        BankTransaction tr = new BankTransaction(userId, amount, curr, TransactionType.ITEM_BOUGHT, StoreItemType.PIN_MESSAGE);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }

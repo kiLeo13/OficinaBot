@@ -19,6 +19,7 @@ public final class Repositories {
     private static FormerMemberRoleRepository formerMemberRoleRepository;
     private static GameParticipantRepository gameParticipantRepository;
     private static GroupBotRepository groupBotRepository;
+    private static GroupPerkRepository groupPerkRepository;
     private static LevelRoleRepository levelRoleRepository;
     private static MarriageRepository marriageRepository;
     private static MarriageRequestRepository marriageRequestRepository;
@@ -108,6 +109,11 @@ public final class Repositories {
     public static GroupBotRepository getGroupBotRepository() {
         if (groupBotRepository == null) groupBotRepository = new GroupBotRepository(getDSLContext());
         return groupBotRepository;
+    }
+
+    public static GroupPerkRepository getGroupPerkRepository() {
+        if (groupPerkRepository == null) groupPerkRepository = new GroupPerkRepository(getDSLContext());
+        return groupPerkRepository;
     }
 
     public static LevelRoleRepository getLevelRoleRepository() {

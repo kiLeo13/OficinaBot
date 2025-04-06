@@ -8,20 +8,18 @@ import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import ofc.bot.Main;
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
-import ofc.bot.events.eventbus.EventBus;
-import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.economy.BankAction;
+import ofc.bot.handlers.economy.PaymentManager;
+import ofc.bot.handlers.economy.PaymentManagerProvider;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
@@ -29,10 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@InteractionHandler(
-        scope = Scopes.Group.CREATE_CHANNEL,
-        autoResponseType = AutoResponseType.THINKING
-)
+@InteractionHandler(scope = Scopes.Group.CREATE_CHANNEL, autoResponseType = AutoResponseType.THINKING)
 public class GroupChannelCreationHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupChannelCreationHandler.class);
     private static final BetManager betManager = BetManager.getManager();
@@ -72,7 +67,7 @@ public class GroupChannelCreationHandler implements InteractionListener<ButtonCl
             group.setChannelId(chanType, channel.getIdLong()).tickUpdate();
             grpRepo.upsert(group);
 
-            dispatchChannelBoughtEvent(group.getCurrency(), price, chanType, ownerId);
+            GroupHelper.registerChannelCreated(group, chanType, price);
             return Status.GROUP_CHANNEL_SUCCESSFULLY_CREATED.args(channel.getAsMention()).setEphm(true);
         } catch (ErrorResponseException e) {
             LOGGER.error("Could not create channel for group with id {}", group.getId(), e);
@@ -112,13 +107,5 @@ public class GroupChannelCreationHandler implements InteractionListener<ButtonCl
                 .addRolePermissionOverride(roleId, OficinaGroup.PERMS_ALLOW_VOICE_CHANNEL, null)
                 .setUserlimit(OficinaGroup.DEFAULT_VOICE_USERS_LIMIT)
                 .complete();
-    }
-
-    private void dispatchChannelBoughtEvent(CurrencyType currencyType, int price, ChannelType type, long buyerId) {
-        StoreItemType item = type == ChannelType.TEXT
-                ? StoreItemType.GROUP_TEXT_CHANNEL
-                : StoreItemType.GROUP_VOICE_CHANNEL;
-        BankTransaction tr = new BankTransaction(buyerId, -price, currencyType, TransactionType.ITEM_BOUGHT, item);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }

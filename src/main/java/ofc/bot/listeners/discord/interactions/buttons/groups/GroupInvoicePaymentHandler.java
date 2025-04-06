@@ -1,12 +1,8 @@
 package ofc.bot.listeners.discord.interactions.buttons.groups;
 
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
-import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.events.eventbus.EventBus;
-import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
@@ -15,6 +11,7 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Bot;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.jooq.exception.DataAccessException;
@@ -50,17 +47,12 @@ public class GroupInvoicePaymentHandler implements InteractionListener<ButtonCli
 
         try {
             grpRepo.upsert(group);
-            dispatchInvoicePaymentEvent(currency, ownerId, value);
+            GroupHelper.registerInvoicePaid(group, value);
 
             return Status.INVOICE_SUCCESSFULLY_PAID.args(Bot.fmtMoney(value));
         } catch (DataAccessException e) {
             chargeAction.rollback();
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
         }
-    }
-
-    private void dispatchInvoicePaymentEvent(CurrencyType curr, long userId, int amount) {
-        BankTransaction tr = new BankTransaction(userId, amount, curr, TransactionType.INVOICE_PAID);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }

@@ -3,28 +3,23 @@ package ofc.bot.listeners.discord.interactions.buttons.groups;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
-import ofc.bot.events.impl.BankTransactionEvent;
-import ofc.bot.events.eventbus.EventBus;
-import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.economy.BankAction;
+import ofc.bot.handlers.economy.PaymentManager;
+import ofc.bot.handlers.economy.PaymentManagerProvider;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@InteractionHandler(
-        scope = Scopes.Group.ADD_MEMBER,
-        autoResponseType = AutoResponseType.THINKING
-)
+@InteractionHandler(scope = Scopes.Group.ADD_MEMBER, autoResponseType = AutoResponseType.THINKING)
 public class GroupMemberAddHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupMemberAddHandler.class);
     private static final BetManager betManager = BetManager.getManager();
@@ -55,7 +50,7 @@ public class GroupMemberAddHandler implements InteractionListener<ButtonClickCon
         guild.addRoleToMember(newMember, groupRole).queue(v -> {
             ctx.reply(Status.MEMBER_SUCCESSFULLY_ADDED_TO_GROUP.args(newMember.getAsMention()));
 
-            dispatchGroupMemberAddEvent(group.getCurrency(), price, ownerId);
+            GroupHelper.registerMemberAdded(group, price);
         }, (err) -> {
             LOGGER.error("Could not add role &{} to member @{}", roleId, newMember.getId());
 
@@ -64,10 +59,5 @@ public class GroupMemberAddHandler implements InteractionListener<ButtonClickCon
         });
         ctx.disable();
         return Status.OK;
-    }
-
-    private void dispatchGroupMemberAddEvent(CurrencyType currency, int price, long buyerId) {
-        BankTransaction tr = new BankTransaction(buyerId, -price, currency, TransactionType.ITEM_BOUGHT, StoreItemType.GROUP_SLOT);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }

@@ -1,14 +1,9 @@
 package ofc.bot.listeners.discord.interactions.buttons.groups;
 
 import net.dv8tion.jda.api.entities.Guild;
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.GroupPermission;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
-import ofc.bot.events.eventbus.EventBus;
-import ofc.bot.events.impl.BankTransactionEvent;
 import ofc.bot.handlers.cache.PolicyService;
 import ofc.bot.handlers.economy.*;
 import ofc.bot.handlers.games.betting.BetManager;
@@ -18,6 +13,7 @@ import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 
@@ -61,13 +57,8 @@ public class GroupPermissionAddHandler implements InteractionListener<ButtonClic
             policyService.invalidate();
         }
 
+        GroupHelper.registerPermissionAdded(group, price);
         ctx.disable();
-        dispatchPermissionAddEvent(ownerId, currency, price);
         return Status.GROUP_PERMISSION_GRANTED_SUCESSFULLY.args(perm.getDisplay());
-    }
-
-    private void dispatchPermissionAddEvent(long userId, CurrencyType currency, int amount) {
-        BankTransaction tr = new BankTransaction(userId, -amount, currency, TransactionType.ITEM_BOUGHT, StoreItemType.GROUP_PERMISSION);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }

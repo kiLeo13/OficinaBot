@@ -4,20 +4,18 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.RestAction;
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.GroupBot;
 import ofc.bot.domain.entity.OficinaGroup;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
-import ofc.bot.events.impl.BankTransactionEvent;
-import ofc.bot.events.eventbus.EventBus;
-import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.economy.BankAction;
+import ofc.bot.handlers.economy.PaymentManager;
+import ofc.bot.handlers.economy.PaymentManagerProvider;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
@@ -26,10 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
-@InteractionHandler(
-        scope = Scopes.Group.ADD_BOT,
-        autoResponseType = AutoResponseType.THINKING
-)
+@InteractionHandler(scope = Scopes.Group.ADD_BOT, autoResponseType = AutoResponseType.THINKING)
 public class GroupBotAddHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupBotAddHandler.class);
     private static final BetManager betManager = BetManager.getManager();
@@ -58,7 +53,7 @@ public class GroupBotAddHandler implements InteractionListener<ButtonClickContex
 
         modifyChannelPermissions(textChan, bot.getBotId()).queue(v -> {
             ctx.reply(Status.GROUP_BOT_SUCCESSFULLY_ADDED.args(bot.getBotMention()));
-            dispatchBotAddedEvent(group.getCurrency(), ownerId, price);
+            GroupHelper.registerBotAdded(group, price);
         }, (err) -> {
             LOGGER.error("Could not add bot to group {}", group.getId(), err);
             ctx.reply(Status.COULD_NOT_EXECUTE_SUCH_OPERATION);
@@ -76,10 +71,5 @@ public class GroupBotAddHandler implements InteractionListener<ButtonClickContex
     private RestAction<?> modifyChannelPermissions(TextChannel channel, long botId) {
         return channel.getManager()
                 .putMemberPermissionOverride(botId, getChannelPermissions(), null);
-    }
-
-    private void dispatchBotAddedEvent(CurrencyType currency, long userId, int price) {
-        BankTransaction tr = new BankTransaction(userId, -price, currency, TransactionType.ITEM_BOUGHT, StoreItemType.ADDITIONAL_BOT);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }

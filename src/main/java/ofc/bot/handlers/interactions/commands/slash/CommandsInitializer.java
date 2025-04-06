@@ -42,7 +42,6 @@ public final class CommandsInitializer {
      */
     public static void initializeSlashCommands() {
         var modActRepo  = Repositories.getAutomodActionRepository();
-        var bankTrRepo  = Repositories.getBankTransactionRepository();
         var bdayRepo    = Repositories.getBirthdayRepository();
         var csinfoRepo  = Repositories.getCustomUserinfoRepository();
         var policyRepo  = Repositories.getEntityPolicyRepository();
@@ -99,12 +98,12 @@ public final class CommandsInitializer {
                                 .addSubcommand(new CreateGroupChannelCommand(grpRepo)),
 
                         new SubcommandGroup("member", "Gerencie os membros do seu grupo.")
-                                .addSubcommand(new AddGroupMemberCommand(bankTrRepo, grpRepo))
+                                .addSubcommand(new AddGroupMemberCommand(grpRepo))
                                 .addSubcommand(new RemoveGroupMemberCommand(grpRepo))
                 )
                 .addSubcommand(new CreateGroupCommand(grpRepo))
                 .addSubcommand(new GroupBotsCommand(grpBotRepo, grpRepo))
-                .addSubcommand(new GroupInfoCommand(bankTrRepo, grpRepo))
+                .addSubcommand(new GroupInfoCommand(grpRepo))
                 .addSubcommand(new GroupPayInvoiceCommand(grpRepo))
                 .addSubcommand(new GroupPermissionCommand(grpRepo, policyRepo))
                 .addSubcommand(new GroupPinsCommand(grpRepo))

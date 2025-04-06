@@ -4,18 +4,15 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
-import ofc.bot.domain.sqlite.repository.BankTransactionRepository;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.Bot;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +23,9 @@ import java.util.concurrent.TimeUnit;
 @DiscordCommand(name = "group info")
 public class GroupInfoCommand extends SlashSubcommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupInfoCommand.class);
-    private final BankTransactionRepository bankTrRepo;
     private final OficinaGroupRepository grpRepo;
 
-    public GroupInfoCommand(BankTransactionRepository bankTrRepo, OficinaGroupRepository grpRepo) {
-        this.bankTrRepo = bankTrRepo;
+    public GroupInfoCommand(OficinaGroupRepository grpRepo) {
         this.grpRepo = grpRepo;
     }
 
@@ -73,7 +68,7 @@ public class GroupInfoCommand extends SlashSubcommand {
     private MessageEmbed embed(int color, List<Member> members, Guild guild, OficinaGroup group) {
         EmbedBuilder builder = new EmbedBuilder();
         long rent = group.calcRawRent(members);
-        long appreciation = -getAppreciation(group);
+        long appreciation = calcExpenses(group);
         RentStatus rentStatus = group.getRentStatus();
         String hex = Bot.fmtColorHex(color);
         String fmtRent = String.format("%s/mês", Bot.fmtMoney(rent));
@@ -87,7 +82,7 @@ public class GroupInfoCommand extends SlashSubcommand {
                 .setColor(color)
                 .addField("🎨 Cor", hex, true)
                 .addField("💳 Economia", group.getCurrency().getName(), true)
-                .addField("💎 Valorização", fmtApprec, true)
+                .addField("💎 Gastos", fmtApprec, true)
                 .addField("📅 Aluguel", fmtRent, true)
                 .addField("👑 Dono", group.getOwnerAsMention(), true)
                 .addField("🏡 Status de Aluguel", fmtRentStatus, true)
@@ -97,17 +92,7 @@ public class GroupInfoCommand extends SlashSubcommand {
                 .build();
     }
 
-    private long getAppreciation(OficinaGroup group) {
-        // Fetching items the user BOUGHT only after the group creation
-        List<BankTransaction> items = bankTrRepo.findByItemTypesAndUserAfter(
-                group.getTimeCreated(),
-                group.getOwnerId(),
-                TransactionType.ITEM_BOUGHT,
-                StoreItemType.getGroupRefundable()
-        );
-
-        return items.stream()
-                .mapToLong(BankTransaction::getAmount)
-                .sum();
+    private long calcExpenses(OficinaGroup group) {
+        return group.getAmountPaid() + GroupHelper.calcPurchases(group);
     }
 }

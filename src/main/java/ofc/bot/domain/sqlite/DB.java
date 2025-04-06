@@ -59,6 +59,7 @@ public final class DB {
                 FormerMembersRolesTable.FORMER_MEMBERS_ROLES,
                 GamesParticipantsTable.GAMES_PARTICIPANTS,
                 GroupBotsTable.GROUP_BOTS,
+                GroupsPerksTable.GROUPS_PERKS,
                 LevelsRolesTable.LEVELS_ROLES,
                 MarriageRequestsTable.MARRIAGE_REQUESTS,
                 MarriagesTable.MARRIAGES,

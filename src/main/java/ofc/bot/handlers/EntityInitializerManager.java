@@ -52,6 +52,7 @@ import ofc.bot.listeners.discord.logs.names.UserGlobalNameUpdateLogger;
 import ofc.bot.listeners.discord.logs.names.UserNameUpdateLogger;
 import ofc.bot.listeners.discord.moderation.AutoModerator;
 import ofc.bot.listeners.oficina.DefaultBankTransactionLogger;
+import ofc.bot.util.GroupHelper;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,8 +108,11 @@ public final class EntityInitializerManager {
     }
 
     public static void initServices() {
-        EntityPolicyRepository policyRepo = Repositories.getEntityPolicyRepository();
+        var policyRepo  = Repositories.getEntityPolicyRepository();
+        var grpPerkRepo = Repositories.getGroupPerkRepository();
+
         PolicyService.setPolicyRepo(policyRepo);
+        GroupHelper.setRepositories(grpPerkRepo);
     }
 
     public static void registerComposedInteractions() {

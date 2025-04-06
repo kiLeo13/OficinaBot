@@ -4,14 +4,11 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.OficinaGroup;
-import ofc.bot.domain.entity.enums.StoreItemType;
-import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
-import ofc.bot.events.impl.BankTransactionEvent;
-import ofc.bot.events.eventbus.EventBus;
-import ofc.bot.handlers.economy.*;
+import ofc.bot.handlers.economy.BankAction;
+import ofc.bot.handlers.economy.PaymentManager;
+import ofc.bot.handlers.economy.PaymentManagerProvider;
 import ofc.bot.handlers.games.betting.BetManager;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
@@ -19,15 +16,13 @@ import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.util.Bot;
+import ofc.bot.util.GroupHelper;
 import ofc.bot.util.Scopes;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@InteractionHandler(
-        scope = Scopes.Group.CREATE_GROUP,
-        autoResponseType = AutoResponseType.THINKING
-)
+@InteractionHandler(scope = Scopes.Group.CREATE_GROUP, autoResponseType = AutoResponseType.THINKING)
 public class GroupCreationHandler implements InteractionListener<ButtonClickContext> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupCreationHandler.class);
     private static final BetManager betManager = BetManager.getManager();
@@ -70,7 +65,7 @@ public class GroupCreationHandler implements InteractionListener<ButtonClickCont
                     .setLastUpdated(timestamp);
             grpRepo.upsert(group);
 
-            dispatchGroupCreateEvent(group.getCurrency(), price, ownerId);
+            GroupHelper.registerGroupCreated(group, price);
             return Status.GROUP_SUCCESSFULLY_CREATED.args(groupRole.getAsMention()).setEphm(true);
         } catch (ErrorResponseException e) {
             LOGGER.error("Could not create group for member with id {}", ownerId, e);
@@ -109,10 +104,5 @@ public class GroupCreationHandler implements InteractionListener<ButtonClickCont
                 .selectPosition(role)
                 .moveAbove(anchor)
                 .complete();
-    }
-
-    private void dispatchGroupCreateEvent(CurrencyType currency, int price, long buyerId) {
-        BankTransaction tr = new BankTransaction(buyerId, -price, currency, TransactionType.ITEM_BOUGHT, StoreItemType.GROUP);
-        EventBus.dispatchEvent(new BankTransactionEvent(tr));
     }
 }
