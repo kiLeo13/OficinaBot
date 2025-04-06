@@ -72,7 +72,8 @@ public class RobCommand extends SlashCommand {
         try {
             if (failed) {
                 float fineRate = RANDOM.nextFloat(MIN_FINE, MAX_FINE);
-                int fineAmount = Math.round(issuerEco.getBank() * fineRate);
+                int fineAmount = Math.clamp(Math.round((double) issuerEco.getTotal() * fineRate),
+                        Integer.MIN_VALUE, Integer.MAX_VALUE);
 
                 issuerEco.modifyBalance(0, -fineAmount).tickUpdate();
                 ecoRepo.upsert(issuerEco);
