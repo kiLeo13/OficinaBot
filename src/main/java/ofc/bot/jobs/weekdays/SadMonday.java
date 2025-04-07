@@ -20,11 +20,9 @@ public class SadMonday implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-
         TextChannel channel = Channels.GENERAL.textChannel();
-
         if (channel == null) {
-            LOGGER.warn("Could not send Sad Monday image because no channels for the id {} were found", Channels.GENERAL.id());
+            LOGGER.warn("Could not send Sad Monday image because no channels for the id {} were found", Channels.GENERAL.fetchId());
             return;
         }
 

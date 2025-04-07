@@ -30,7 +30,7 @@ public class RoleAmongUsCommand extends SlashCommand {
         MessageChannel channel = ctx.getChannel();
         Role roleAmongUs = guild.getRoleById(Roles.AMONG_US.id());
 
-        if (Channels.C.id() != channel.getIdLong())
+        if (Channels.AMONG_US_ROLE.isSame(channel.getId()))
             return Status.INCORRECT_CHANNEL_OF_USAGE;
 
         if (target == null)

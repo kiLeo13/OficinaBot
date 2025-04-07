@@ -40,7 +40,7 @@ public class BirthdayReminder implements Job {
     @Override
     public void execute(JobExecutionContext context) {
         List<Birthday> birthdays = bdayRepo.findAll();
-        TextChannel channel = Channels.E.textChannel();
+        TextChannel channel = Channels.BDAY_REMINDER.textChannel();
 
         if (channel == null) {
             LOGGER.warn("Could not find text channel! Ignoring birthday reminder");

@@ -4,7 +4,7 @@ import ofc.bot.domain.sqlite.repository.Repositories;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.handlers.economy.oficina.OficinaBankClient;
 import ofc.bot.handlers.economy.unb.UnbelievaBoatClient;
-import ofc.bot.internal.data.BotData;
+import ofc.bot.util.Bot;
 
 public final class PaymentManagerProvider {
     private static UnbelievaBoatClient ub;
@@ -14,7 +14,7 @@ public final class PaymentManagerProvider {
 
     public static UnbelievaBoatClient getUnbelievaBoatClient() {
         if (ub == null) {
-            String token = BotData.get("unbelievaboat.token");
+            String token = Bot.get("unbelievaboat.token");
             ub = new UnbelievaBoatClient(token);
         }
         return ub;

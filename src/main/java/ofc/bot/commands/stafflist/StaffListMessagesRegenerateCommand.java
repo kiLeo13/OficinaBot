@@ -30,7 +30,7 @@ public class StaffListMessagesRegenerateCommand extends SlashCommand {
 
         Guild guild = ctx.getGuild();
         InputData parsed = RefreshStaffListMessageCommand.parse();
-        TextChannel staffsChannel = guild.getTextChannelById(Channels.D.id());
+        TextChannel staffsChannel = Channels.GUILD_STAFF.textChannel();
 
         if (RefreshStaffListMessageCommand.isUpdating())
             return Status.STAFF_MESSAGES_UPDATE_STILL_IN_PROGRESS;

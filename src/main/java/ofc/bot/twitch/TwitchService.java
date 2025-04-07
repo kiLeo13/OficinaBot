@@ -9,8 +9,8 @@ import com.github.twitch4j.eventsub.socket.conduit.TwitchConduitSocketPool;
 import com.github.twitch4j.eventsub.subscriptions.SubscriptionTypes;
 import com.github.twitch4j.helix.TwitchHelix;
 import com.github.twitch4j.helix.TwitchHelixBuilder;
-import ofc.bot.internal.data.BotData;
 import ofc.bot.twitch.listeners.StreamOnlineListener;
+import ofc.bot.util.Bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +30,8 @@ public class TwitchService {
 
     public static void init() {
         LOGGER.info("Initializing Twitch Client...");
-        String clientId = BotData.get("twitch.client.id");
-        String clientSecret = BotData.get("twitch.client.secret");
+        String clientId = Bot.get("twitch.client.id");
+        String clientSecret = Bot.get("twitch.client.secret");
 
         if (clientId == null || clientSecret == null) {
             LOGGER.warn("Cannot build a new Twitch Client instance without both a clientId and a clientSecret");
@@ -82,7 +82,7 @@ public class TwitchService {
     }
 
     private static void registerStreamOnlineListeners() throws Exception {
-        String subs = BotData.get("twitch.channels.subscriptions");
+        String subs = Bot.get("twitch.channels.subscriptions");
         if (subs == null) {
             LOGGER.warn("No channels to subscribe");
             socketPool.close();

@@ -20,7 +20,7 @@ public class HappyNewYearAnnouncement implements Job {
         TextChannel channel = Channels.GENERAL.textChannel();
 
         if (channel == null) {
-            LOGGER.warn("No channel found for ID {}", Channels.GENERAL.id());
+            LOGGER.warn("No channel found for ID {}", Channels.GENERAL.fetchId());
             return;
         }
 

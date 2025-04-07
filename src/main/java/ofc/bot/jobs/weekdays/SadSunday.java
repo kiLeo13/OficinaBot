@@ -24,11 +24,9 @@ public class SadSunday implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-
         TextChannel channel = Channels.GENERAL.textChannel();
-
         if (channel == null) {
-            LOGGER.warn("Could not send Sad Sunday image because no channels for the id {} were found", Channels.GENERAL.id());
+            LOGGER.warn("Could not send Sad Sunday image because the channel for id {} was not found", Channels.GENERAL.fetchId());
             return;
         }
 
@@ -36,8 +34,7 @@ public class SadSunday implements Job {
 
         LOGGER.info("Sad Sunday image will be sent in {} minutes", sendAfterMinutes);
 
-        channel.sendFiles(
-                FileUpload.fromData(SAD_SUNDAY_IMAGE)
-        ).queueAfter(sendAfterMinutes, TimeUnit.MINUTES);
+        channel.sendFiles(FileUpload.fromData(SAD_SUNDAY_IMAGE)).
+                queueAfter(sendAfterMinutes, TimeUnit.MINUTES);
     }
 }

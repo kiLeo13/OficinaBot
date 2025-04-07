@@ -27,9 +27,9 @@ public class LateGroupsChecker implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        TextChannel chan = Channels.G.textChannel();
+        TextChannel chan = Channels.LATE_GROUPS_INVOICE.textChannel();
         if (chan == null) {
-            LOGGER.warn("Could not find text channel for id {}", Channels.G.id());
+            LOGGER.warn("Could not find text channel for id {}", Channels.LATE_GROUPS_INVOICE.fetchId());
             return;
         }
 

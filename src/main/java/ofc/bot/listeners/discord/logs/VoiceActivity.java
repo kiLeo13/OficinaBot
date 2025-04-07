@@ -56,12 +56,12 @@ public class VoiceActivity extends ListenerAdapter {
         Member member = event.getMember();
         User user = member.getUser();
         Guild guild = event.getGuild();
-        TextChannel log = Channels.A.textChannel();
+        TextChannel log = Channels.MOV_CALL_LOG.textChannel();
         int joinAmount = join == null ? 0 : join.getMembers().size();
         int leaveAmount = leave == null ? 0 : leave.getMembers().size();
 
         if (log == null) {
-            LOGGER.warn("Could not find log channel for id {}", Channels.A.id());
+            LOGGER.warn("Could not find log channel for id {}", Channels.MOV_CALL_LOG.fetchId());
             return;
         }
         builder.setFooter(guild.getName(), guild.getIconUrl());

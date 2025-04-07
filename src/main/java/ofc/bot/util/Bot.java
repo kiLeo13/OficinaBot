@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 import ofc.bot.Main;
+import ofc.bot.internal.data.BotProperties;
+import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,23 @@ public final class Bot {
 
     public static Locale defaultLocale() {
         return LOCALE;
+    }
+
+    public static String get(String key) {
+        try {
+            return BotProperties.find(key);
+        } catch (DataAccessException e) {
+            LOGGER.error("Could not fetch properties for key ({})", key, e);
+            return null;
+        }
+    }
+
+    public static String getSafe(String key) {
+        String value = get(key);
+        if (value == null)
+            throw new NoSuchElementException("Found no values for key " + key);
+
+        return value;
     }
 
     public static List<GatewayIntent> getIntents() {

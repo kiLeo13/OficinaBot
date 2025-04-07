@@ -16,7 +16,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.handlers.requests.RequestMapper;
 import ofc.bot.handlers.requests.Route;
-import ofc.bot.internal.data.BotData;
+import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 
 import java.util.Base64;
@@ -74,7 +74,7 @@ public class RankCommand extends SlashCommand {
     }
 
     private static byte[] getRankCard(RankData data) {
-        String key = BotData.get("oficina.aws.api.key");
+        String key = Bot.get("oficina.aws.api.key");
 
         RequestMapper result = Route.Images.CREATE_RANK_CARD.create()
                 .setContentType("application/json")

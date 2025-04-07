@@ -27,7 +27,7 @@ public class SoloChannelsHandler extends ListenerAdapter {
         Member member = e.getMember();
         AudioChannelUnion join = e.getChannelJoined();
         AudioChannelUnion left = e.getChannelLeft();
-        long soloId = Channels.SOLO_GATEWAY.id();
+        long soloId = Channels.SOLO_GATEWAY.fetchIdLong();
 
         if (join != null && join.getIdLong() == soloId && join.getParentCategoryIdLong() == PARENT_ID) {
             handleJoin(member, join.asVoiceChannel());

@@ -14,12 +14,12 @@ import java.util.List;
 
 @DiscordEventHandler
 public class UnverifiedMembersRegisterBlocker extends ListenerAdapter {
-    private static final long CHANNEL_ID = Channels.I.id();
     private static final long VERIFIED_ROLE_ID = 758095502599520328L;
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getChannel().getIdLong() != CHANNEL_ID) return;
+        final long chanId = Channels.REGISTRY.fetchIdLong();
+        if (event.getChannel().getIdLong() != chanId) return;
 
         Member member = event.getMember();
 

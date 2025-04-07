@@ -26,9 +26,9 @@ public class AutoModLogger extends ListenerAdapter {
     @Override
     public void onAutoModExecution(@NotNull AutoModExecutionEvent e) {
         TextChannel log = Channels.AUTOMOD_LOG.textChannel();
-
         if (log == null) {
-            LOGGER.warn("Missed automod activity because log channel for id #{} was not found", Channels.AUTOMOD_LOG.id());
+            LOGGER.warn("Missed automod activity because log channel for id {} was not found",
+                    Channels.AUTOMOD_LOG.fetchId());
             return;
         }
 

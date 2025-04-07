@@ -46,7 +46,7 @@ public class LogTimeout extends ListenerAdapter {
     }
 
     private void log(Guild guild, long target, long author, OffsetDateTime entryCreation, OffsetDateTime old, OffsetDateTime current, String reason) {
-        TextChannel log = guild.getTextChannelById(Channels.B.id());
+        TextChannel log = Channels.TIMEOUT_LOG.textChannel();
         long unixTimeOld = old == null ? -1 : old.toEpochSecond();
         long unixTimeCurrent = current == null ? -1 : current.toEpochSecond();
 

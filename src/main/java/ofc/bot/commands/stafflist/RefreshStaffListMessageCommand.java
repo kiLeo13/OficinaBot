@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
-import ofc.bot.Main;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -18,7 +17,6 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.handlers.requests.RequestMapper;
 import ofc.bot.handlers.requests.Route;
 import ofc.bot.internal.data.BotFiles;
-import ofc.bot.util.Bot;
 import ofc.bot.util.content.Channels;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import org.slf4j.Logger;
@@ -38,9 +36,7 @@ public class RefreshStaffListMessageCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RefreshStaffListMessageCommand.class);
     protected static final File FILE = new File(BotFiles.DIR_CONTENT, "staffconfig.json");
     private static final Gson GSON = new Gson();
-    private static final int COOLDOWN = 120000;
     private static boolean isUpdating = false;
-    private static long lastUsed = 0L;
     private final EntityPolicyRepository policyRepo;
 
     public RefreshStaffListMessageCommand(EntityPolicyRepository policyRepo) {
@@ -52,13 +48,8 @@ public class RefreshStaffListMessageCommand extends SlashCommand {
         ctx.ack();
 
         Guild guild = ctx.getGuild();
-        TextChannel staffsChannel = Main.getApi().getTextChannelById(Channels.D.id());
+        TextChannel staffsChannel = Channels.GUILD_STAFF.textChannel();
         InputData parsed = parse();
-        long now = System.currentTimeMillis();
-        long wait = COOLDOWN - (now - lastUsed);
-
-        if (wait > 0)
-            return Status.PLEASE_WAIT_COOLDOWN.args(Bot.parsePeriod(wait / 1000));
 
         if (staffsChannel == null)
             return Status.CHANNEL_NOT_FOUND;
@@ -154,8 +145,6 @@ public class RefreshStaffListMessageCommand extends SlashCommand {
             LOGGER.error("Could not edit staffs message for role {}", role.getId(), e);
         });
         LOGGER.info("========================================\n");
-
-        lastUsed = System.currentTimeMillis();
     }
 
     private String format(final List<Member> members) {
@@ -186,5 +175,7 @@ public class RefreshStaffListMessageCommand extends SlashCommand {
     @Override
     protected void init() {
         setDesc("Atualize a lista de membros da staff.");
+
+        setCooldown(5, TimeUnit.MINUTES);
     }
 }

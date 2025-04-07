@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import ofc.bot.domain.sqlite.DB;
 import ofc.bot.handlers.ConsoleQueryHandler;
 import ofc.bot.handlers.EntityInitializerManager;
-import ofc.bot.internal.data.BotData;
 import ofc.bot.internal.data.BotFiles;
 import ofc.bot.twitch.TwitchService;
 import ofc.bot.util.Bot;
@@ -28,7 +27,7 @@ public final class Main {
             BotFiles.loadFiles();
             DB.init();
 
-            api = JDABuilder.createDefault(BotData.get("app.token"), Bot.getIntents())
+            api = JDABuilder.createDefault(Bot.get("app.token"), Bot.getIntents())
                     .setEventPassthrough(true)
                     .setBulkDeleteSplittingEnabled(false)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)

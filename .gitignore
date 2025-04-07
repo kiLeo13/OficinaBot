@@ -24,10 +24,6 @@ dependency-reduced-pom.xml
 hs_err_pid*
 replay_pid*
 
-# Bot Config
-src/main/java/ofc/bot/internal/data/
-content/*.json
-
 # Idea files
 .idea/
 .vscode/
@@ -35,8 +31,8 @@ content/*.json
 # Database files
 *.db
 
+# Content Files
+content/*.json
+
 # Confidential directories/files
 target/
-
-# Some util stuff
-src/main/java/ofc/bot/util/content/Channels.java

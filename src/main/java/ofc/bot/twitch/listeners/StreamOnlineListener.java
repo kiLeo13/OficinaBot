@@ -3,7 +3,7 @@ package ofc.bot.twitch.listeners;
 import com.github.twitch4j.eventsub.events.StreamOnlineEvent;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import ofc.bot.handlers.requests.Route;
-import ofc.bot.internal.data.BotData;
+import ofc.bot.util.Bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +17,8 @@ public class StreamOnlineListener implements Consumer<StreamOnlineEvent> {
     @Override
     public void accept(StreamOnlineEvent e) {
         String userId = e.getBroadcasterUserId();
-        String message = BotData.get("twitch.stream.on.message." + userId);
-        String endpoint = BotData.get("twitch.stream.on.webhooks." + userId);
+        String message = Bot.get("twitch.stream.on.message." + userId);
+        String endpoint = Bot.get("twitch.stream.on.webhooks." + userId);
         String username = e.getBroadcasterUserName();
         String broadcastUrl = BASE_URL + username;
         if (message == null) {
