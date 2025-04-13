@@ -6,6 +6,7 @@ import ofc.bot.domain.sqlite.repository.EntityPolicyRepository;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * This class is used as cache for database operations
@@ -14,7 +15,7 @@ import java.util.*;
 public final class PolicyService {
     private static final PolicyService INSTANCE = new PolicyService();
     private static EntityPolicyRepository policyRepo;
-    private final Map<PolicyType, Set<Long>> rules = new HashMap<>();
+    private final Map<PolicyType, Set<Object>> rules = new HashMap<>();
 
     private PolicyService() {}
 
@@ -27,20 +28,25 @@ public final class PolicyService {
     }
 
     @NotNull
-    public synchronized Set<Long> get(@NotNull PolicyType type) {
+    @SuppressWarnings("unchecked")
+    public synchronized <T> Set<T> get(@NotNull PolicyType type, Function<String, T> mapper) {
         Checks.notNull(type, "PolicyType");
         // We can distinguish between a missing value and an outdated cache entry
         // because we always update the `rules` map with an empty set when a database lookup returns no results.
         // This ensures that once we attempt to retrieve a value from the database and find nothing,
         // we don't repeatedly query the database for the same missing value on subsequent method calls.
-        return this.rules.computeIfAbsent(type, this::fetch);
+        return (Set<T>) rules.computeIfAbsent(type, t -> (Set<Object>) fetch(t, mapper));
     }
 
-    private Set<Long> fetch(PolicyType type) {
+    public synchronized boolean isDomainAllowed(String domain) {
+        return get(PolicyType.ALLOW_DOMAIN, s -> s).contains(domain);
+    }
+
+    private <T> Set<T> fetch(PolicyType type, Function<String, T> mapper) {
         if (policyRepo == null)
             throw new IllegalStateException("No policy repository provided so far :(");
 
-        return policyRepo.findSetByType(type);
+        return policyRepo.findSetByType(type, mapper);
     }
 
     public static void setPolicyRepo(EntityPolicyRepository policyRepo) {

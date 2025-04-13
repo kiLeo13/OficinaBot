@@ -2,6 +2,7 @@ package ofc.bot.domain.sqlite.repository;
 
 import ofc.bot.domain.abstractions.InitializableTable;
 import ofc.bot.domain.entity.AppUser;
+import ofc.bot.domain.entity.EntityPolicy;
 import ofc.bot.domain.entity.Marriage;
 import ofc.bot.domain.sqlite.MapperFactory;
 import ofc.bot.domain.tables.MarriagesTable;
@@ -10,7 +11,8 @@ import ofc.bot.domain.viewmodels.MarriageView;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Repository for {@link Marriage} entity.
@@ -27,6 +29,23 @@ public class MarriageRepository extends Repository<Marriage> {
     @Override
     public InitializableTable<Marriage> getTable() {
         return MARRIAGES;
+    }
+
+    public List<Marriage> findAllExcept(EntityPolicy... policies) {
+        List<Long> userIds = Stream.of(policies).map(e -> e.getResource(Long::valueOf)).toList();
+        return findAllExcept(userIds);
+    }
+
+    public List<Marriage> findAllExcept(long... userIds) {
+        List<Long> ids = Arrays.stream(userIds).boxed().toList();
+        return findAllExcept(ids);
+    }
+
+    public List<Marriage> findAllExcept(Collection<Long> userIds) {
+        return ctx.selectFrom(MARRIAGES)
+                .where(MARRIAGES.TARGET_ID.notIn(userIds))
+                .and(MARRIAGES.REQUESTER_ID.notIn(userIds))
+                .fetch();
     }
 
     public Marriage findByUserIds(long spouse1, long spouse2) {

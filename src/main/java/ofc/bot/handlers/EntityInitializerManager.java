@@ -201,7 +201,7 @@ public final class EntityInitializerManager {
         var userRepo      = Repositories.getUserRepository();
 
         api.addEventListener(
-                new AutoModerator(policyRepo, blckWordsRepo, pnshRepo, modActRepo),
+                new AutoModerator(blckWordsRepo, pnshRepo, modActRepo),
                 new AutoModLogger(),
                 new BlockDumbCommands(),
                 new BotChangelogRoleHandler(),

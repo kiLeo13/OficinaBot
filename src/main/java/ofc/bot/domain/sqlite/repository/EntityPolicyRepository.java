@@ -54,11 +54,8 @@ public class EntityPolicyRepository extends Repository<EntityPolicy> {
         );
     }
 
-    public Set<Long> findSetByType(PolicyType type) {
-        return findByTypes(type)
-                .stream()
-                .map(ep -> ep.getResource(Long::parseLong))
-                .collect(Collectors.toUnmodifiableSet());
+    public <T> Set<T> findSetByType(PolicyType type, Function<String, T> mapper) {
+        return findEntitiesIdsByType(type, mapper).stream().collect(Collectors.toUnmodifiableSet());
     }
 
     public List<EntityPolicy> findByTypes(PolicyType... types) {

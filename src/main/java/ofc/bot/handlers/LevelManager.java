@@ -25,7 +25,7 @@ public final class LevelManager {
         this.xpRepo = Repositories.getUserXPRepository();
         this.lvlRoleRepo = Repositories.getLevelRoleRepository();
         this.appBanRepo = Repositories.getAppUserBanRepository();
-        this.policyCache = Repositories.getEntityPolicyRepository().findSetByType(PolicyType.BLOCK_XP_GAINS);
+        this.policyCache = Repositories.getEntityPolicyRepository().findSetByType(PolicyType.BLOCK_XP_GAINS, Long::parseLong);
     }
 
     public static LevelManager getManager() {

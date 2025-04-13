@@ -11,7 +11,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.domain.entity.BlockedWord;
 import ofc.bot.domain.entity.enums.PolicyType;
-import ofc.bot.domain.sqlite.repository.*;
+import ofc.bot.domain.sqlite.repository.AutomodActionRepository;
+import ofc.bot.domain.sqlite.repository.BlockedWordRepository;
+import ofc.bot.domain.sqlite.repository.MemberPunishmentRepository;
 import ofc.bot.handlers.cache.PolicyService;
 import ofc.bot.handlers.moderation.PunishmentData;
 import ofc.bot.handlers.moderation.PunishmentManager;
@@ -23,7 +25,6 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static ofc.bot.domain.entity.enums.PolicyType.*;
 
@@ -55,15 +56,13 @@ public class AutoModerator extends ListenerAdapter {
     /* Cache, Managers and some nice non-static stuff */
     private final PolicyService policyCache = PolicyService.getService();
     private final Map<Long, List<BlockedWord>> blockedWordsCache;
-    private final Set<String> allowedDomainsCache;
     private final PunishmentManager punishmentManager;
 
     public AutoModerator(
-            EntityPolicyRepository policyRepo, BlockedWordRepository blckWordsRepo,
-            MemberPunishmentRepository pnshRepo, AutomodActionRepository modActRepo
+            BlockedWordRepository blckWordsRepo, MemberPunishmentRepository pnshRepo,
+            AutomodActionRepository modActRepo
     ) {
         this.blockedWordsCache = loadBlockedWords(blckWordsRepo);
-        this.allowedDomainsCache = loadAllowedDomains(policyRepo);
         this.punishmentManager = new PunishmentManager(pnshRepo, modActRepo);
     }
 
@@ -196,7 +195,7 @@ public class AutoModerator extends ListenerAdapter {
     }
 
     private boolean isAllowedDomain(String domain) {
-        return allowedDomainsCache.stream().anyMatch(domain::endsWith);
+        return policyCache.isDomainAllowed(domain);
     }
 
     private boolean hasRepeatedContent(String content) {
@@ -216,7 +215,7 @@ public class AutoModerator extends ListenerAdapter {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isExcluded(PolicyType type, Member member, long chanId) {
-        Set<Long> ids = policyCache.get(type);
+        Set<Long> ids = policyCache.get(type, Long::parseLong);
         return ids.contains(chanId) || member.getRoles()
                 .stream()
                 .anyMatch(r -> ids.contains(r.getIdLong()));
@@ -257,12 +256,6 @@ public class AutoModerator extends ListenerAdapter {
             blockedMap.put(guildId, blockedList);
         }
         return blockedMap;
-    }
-
-    private Set<String> loadAllowedDomains(EntityPolicyRepository policyRepo) {
-        return policyRepo.findEntitiesIdsByType(ALLOW_DOMAIN, String::toString)
-                .stream()
-                .collect(Collectors.toUnmodifiableSet());
     }
 
     // Thank you ChatGPT for providing such useful REGEXes ^^

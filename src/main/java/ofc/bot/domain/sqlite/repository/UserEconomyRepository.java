@@ -14,6 +14,7 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Result;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -135,6 +136,12 @@ public class UserEconomyRepository extends Repository<UserEconomy> {
         return ctx.selectFrom(USERS_ECONOMY)
                 .where(USERS_ECONOMY.USER_ID.eq(userId))
                 .fetchOne();
+    }
+
+    public List<UserEconomy> findByIds(Collection<Long> userIds) {
+        return ctx.selectFrom(USERS_ECONOMY)
+                .where(USERS_ECONOMY.USER_ID.in(userIds))
+                .fetch();
     }
 
     public UserEconomy findByUserId(long userId, UserEconomy fallback) {
