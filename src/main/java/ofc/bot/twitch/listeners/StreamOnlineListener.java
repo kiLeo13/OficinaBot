@@ -42,7 +42,7 @@ public class StreamOnlineListener implements Consumer<StreamOnlineEvent> {
 
     private void postMessage(String url, String message) {
         DataObject reqBody = DataObject.empty()
-                .put("username", "Twitch Announcement")
+                .put("username", "Twitch")
                 .put("avatar_url", TWITCH_ICON)
                 .put("content", message);
 
