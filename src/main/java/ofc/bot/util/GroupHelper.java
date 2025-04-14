@@ -97,9 +97,11 @@ public class GroupHelper {
         EventBus.dispatchEvent(new BankTransactionEvent(tr));
 
         try {
-            // Save the perk purchase
-            GroupPerk perk = new GroupPerk(group, ownerId, item, amount, currency);
-            grpPerkRepo.save(perk);
+            if (item != null) {
+                // Save the perk purchase
+                GroupPerk perk = new GroupPerk(group, ownerId, item, amount, currency);
+                grpPerkRepo.save(perk);
+            }
         } catch (DataAccessException e) {
             LOGGER.error("Could not save perk {} for group {}", item.name(), group.getId(), e);
         }
