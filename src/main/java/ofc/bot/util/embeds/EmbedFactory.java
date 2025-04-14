@@ -183,7 +183,8 @@ public final class EmbedFactory {
         return builder
                 .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
                 .setColor(OK_GREEN)
-                .setDescf("Lembrarei você %d %s a cada %s.", times, timesText, fmtPeriod)
+                .setDescfIf(times == 1, "Lembrarei você em %s.", fmtPeriod)
+                .setDescfIf(times != 1, "Lembrarei você %d %s a cada %s.", times, timesText, fmtPeriod)
                 .build();
     }
 
