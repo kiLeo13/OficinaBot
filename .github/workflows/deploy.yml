@@ -34,14 +34,14 @@ jobs:
           set sftp:auto-confirm yes;
           set ssl:verify-certificate no;
           open -u ${{ secrets.SFTP_USER }},${{ secrets.SFTP_PASS }} sftp://${{ secrets.SFTP_HOST }};
-          cd /home/container;
-          put -O . target/bot.jar;
+          put target/bot.jar;
           bye
           "
 
       - name: Restart Pterodactyl Server
         run: |
-          curl -X POST "https://panel.hostsquare.io/api/client/servers/${{ secrets.PTERO_SERVER_ID }}/power" \
-          -H "Authorization: Bearer ${{ secrets.PTERO_API_KEY }}" \
+          curl -X POST "https://pterodactyl.file.properties/api/client/servers/${{ secrets.PTERO_SERVER_ID }}/power" \
+          -H "Accept: application/json" \
           -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.PTERO_API_KEY }}" \
           -d '{"signal": "restart"}'
