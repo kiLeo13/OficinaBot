@@ -9,30 +9,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Java 21
-      uses: actions/setup-java@v3
-      with:
-        java-version: '21'
-        distribution: 'temurin'
+      - name: Set up Java 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-    - name: Build with Maven
-      run: mvn clean package -DskipTests
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
 
-    - name: Upload JAR via SFTP
-      uses: pressidium/lftp-action@v1
-      with:
-        host: ${{ secrets.SFTP_HOST }}
-        port: ${{ secrets.SFTP_PORT }}
-        user: ${{ secrets.SFTP_USER }}
-        password: ${{ secrets.SFTP_PASS }}
-        args: -e "set ssl:verify-certificate no; put -O /home/container/ target/*.jar; bye"
+      - name: Debug .jar path
+        run: ls -l target/
 
-    - name: Restart Pterodactyl Server
-      run: |
-        curl -X POST "https://panel.hostsquare.io/api/client/servers/${{ secrets.PTERO_SERVER_ID }}/power" \
-        -H "Authorization: Bearer ${{ secrets.PTERO_API_KEY }}" \
-        -H "Content-Type: application/json" \
-        -d '{"signal": "restart"}'
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Upload JAR via SFTP using lftp
+        run: |
+          lftp -e "
+          set sftp:connect-program 'ssh -a -x -p ${{ secrets.SFTP_PORT }}';
+          set sftp:auto-confirm yes;
+          set ssl:verify-certificate no;
+          open -u ${{ secrets.SFTP_USER }},${{ secrets.SFTP_PASS }} sftp://${{ secrets.SFTP_HOST }};
+          cd /home/container;
+          put -O . target/*.jar;
+          bye
+          "
+
+      - name: Restart Pterodactyl Server
+        run: |
+          curl -X POST "https://panel.hostsquare.io/api/client/servers/${{ secrets.PTERO_SERVER_ID }}/power" \
+          -H "Authorization: Bearer ${{ secrets.PTERO_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{"signal": "restart"}'
