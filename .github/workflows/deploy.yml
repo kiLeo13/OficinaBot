@@ -1,0 +1,38 @@
+name: Build and Deploy JDA Bot
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Java 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+
+    - name: Upload JAR via SFTP
+      uses: pressidium/lftp-action@v1
+      with:
+        host: ${{ secrets.SFTP_HOST }}
+        port: ${{ secrets.SFTP_PORT }}
+        user: ${{ secrets.SFTP_USER }}
+        password: ${{ secrets.SFTP_PASS }}
+        args: -e "set ssl:verify-certificate no; put -O /home/container/ target/*.jar; bye"
+
+    - name: Restart Pterodactyl Server
+      run: |
+        curl -X POST "https://panel.hostsquare.io/api/client/servers/${{ secrets.PTERO_SERVER_ID }}/power" \
+        -H "Authorization: Bearer ${{ secrets.PTERO_API_KEY }}" \
+        -H "Content-Type: application/json" \
+        -d '{"signal": "restart"}'
