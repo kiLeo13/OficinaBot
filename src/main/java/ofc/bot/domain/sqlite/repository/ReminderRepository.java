@@ -72,6 +72,10 @@ public class ReminderRepository extends Repository<Reminder> {
                 .fetch();
     }
 
+    public int countActiveByUserId(long userId) {
+        return ctx.fetchCount(REMINDERS, REMINDERS.USER_ID.eq(userId).and(REMINDERS.EXPIRED.eq(false)));
+    }
+
     public int countByUserId(long userId) {
         return ctx.fetchCount(REMINDERS, REMINDERS.USER_ID.eq(userId));
     }

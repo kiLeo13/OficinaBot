@@ -52,7 +52,7 @@ public class CreateFixedReminderCommand extends SlashSubcommand {
         String expression = buildExpression(month, day, hour, minute);
         long chanId = isDm ? userId : chan.getIdLong();
 
-        int count = remRepo.countByUserId(userId);
+        int count = remRepo.countActiveByUserId(userId);
         if (count >= Reminder.MAX_PER_USER)
             return Status.HIT_MAX_REMINDERS.args(count);
 
