@@ -131,7 +131,7 @@ public class UserinfoCommand extends SlashCommand {
         }
 
         Gender gender = Bot.findGender(member);
-        return String.format("Casad%s com", gender.getSuffix());
+        return String.format("💍 Casad%s com", gender.getSuffix());
     }
 
     private String formatMarriages(long userId, List<MarriageView> marriages) {
