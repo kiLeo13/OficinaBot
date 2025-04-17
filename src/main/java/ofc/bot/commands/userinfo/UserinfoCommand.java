@@ -86,9 +86,7 @@ public class UserinfoCommand extends SlashCommand {
         String description = getDescription(cs, target);
         String footer = getFooter(cs, guild);
         String banner = profile.getBannerUrl();
-        String resizedBanner = banner == null
-                ? null
-                : banner + "?size=2048";
+        String resizedBanner = banner == null ? null : banner + "?size=2048";
 
         builder
                 .setTitle(title)
@@ -118,10 +116,12 @@ public class UserinfoCommand extends SlashCommand {
 
         if (marriages.isEmpty()) return;
 
-        String strfCount = Bot.fmtNum(cs.marriageCount());
+        int relCount = cs.marriageCount();
+        String strfCount = Bot.fmtNum(relCount);
         String formattedMarriages = formatMarriages(cs.userId(), marriages);
+        String title = relCount == 1 ? "💍 Casado(a) com" : "💍 Casamentos (" + strfCount + ")";
 
-        builder.addField("💍 Casamentos (" + strfCount + ")", formattedMarriages, false);
+        builder.addField(title, formattedMarriages, false);
     }
 
     private String formatMarriages(long userId, List<MarriageView> marriages) {
