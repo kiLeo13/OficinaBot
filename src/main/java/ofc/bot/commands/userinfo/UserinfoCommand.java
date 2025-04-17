@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.User.Profile;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import ofc.bot.domain.entity.*;
+import ofc.bot.domain.entity.enums.Gender;
 import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.domain.viewmodels.MarriageView;
 import ofc.bot.domain.viewmodels.UserinfoView;
@@ -107,21 +108,30 @@ public class UserinfoCommand extends SlashCommand {
         if (boosterSince != 0)
             builder.addField("<:discordbooster:1094816233234378762> Booster Desde", "<t:" + boosterSince + ">", true);
 
-        includeMarriagesIfPresent(cs, builder);
+        includeMarriagesIfPresent(target, cs, builder);
         return builder.build();
     }
 
-    private void includeMarriagesIfPresent(UserinfoView cs, EmbedBuilder builder) {
+    private void includeMarriagesIfPresent(Member member, UserinfoView cs, EmbedBuilder builder) {
         List<MarriageView> marriages = cs.marriages();
 
         if (marriages.isEmpty()) return;
 
         int relCount = cs.marriageCount();
-        String strfCount = Bot.fmtNum(relCount);
         String formattedMarriages = formatMarriages(cs.userId(), marriages);
-        String title = relCount == 1 ? "💍 Casado(a) com" : "💍 Casamentos (" + strfCount + ")";
+        String label = getMarriagesLabel(member, relCount);
 
-        builder.addField(title, formattedMarriages, false);
+        builder.addField(label, formattedMarriages, false);
+    }
+
+    private String getMarriagesLabel(Member member, int relCount) {
+        if (relCount > 1) {
+            String fmtCount = Bot.fmtNum(relCount);
+            return String.format("💍 Casamentos (%s)", fmtCount);
+        }
+
+        Gender gender = Bot.findGender(member);
+        return String.format("Casad%s com", gender.getSuffix());
     }
 
     private String formatMarriages(long userId, List<MarriageView> marriages) {

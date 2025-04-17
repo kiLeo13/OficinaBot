@@ -1,14 +1,16 @@
 package ofc.bot.util;
 
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
+import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.Main;
+import ofc.bot.domain.entity.enums.Gender;
 import ofc.bot.internal.data.BotProperties;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,23 @@ public final class Bot {
 
     public static Locale defaultLocale() {
         return LOCALE;
+    }
+
+    @NotNull
+    public static Gender findGender(@NotNull Member member) {
+        Checks.notNull(member, "Member");
+        List<Long> roles = member.getRoles().stream().map(Role::getIdLong).toList();
+        long maleId = getSafe(KEY_MALE_ID, Long::parseLong);
+        long femId = getSafe(KEY_FEMALE_ID, Long::parseLong);
+
+        if (roles.contains(maleId)) {
+            return Gender.MALE;
+        }
+
+        if (roles.contains(femId)) {
+            return Gender.FEMALE;
+        }
+        return Gender.UNKNOWN;
     }
 
     public static String get(String key) {
