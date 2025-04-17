@@ -27,6 +27,8 @@ import java.util.function.Function;
 public final class Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
     private static final Locale LOCALE = Locale.of("pt", "BR");
+    private static final String KEY_FEMALE_ID = "roles.genders.female.id";
+    private static final String KEY_MALE_ID = "roles.genders.male.id";
 
     private static final int THOUSAND = 1_000;
     private static final int MILLION = 1_000 * THOUSAND;
@@ -47,12 +49,21 @@ public final class Bot {
         }
     }
 
+    public static <T> T get(String key, Function<String, T> mapper) {
+        String val = get(key);
+        return val == null ? null : mapper.apply(val);
+    }
+
     public static String getSafe(String key) {
         String value = get(key);
         if (value == null)
             throw new NoSuchElementException("Found no values for key " + key);
 
         return value;
+    }
+
+    public static <T> T getSafe(String key, Function<String, T> mapper) {
+        return mapper.apply(getSafe(key));
     }
 
     public static List<GatewayIntent> getIntents() {
