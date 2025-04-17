@@ -26,7 +26,7 @@ import java.util.function.Function;
 
 public final class Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
-    private static final Locale LOCALE = new Locale("pt", "BR");
+    private static final Locale LOCALE = Locale.of("pt", "BR");
 
     private static final int THOUSAND = 1_000;
     private static final int MILLION = 1_000 * THOUSAND;
