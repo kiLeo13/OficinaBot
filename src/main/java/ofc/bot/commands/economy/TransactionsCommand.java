@@ -35,8 +35,7 @@ public class TransactionsCommand extends SlashCommand {
         User user = ctx.getUser();
         List<TransactionType> actions = getTypes(hasChatMoney);
         List<CurrencyType> currencies = getCurrencies(crossEconomy);
-        PageItem<BankTransaction> trs = Paginator.viewTransactions(
-                userId, pageIndex, PAGE_SIZE, currencies, actions);
+        PageItem<BankTransaction> trs = Paginator.viewTransactions(userId, pageIndex, PAGE_SIZE, currencies, actions);
 
         if (trs.isEmpty())
             return Status.EMPTY_BANK_STATEMENT;
