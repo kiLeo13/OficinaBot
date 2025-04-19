@@ -562,13 +562,13 @@ public final class EmbedFactory {
             StoreItemType product = tr.getProduct();
             String productName = product == null ? null : product.getName();
 
-            builder.addF("\uD83C\uDF10 ID: #%d | \uD83D\uDD52 %s (GMT -3)", tr.getId(), fmtTimestamp)
-                    .addF("\uD83C\uDF88 Tipo: %s", action.getName())
-                    .addFIf(product != null, "\uD83E\uDDE9 Item: %s", productName)
-                    .addF("\uD83E\uDD11 %s: %s", resolveUserAlias(action), user.getName())
-                    .addFIf(receiver != null, "\uD83D\uDC64 Recebente: %s", recName)
-                    .addF("\uD83D\uDCC3 Nota: %s", comment)
-                    .addF("\uD83D\uDCB0 Valor: %s (%s)", Bot.fmtMoney(amount), currency.getName())
+            builder.addF("ID: #%d | %s (GMT -3)", tr.getId(), fmtTimestamp)
+                    .addF("Tipo: %s", action.getName())
+                    .addFIf(product != null, "Item: %s", productName)
+                    .addF("%s: %s", resolveUserAlias(action), user.getName())
+                    .addFIf(receiver != null, "Recebente: %s", recName)
+                    .addF("Nota: %s", comment)
+                    .addF("Valor: %s (%s)", Bot.fmtMoney(amount), currency.getName())
                     .addSeparator();
         }
         return builder.build();
