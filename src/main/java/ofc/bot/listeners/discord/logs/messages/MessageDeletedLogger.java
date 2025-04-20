@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import ofc.bot.domain.entity.DiscordMessage;
 import ofc.bot.domain.sqlite.repository.DiscordMessageRepository;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 
@@ -19,12 +18,10 @@ public class MessageDeletedLogger extends ListenerAdapter {
 
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
-        if (!event.isFromGuild() || event.getGuild().getIdLong() != DiscordMessage.TARGET_GUILD) return;
-
         long messageId = event.getMessageIdLong();
         Guild guild = event.getGuild();
         guild.retrieveAuditLogs().limit(1).type(ActionType.MESSAGE_DELETE).queue((entries) -> {
-            AuditLogEntry entry = entries.isEmpty() ? null : entries.get(0);
+            AuditLogEntry entry = entries.isEmpty() ? null : entries.getFirst();
 
             if (entry == null) return;
 

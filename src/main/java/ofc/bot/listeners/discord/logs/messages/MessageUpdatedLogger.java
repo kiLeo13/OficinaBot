@@ -1,7 +1,6 @@
 package ofc.bot.listeners.discord.logs.messages;
 
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.domain.entity.DiscordMessage;
@@ -24,13 +23,7 @@ public class MessageUpdatedLogger extends ListenerAdapter {
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
         Message message = event.getMessage();
-        User author = message.getAuthor();
-        boolean fromGuild = event.isFromGuild();
         long msgId = message.getIdLong();
-
-        if (author.isBot()) return;
-
-        if (!fromGuild || message.getGuildIdLong() != DiscordMessage.TARGET_GUILD) return;
 
         DiscordMessage msg = msgRepo.findById(msgId, DiscordMessage.fromMessage(message));
         String newContent = message.getContentRaw();

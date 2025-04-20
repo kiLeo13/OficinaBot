@@ -3,27 +3,28 @@ package ofc.bot.domain.entity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReference;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
+import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.tables.DiscordMessagesTable;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class DiscordMessage extends OficinaRecord<DiscordMessage> {
     private static final DiscordMessagesTable DISCORD_MESSAGES = DiscordMessagesTable.DISCORD_MESSAGES;
 
-    public static final long TARGET_GUILD = 582430782577049600L;
-
     public DiscordMessage() {
         super(DISCORD_MESSAGES);
     }
 
-    public DiscordMessage(
-            long id, long authorId, long channelId,
-            String content, Long stickerId, Long messageReferenceId,
-            long createdAt, long updatedAt
+    public DiscordMessage(long id, long authorId, long channelId,
+                          @NotNull String content, @Nullable Long stickerId, @Nullable Long messageReferenceId,
+                          long createdAt, long updatedAt
     ) {
         this();
+        Checks.notNull(content, "Content");
+
         set(DISCORD_MESSAGES.ID, id);
         set(DISCORD_MESSAGES.AUTHOR_ID, authorId);
         set(DISCORD_MESSAGES.CHANNEL_ID, channelId);
@@ -36,7 +37,7 @@ public class DiscordMessage extends OficinaRecord<DiscordMessage> {
 
     public static DiscordMessage fromMessage(Message msg) {
         List<StickerItem> stickers = msg.getStickers();
-        Long stickerId = stickers.isEmpty() ? null : stickers.get(0).getIdLong();
+        Long stickerId = stickers.isEmpty() ? null : stickers.getFirst().getIdLong();
         MessageReference ref = msg.getMessageReference();
         Long refId = ref == null ? null : ref.getMessageIdLong();
 
