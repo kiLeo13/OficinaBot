@@ -7,7 +7,7 @@ import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 
 public record Cooldown(boolean managerBypass, boolean global, long waitSeconds) {
-    public static final Cooldown EMPTY = new Cooldown(true, false, 0);
+    public static final Cooldown ZERO = new Cooldown(true, false, 0);
 
     public Cooldown {
         Checks.notNegative(waitSeconds, "Wait Seconds");

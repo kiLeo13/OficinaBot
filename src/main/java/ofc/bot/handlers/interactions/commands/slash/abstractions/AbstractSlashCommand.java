@@ -26,7 +26,7 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
         this.fullName = getValue(DiscordCommand::name);
         this.permission = getValue(DiscordCommand::permission);
         this.options = new ArrayList<>();
-        this.cooldown = Cooldown.EMPTY;
+        this.cooldown = Cooldown.ZERO;
 
         // If the full qualified name contains spaces but is NOT a subcommand...
         // This is not allowed
@@ -41,7 +41,7 @@ public abstract class AbstractSlashCommand implements ICommand<SlashCommandConte
         this.description = description;
         this.permission = permission;
         this.options = new ArrayList<>();
-        this.cooldown = Cooldown.EMPTY;
+        this.cooldown = Cooldown.ZERO;
     }
 
     /**
