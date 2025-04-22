@@ -15,7 +15,7 @@ public class MessageReferenceIndicator extends ListenerAdapter {
         String content = msg.getContentRaw();
         MessageReference ref = msg.getMessageReference();
 
-        if (!content.equals("-r") || ref == null) return;
+        if (!content.equals(".r") || ref == null) return;
 
         ref.resolve().queue(refMsg -> {
             MessageReference targetRef = refMsg.getMessageReference();
