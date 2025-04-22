@@ -7,12 +7,14 @@ import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.interactions.EntityContextFactory;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +27,7 @@ public class GroupPayInvoiceCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         long userId = ctx.getUserId();
         Member issuer = ctx.getIssuer();
         OficinaGroup group = grpRepo.findByOwnerId(userId);
@@ -49,9 +51,15 @@ public class GroupPayInvoiceCommand extends SlashSubcommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Pague a fatura do seu grupo (normalmente será apenas o aluguel).");
-        setCooldown(2, TimeUnit.MINUTES);
+    public String getDescription() {
+        return "Pague a fatura do seu grupo (normalmente será apenas o aluguel).";
+    }
+
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(2, TimeUnit.MINUTES);
     }
 }

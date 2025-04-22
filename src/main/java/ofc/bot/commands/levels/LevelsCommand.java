@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
 import ofc.bot.domain.viewmodels.LevelView;
@@ -16,6 +17,7 @@ import ofc.bot.handlers.paginations.PageItem;
 import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class LevelsCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         int pageIndex = ctx.getOption("page", 1, OptionMapping::getAsInt) - 1;
         long userId = ctx.getUserId();
         Guild guild = ctx.getGuild();
@@ -52,10 +54,18 @@ public class LevelsCommand extends SlashCommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Mostra o placar de líderes de nível.");
+    public String getDescription() {
+        return "Mostra o placar de líderes de nível.";
+    }
 
-        addOpt(OptionType.INTEGER, "page", "A página a ser mostrada.", 1, Integer.MAX_VALUE);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.INTEGER, "page", "A página a ser mostrada.")
+                        .setRequiredRange(1, Integer.MAX_VALUE)
+        );
     }
 }

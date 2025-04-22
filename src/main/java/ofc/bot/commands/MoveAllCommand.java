@@ -10,20 +10,22 @@ import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@DiscordCommand(name = "move-all", permission = Permission.VOICE_MOVE_OTHERS)
+@DiscordCommand(name = "move-all", permissions = Permission.VOICE_MOVE_OTHERS)
 public class MoveAllCommand extends SlashCommand {
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Member issuer = ctx.getIssuer();
         Guild guild = ctx.getGuild();
         VoiceChannel oldChannel = ctx.getOption("origin", getFallback(issuer), (opt) -> opt.getAsChannel().asVoiceChannel());
@@ -47,13 +49,21 @@ public class MoveAllCommand extends SlashCommand {
                 : Status.SUCCESSFULLY_MOVING_USERS.args(connected.size(), newChannel.getName());
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Move todos os usuários de um canal de voz para outro.");
+    public String getDescription() {
+        return "Move todos os usuários de um canal de voz para outro.";
+    }
 
-        addOpt(OptionType.CHANNEL, "destination", "Para qual canal de voz os membros devem ser movidos.", (it) -> it.setRequired(true)
-                .setChannelTypes(ChannelType.VOICE));
-        addOpt(OptionType.CHANNEL, "origin", "Partindo de qual canal de voz os membros devem ser movidos.", (it) -> it.setChannelTypes(ChannelType.VOICE));
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.CHANNEL, "destination", "Para qual canal de voz os membros devem ser movidos.", true)
+                        .setChannelTypes(ChannelType.VOICE),
+                new OptionData(OptionType.CHANNEL, "origin", "Partindo de qual canal de voz os membros devem ser movidos.")
+                        .setChannelTypes(ChannelType.VOICE)
+        );
     }
 
     // We can safely ignore the null warning at this point,

@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
@@ -12,12 +13,14 @@ import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.economy.CurrencyType;
 import ofc.bot.handlers.interactions.EntityContextFactory;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +39,7 @@ public class CreateGroupCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         String name = ctx.getSafeOption("name", OptionMapping::getAsString).strip();
         String hexColor = ctx.getSafeOption("color", OptionMapping::getAsString);
         String emoji = ctx.getSafeOption("emoji", OptionMapping::getAsString);
@@ -89,16 +92,34 @@ public class CreateGroupCommand extends SlashSubcommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Cria um grupo novo em seu nome.");
-        setCooldown(1, TimeUnit.MINUTES);
+    public String getDescription() {
+        return "Cria um grupo novo em seu nome.";
+    }
 
-        addOpt(OptionType.STRING, "name", "O nome do grupo. Você não pode usar emojis.", true, OficinaGroup.MIN_NAME_LENGTH, OficinaGroup.MAX_NAME_LENGTH);
-        addOpt(OptionType.STRING, "color", "A cor do grupo em formato HEX (sem o #).", true, 6, 6);
-        addOpt(OptionType.STRING, "currency", "Qual o tipo de economia deve ser usada para efetuar cobranças nesse grupo.", (it) -> it.setRequired(true)
-                .addChoices(getCurrencyChoices()));
-        addOpt(OptionType.STRING, "emoji", "O emoji utilizado para criar chats e calls (forneça o emoji em si, ex: 💪).", true, 1, 50);
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(1, TimeUnit.MINUTES);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "name", "O nome do grupo. Você não pode usar emojis.", true)
+                        .setRequiredLength(OficinaGroup.MIN_NAME_LENGTH, OficinaGroup.MAX_NAME_LENGTH),
+
+                new OptionData(OptionType.STRING, "color", "A cor do grupo em formato HEX (sem o #).", true)
+                        .setRequiredLength(6, 6),
+
+                new OptionData(OptionType.STRING, "currency", "Qual o tipo de economia deve ser usada para efetuar cobranças nesse grupo.", true)
+                        .addChoices(getCurrencyChoices()),
+
+                new OptionData(OptionType.STRING, "emoji", "O emoji utilizado para criar chats e calls (forneça o emoji em si, ex: 💪).", true)
+                        .setRequiredLength(1, 50) // Ahh, yeah, you are probably wondering why max to 50 chars... I also don't know
+        );
     }
 
     private boolean hasGroup(long userId) {

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.TempBan;
 import ofc.bot.domain.entity.enums.PunishmentType;
 import ofc.bot.domain.sqlite.repository.TempBanRepository;
@@ -15,14 +16,16 @@ import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 import ofc.bot.util.time.OficinaDuration;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "ban", permission = Permission.BAN_MEMBERS)
+@DiscordCommand(name = "ban", permissions = Permission.BAN_MEMBERS)
 public class BanCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(BanCommand.class);
     private static final Duration MAX_DELETION_TIMEFRAME = Duration.ofDays(7);
@@ -33,7 +36,7 @@ public class BanCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User target = ctx.getSafeOption("user", OptionMapping::getAsUser);
         String reason = ctx.getSafeOption("reason", OptionMapping::getAsString);
         String fmtDuration = ctx.getOption("duration", "", OptionMapping::getAsString);
@@ -78,13 +81,23 @@ public class BanCommand extends SlashCommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Bane um membro do servidor.");
+    public String getDescription() {
+        return "Bane um membro do servidor.";
+    }
 
-        addOpt(OptionType.USER, "user", "O usuário a ser banido", true);
-        addOpt(OptionType.STRING, "reason", "O motivo do banimento.", true, 5, 400);
-        addOpt(OptionType.STRING, "duration", "O tempo que o membro deve ficar banido.", (it) -> it.setMinLength(2));
-        addOpt(OptionType.STRING, "history-deletion", "Apague o histórico de mensagens dentro do período selecionado.", (it) -> it.setMinLength(2));
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "user", "O usuário a ser banido", true),
+                new OptionData(OptionType.STRING, "reason", "O motivo do banimento.", true)
+                        .setRequiredLength(5, 400),
+                new OptionData(OptionType.STRING, "duration", "O tempo que o membro deve ficar banido.")
+                        .setMinLength(2),
+                new OptionData(OptionType.STRING, "history-deletion", "Apague o histórico de mensagens dentro do período selecionado.")
+                        .setMinLength(2)
+        );
     }
 }

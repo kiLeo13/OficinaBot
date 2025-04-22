@@ -10,6 +10,7 @@ import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.List;
@@ -18,13 +19,19 @@ import java.util.List;
 public class GuildInfoCommand extends SlashCommand {
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Guild guild = ctx.getGuild();
         MessageEmbed embed = embed(guild);
 
         return ctx.create()
                 .setEmbeds(embed)
                 .send();
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Informações gerais sobre o servidor.";
     }
 
     private MessageEmbed embed(Guild guild) {
@@ -68,10 +75,5 @@ public class GuildInfoCommand extends SlashCommand {
                 .setImage(banner)
                 .setFooter(guild.getName(), guild.getIconUrl())
                 .build();
-    }
-
-    @Override
-    protected void init() {
-        setDesc("Informações gerais sobre o servidor.");
     }
 }

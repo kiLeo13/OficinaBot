@@ -5,11 +5,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.entity.UserXP;
 import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
 import ofc.bot.domain.sqlite.repository.UserXPRepository;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -18,8 +20,10 @@ import ofc.bot.handlers.requests.RequestMapper;
 import ofc.bot.handlers.requests.Route;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @DiscordCommand(name = "rank")
@@ -33,9 +37,9 @@ public class RankCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Member issuer = ctx.getIssuer();
-        Member target = ctx.getOption("user", issuer, OptionMapping::getAsMember);
+        Member target = ctx.getOption("member", issuer, OptionMapping::getAsMember);
 
         if (target == null)
             return Status.USER_NOT_FOUND;
@@ -65,12 +69,24 @@ public class RankCommand extends SlashCommand {
         return ctx.replyFile(cardImage, "card.png");
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Mostra o rank (global) de um usuário.");
-        setCooldown(10, TimeUnit.SECONDS);
+    public String getDescription() {
+        return "Mostra o rank (global) de um usuário.";
+    }
 
-        addOpt(OptionType.USER, "user", "O membro que você deseja saber o rank global.");
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(10, TimeUnit.SECONDS);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "member", "O membro que você deseja saber o rank global.")
+        );
     }
 
     private static byte[] getRankCard(RankData data) {

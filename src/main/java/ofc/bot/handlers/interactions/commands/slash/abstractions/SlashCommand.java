@@ -1,49 +1,70 @@
 package ofc.bot.handlers.interactions.commands.slash.abstractions;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.internal.utils.Checks;
+import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.slash.SubcommandGroup;
+import ofc.bot.util.Bot;
+import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public abstract class SlashCommand extends AbstractSlashCommand {
+public abstract class SlashCommand implements SubcommandContainer, ICommand<SlashCommandContext> {
+    private final String name;
+    private final List<Permission> permissions;
     private final List<SlashSubcommand> subCmds;
     private final List<SubcommandGroup> groups;
 
+    public SlashCommand(String name, Permission... permissions) {
+        this.name = name;
+        this.permissions = List.of(permissions);
+        this.subCmds = new ArrayList<>();
+        this.groups = new ArrayList<>();
+        checkName();
+    }
+
     public SlashCommand() {
-        super();
+        this.name = Bot.getSafeAnnotationValue(this, DiscordCommand.class, DiscordCommand::name);
+        this.permissions = List.of(Bot.getAnnotationValue(this, DiscordCommand.class, DiscordCommand::permissions, new Permission[0]));
         this.groups = new ArrayList<>();
         this.subCmds = new ArrayList<>();
+        checkName();
     }
 
-    public SlashCommand(String name, String description, Permission permission) {
-        super(name, description, permission);
-        this.groups = new ArrayList<>();
-        this.subCmds = new ArrayList<>();
-    }
-
-    /**
-     * Whether this command has subcommands (this includes subcommand groups with subcommands).
-     *
-     * @return {@code true} if this instance has subcommands, {@code false} otherwise.
-     */
-    public boolean hasSubs() {
-        return !subCmds.isEmpty() || !groups.isEmpty();
-    }
-
-    public final SlashCommand addGroup(SubcommandGroup group) {
-        this.groups.add(group);
+    @NotNull
+    @Override
+    public final SlashCommand addSubcommand(@NotNull SlashSubcommand sub) {
+        Checks.notNull(sub, "Subcommand");
+        this.subCmds.add(sub);
         return this;
     }
 
+    @NotNull
+    @Override
+    public final String getName() {
+        return this.name;
+    }
+
+    @NotNull
+    @Override
+    public final List<Permission> getPermissions() {
+        return this.permissions;
+    }
+
+    @NotNull
+    @Override
+    public final List<SlashSubcommand> getSubcommands() {
+        return this.subCmds;
+    }
+
+    public final boolean hasSubcommands() {
+        return !subCmds.isEmpty() || !groups.isEmpty();
+    }
+
     public final SlashCommand addGroups(SubcommandGroup... groups) {
-        for (SubcommandGroup group : groups) {
-            addGroup(group.setSuperCommand(this));
-        }
+        this.groups.addAll(List.of(groups));
         return this;
     }
 
@@ -51,45 +72,9 @@ public abstract class SlashCommand extends AbstractSlashCommand {
         return this.groups;
     }
 
-    public final SlashCommand addSubcommand(SlashSubcommand sub) {
-        this.subCmds.add(sub);
-        return this;
-    }
-
-    public final List<SlashSubcommand> getSubcommands() {
-        return this.subCmds;
-    }
-
-    /**
-     * This will deeply look for every subcommand in this tree, including
-     * subcommands inside groups.
-     *
-     * @return the list of all subcommands held in this command.
-     */
-    public final List<SlashSubcommand> findAllSubcommands() {
-        List<SlashSubcommand> subs = new ArrayList<>(this.subCmds);
-
-        for (SubcommandGroup group : this.groups) {
-            subs.addAll(group.getSubcommands());
+    private void checkName() {
+        if (this.name.split(" ").length != 1) {
+            throw new IllegalArgumentException("Command names cannot contain spaces, provided: " + this.name);
         }
-        return Collections.unmodifiableList(subs);
-    }
-
-    public final SlashCommandData build() {
-        SlashCommandData slash = Commands.slash(getName(), getDescription())
-                .addOptions(getOptions());
-
-        for (SubcommandGroup group : getGroups()) {
-            slash.addSubcommandGroups(group.build());
-        }
-
-        for (SlashSubcommand sub : getSubcommands()) {
-            slash.addSubcommands(sub.build());
-        }
-
-        if (getPermission() != null) {
-            slash.setDefaultPermissions(DefaultMemberPermissions.enabledFor(getPermission()));
-        }
-        return slash;
     }
 }

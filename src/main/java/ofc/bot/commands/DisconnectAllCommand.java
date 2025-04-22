@@ -8,19 +8,21 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@DiscordCommand(name = "disconnect-all", permission = Permission.VOICE_MOVE_OTHERS)
+@DiscordCommand(name = "disconnect-all", permissions = Permission.VOICE_MOVE_OTHERS)
 public class DisconnectAllCommand extends SlashCommand {
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Guild guild = ctx.getGuild();
         Member issuer = ctx.getIssuer();
         VoiceChannel channel = ctx.getOption("channel", getFallback(issuer), (opt) -> opt.getAsChannel().asVoiceChannel());
@@ -38,11 +40,19 @@ public class DisconnectAllCommand extends SlashCommand {
                 : Status.SUCCESSFULLY_DISCONNECTING_USERS.args(connected.size(), channel.getName());
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Desconecta todos os usuários do canal de voz fornecido.");
+    public String getDescription() {
+        return "Desconecta todos os usuários do canal de voz fornecido.";
+    }
 
-        addOpt(OptionType.CHANNEL, "channel", "De qual canal os membros devem ser desconectados.", (it) -> it.setChannelTypes(ChannelType.VOICE));
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.CHANNEL, "channel", "De qual canal os membros devem ser desconectados.")
+                        .setChannelTypes(ChannelType.VOICE)
+        );
     }
 
     // We can safely ignore the null warning at this point,

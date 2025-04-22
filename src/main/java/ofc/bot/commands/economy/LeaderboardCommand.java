@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.domain.viewmodels.LeaderboardUser;
@@ -17,6 +18,7 @@ import ofc.bot.handlers.paginations.PageItem;
 import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class LeaderboardCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         int pageIndex = ctx.getOption("page", 1, OptionMapping::getAsInt) - 1;
         Scope scope = ctx.getEnumOption("scope", Scope.ALL, Scope.class);
         Guild guild = ctx.getGuild();
@@ -54,12 +56,22 @@ public class LeaderboardCommand extends SlashCommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Veja o placar de líderes global da economia.");
+    public String getDescription() {
+        return "Veja o placar de líderes global da economia.";
+    }
 
-        addOpt(OptionType.STRING, "scope", "Qual saldo deve ser mostrado.", (it) -> it.addChoices(getChoices()));
-        addOpt(OptionType.INTEGER, "page", "A página do placar de líderes a verificar.", 1, Integer.MAX_VALUE);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "scope", "Qual saldo deve ser mostrado.")
+                        .addChoices(getChoices()),
+
+                new OptionData(OptionType.INTEGER, "page", "A página do placar de líderes a verificar.")
+                        .setRequiredRange(1, Integer.MAX_VALUE)
+        );
     }
 
     private List<Command.Choice> getChoices() {

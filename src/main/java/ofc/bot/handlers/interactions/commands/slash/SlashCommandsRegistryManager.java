@@ -1,37 +1,69 @@
 package ofc.bot.handlers.interactions.commands.slash;
 
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.ICommand;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class SlashCommandsRegistryManager {
-    private static final Map<String, ICommand<SlashCommandContext>> commands = new HashMap<>(Commands.MAX_SLASH_COMMANDS);
+public final class SlashCommandsRegistryManager {
+    private static final SlashCommandsRegistryManager INSTANCE = new SlashCommandsRegistryManager();
+    private static final Map<String, ICommand<SlashCommandContext>> commands = new HashMap<>();
+    private static final List<SlashCommand> temp = new ArrayList<>(Commands.MAX_SLASH_COMMANDS);
 
-    public static ICommand<SlashCommandContext> getCommand(String fullName) {
+    private SlashCommandsRegistryManager() {}
+
+    public static SlashCommandsRegistryManager getManager() {
+        return INSTANCE;
+    }
+
+    @Nullable
+    public ICommand<SlashCommandContext> getCommand(@NotNull String fullName) {
+        Checks.notNull(fullName, "Full Command Name");
         return commands.get(fullName);
     }
 
-    public static void register(List<SlashCommand> cmds) {
-        commands.putAll(mapExecutables(cmds));
+    @NotNull
+    public List<SlashCommand> getAll() {
+        return temp;
     }
 
-    private static Map<String, ICommand<SlashCommandContext>> mapExecutables(List<SlashCommand> cmds) {
-        Map<String, ICommand<SlashCommandContext>> mappedCommands = new HashMap<>();
+    public void clearTemp() {
+        temp.clear();
+    }
 
-        for (SlashCommand cmd : cmds) {
-            if (!cmd.hasSubs()) {
-                mappedCommands.put(cmd.getQualifiedName(), cmd);
-                continue;
-            }
+    public void register(@NotNull SlashCommand cmd) {
+        Checks.notNull(cmd, "Slash Command");
+        temp.add(cmd);
+        commands.putAll(getExecutables(cmd));
+    }
 
-            for (SlashSubcommand sub : cmd.findAllSubcommands()) {
-                mappedCommands.put(sub.getQualifiedName(), sub);
+    private Map<String, ICommand<SlashCommandContext>> getExecutables(SlashCommand cmd) {
+        Map<String, ICommand<SlashCommandContext>> executables = new HashMap<>();
+
+        // Add only the base command if there are no subcommands
+        // If subcommands or groups exist, the base command becomes unexecutable, so we don't add it
+        if (!cmd.hasSubcommands()) {
+            executables.put(cmd.getName(), cmd);
+            return executables;
+        }
+
+        for (SlashSubcommand sub : cmd.getSubcommands()) {
+            String path = String.format("%s %s", cmd.getName(), sub.getName());
+            executables.put(path, sub);
+        }
+
+        for (SubcommandGroup group : cmd.getGroups()) {
+            for (SlashSubcommand sub : group.getSubcommands()) {
+                String path = String.format("%s %s %s", cmd.getName(), group.getName(), sub.getName());
+                executables.put(path, sub);
             }
         }
-        return Collections.unmodifiableMap(mappedCommands);
+        return executables;
     }
 }

@@ -5,23 +5,27 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@DiscordCommand(name = "clear", permission = Permission.MESSAGE_MANAGE)
+@DiscordCommand(name = "clear", permissions = Permission.MESSAGE_MANAGE)
 public class ClearMessagesCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClearMessagesCommand.class);
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         ctx.ack(true);
 
         GuildMessageChannel current = (GuildMessageChannel) ctx.getChannel();
@@ -41,19 +45,33 @@ public class ClearMessagesCommand extends SlashCommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Limpa de 2 a 100 mensagens do chat de uma só vez.");
-        setCooldown(1, TimeUnit.SECONDS);
-
-        addOpt(OptionType.INTEGER, "amount", "A quantidade de mensagens a ser limpada.", true, 2, 100);
-        addOpt(OptionType.CHANNEL, "channel", "O canal ser limpado as mensagens (Padrão: atual).", (it) -> it.setChannelTypes(getTextChannelTypes()));
+    public String getDescription() {
+        return "Limpa de 2 a 100 mensagens do chat de uma só vez.";
     }
 
-    private static ChannelType[] getTextChannelTypes() {
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(1, TimeUnit.SECONDS);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.INTEGER, "amount", "A quantidade de mensagens a ser limpada.", true)
+                        .setRequiredRange(2, 100),
+                new OptionData(OptionType.CHANNEL, "channel", "O canal ser limpado as mensagens (Padrão: atual).")
+                        .setChannelTypes(getTextChannelTypes())
+        );
+    }
+
+    private static List<ChannelType> getTextChannelTypes() {
         return Arrays.stream(ChannelType.values())
                 .filter(ChannelType::isMessage)
                 .filter(ChannelType::isGuild)
-                .toArray(ChannelType[]::new);
+                .toList();
     }
 }

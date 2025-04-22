@@ -17,7 +17,7 @@ public class ModalSubmitContext extends InteractionSubmitContext<ModalContext, M
     @Override
     public void ack(boolean ephemeral) {
         if (!isAcknowledged())
-            getInteraction().deferReply(ephemeral).queue();
+            getSource().deferReply(ephemeral).queue();
     }
 
     @NotNull
@@ -37,7 +37,7 @@ public class ModalSubmitContext extends InteractionSubmitContext<ModalContext, M
 
     @Nullable
     public String findField(@NotNull String id) {
-        ModalInteraction itr = getInteraction();
+        ModalInteraction itr = getSource();
         ModalMapping value = itr.getValue(id);
         return value == null ? null : value.getAsString();
     }

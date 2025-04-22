@@ -6,11 +6,25 @@ import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.TimeUnit;
+
 public record Cooldown(boolean managerBypass, boolean global, long waitSeconds) {
-    public static final Cooldown EMPTY = new Cooldown(true, false, 0);
+    public static final Cooldown ZERO = new Cooldown(true, false, 0);
 
     public Cooldown {
         Checks.notNegative(waitSeconds, "Wait Seconds");
+    }
+
+    public static Cooldown of(boolean managerBypass, boolean global, long period, TimeUnit unit) {
+        return new Cooldown(managerBypass, global, unit.toSeconds(period));
+    }
+
+    public static Cooldown of(boolean managerBypass, long period, TimeUnit unit) {
+        return new Cooldown(managerBypass, false, unit.toSeconds(period));
+    }
+
+    public static Cooldown of(long period, TimeUnit unit) {
+        return of(true, period, unit);
     }
 
     /**
