@@ -7,14 +7,17 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.Reminder;
 import ofc.bot.domain.sqlite.repository.ReminderRepository;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +41,7 @@ public class CreateFixedReminderCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         String message = ctx.getSafeOption("message", OptionMapping::getAsString);
         Month month = ctx.getEnumOption("month", null, Month.class);
         int day = ctx.getOption("day", -1, OptionMapping::getAsInt);
@@ -81,17 +84,34 @@ public class CreateFixedReminderCommand extends SlashSubcommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Cria um lembrete para momentos fixos.");
-        setCooldown(false, 10, TimeUnit.SECONDS);
+    public String getDescription() {
+        return "Cria um lembrete para momentos fixos.";
+    }
 
-        addOpt(OptionType.STRING, "message", "A mensagem do lembrete.", true, 2, 1000);
-        addOpt(OptionType.BOOLEAN, "privately", "Se devemos enviar o lembrete no privado (Padrão: True).");
-        addOpt(OptionType.STRING, "month", "Qual mês?", (it) -> it.addChoices(getMonths()));
-        addOpt(OptionType.INTEGER, "day", "Qual dia do mês?", 1, 31);
-        addOpt(OptionType.INTEGER, "hour", "Em qual horário?", 0, 23);
-        addOpt(OptionType.INTEGER, "minute", "Em qual minuto?", 1, 59);
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(10, TimeUnit.SECONDS);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "message", "A mensagem do lembrete.", true)
+                        .setRequiredLength(2, 1000),
+                new OptionData(OptionType.BOOLEAN, "privately", "Se devemos enviar o lembrete no privado (Padrão: True)."),
+                new OptionData(OptionType.STRING, "month", "Qual mês?")
+                        .addChoices(getMonths()),
+                new OptionData(OptionType.INTEGER, "day", "Qual dia do mês?")
+                        .setRequiredRange(1, 31),
+                new OptionData(OptionType.INTEGER, "hour", "Em qual horário?")
+                        .setRequiredRange(0, 23),
+                new OptionData(OptionType.INTEGER, "minute", "Em qual minuto?")
+                        .setRequiredRange(1, 59)
+        );
     }
 
     private String buildExpression(Month month, int day, int hour, int minute) {

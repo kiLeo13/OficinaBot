@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.enums.NameScope;
 import ofc.bot.domain.sqlite.repository.UserNameUpdateRepository;
@@ -18,6 +19,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -26,7 +28,7 @@ import java.util.stream.Stream;
  * Pagination handled at
  * {@link ofc.bot.listeners.discord.interactions.buttons.pagination.NamesPageUpdate NamesPageUpdate}.
  */
-@DiscordCommand(name = "names", permission = Permission.MANAGE_SERVER)
+@DiscordCommand(name = "names", permissions = Permission.MANAGE_SERVER)
 public class NamesHistoryCommand extends SlashCommand {
     private final UserNameUpdateRepository namesRepo;
 
@@ -35,7 +37,7 @@ public class NamesHistoryCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User sender = ctx.getUser();
         NameScope scope = ctx.getSafeEnumOption("type", NameScope.class);
         User target = ctx.getOption("user", sender, OptionMapping::getAsUser);
@@ -56,13 +58,20 @@ public class NamesHistoryCommand extends SlashCommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Veja o histórico de apelidos de um usuário.");
+    public String getDescription() {
+        return "Veja o histórico de apelidos de um usuário.";
+    }
 
-        addOpt(OptionType.USER, "user", "O usuário a procurar pelo histórico de apelidos.", true);
-        addOpt(OptionType.STRING, "type", "O tipo de nome a ser recuperado.", (it) -> it.setRequired(true)
-                .addChoices(getTypeChoices()));
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "user", "O usuário a procurar pelo histórico de apelidos.", true),
+                new OptionData(OptionType.STRING, "type", "O tipo de nome a ser recuperado.", true)
+                        .addChoices(getTypeChoices())
+        );
     }
 
     private List<Command.Choice> getTypeChoices() {

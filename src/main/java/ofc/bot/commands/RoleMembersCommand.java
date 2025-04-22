@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.FileUpload;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
@@ -11,6 +12,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,7 @@ public class RoleMembersCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleMembersCommand.class);
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         ctx.ack();
 
         Role role = ctx.getSafeOption("role", OptionMapping::getAsRole);
@@ -47,11 +49,18 @@ public class RoleMembersCommand extends SlashCommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Veja os membros de um cargo.");
+    public String getDescription() {
+        return "Veja os membros de um cargo.";
+    }
 
-        addOpt(OptionType.ROLE, "role", "O cargo a verificar os membros.", true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.ROLE, "role", "O cargo a verificar os membros.", true)
+        );
     }
 
     private void handleResponse(String formattedMembers, String statistics, SlashCommandContext cmd) {

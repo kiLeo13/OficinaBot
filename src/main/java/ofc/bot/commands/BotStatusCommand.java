@@ -11,11 +11,13 @@ import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
 import ofc.bot.handlers.economy.PaymentManagerProvider;
 import ofc.bot.handlers.economy.unb.UnbelievaBoatClient;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +33,7 @@ public class BotStatusCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         JDA api = Main.getApi();
         Guild guild = ctx.getGuild();
         Member self = guild.getSelfMember();
@@ -56,11 +58,16 @@ public class BotStatusCommand extends SlashCommand {
         return ctx.replyEmbeds(embed);
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Veja os status do bot :)");
+    public String getDescription() {
+        return "Veja os status do bot :)";
+    }
 
-        setCooldown(false, true, 30, TimeUnit.SECONDS);
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(false, true, 30, TimeUnit.SECONDS);
     }
 
     private long findUnbelievaLatency(Member self) {

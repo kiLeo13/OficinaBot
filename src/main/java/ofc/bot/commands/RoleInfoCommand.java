@@ -6,12 +6,14 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -19,7 +21,7 @@ import java.util.List;
 public class RoleInfoCommand extends SlashCommand {
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         ctx.ack();
         Guild guild = ctx.getGuild();
         Role role = ctx.getOption("role", OptionMapping::getAsRole);
@@ -40,11 +42,18 @@ public class RoleInfoCommand extends SlashCommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Informações gerais sobre um cargo.");
+    public String getDescription() {
+        return "Informações gerais sobre um cargo.";
+    }
 
-        addOpt(OptionType.ROLE, "role", "O cargo a saber as informações.", true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.ROLE, "role", "O cargo a saber as informações.", true)
+        );
     }
 
     private MessageEmbed embed(List<Member> members, Role role) {

@@ -3,6 +3,7 @@ package ofc.bot.commands.policies;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.EntityPolicy;
 import ofc.bot.domain.entity.enums.PolicyType;
 import ofc.bot.domain.entity.enums.ResourceType;
@@ -14,6 +15,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +35,7 @@ public class AddPolicyCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         PolicyType policy = ctx.getSafeEnumOption("policy", PolicyType.class);
         ResourceType resType = ctx.getSafeEnumOption("resource-type", ResourceType.class);
         String resource = ctx.getOption("resource", OptionMapping::getAsString);
@@ -53,15 +55,24 @@ public class AddPolicyCommand extends SlashSubcommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Adiciona uma regra à um módulo do bot.");
+    public String getDescription() {
+        return "Adiciona uma regra à um módulo do bot.";
+    }
 
-        addOpt(OptionType.STRING, "policy", "A regra a ser definida.", (it) -> it.setRequired(true)
-                .addChoices(getPolicyTypeChoices()));
-        addOpt(OptionType.STRING, "resource-type", "O tipo de valor a ser fornecido.", (it) -> it.setRequired(true)
-                .addChoices(getResourceTypeChoices()));
-        addOpt(OptionType.STRING, "resource", "O valor a ser definido.", true, true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "policy", "A regra a ser definida.", true)
+                        .addChoices(getPolicyTypeChoices()),
+
+                new OptionData(OptionType.STRING, "resource-type", "O tipo de valor a ser fornecido.", true)
+                        .addChoices(getResourceTypeChoices()),
+
+                new OptionData(OptionType.STRING, "resource", "O valor a ser definido.", true, true)
+        );
     }
 
     private String formatResourceTypes(List<ResourceType> types) {

@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -16,6 +17,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class LeaveGroupCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         int groupId = ctx.getSafeOption("group", OptionMapping::getAsInt);
         boolean silent = ctx.getOption("silent", false, OptionMapping::getAsBoolean);
         String pi = ctx.getSafeOption("pi-confirmation", OptionMapping::getAsString);
@@ -72,13 +74,21 @@ public class LeaveGroupCommand extends SlashSubcommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Saia de um grupo específico.");
+    public String getDescription() {
+        return "Saia de um grupo específico.";
+    }
 
-        addOpt(OptionType.INTEGER, "group", "O grupo que deseja sair (pesquise pelo nome, emoji ou id do cargo).", true, true);
-        addOpt(OptionType.STRING, "pi-confirmation", "Insira os 10 primeiros dígitos de PI (sem vírgula e/ou ponto).", true, true, 10, 10);
-        addOpt(OptionType.BOOLEAN, "silent", "Sair sem avisar no chat (Padrão: false).");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.INTEGER, "group", "O grupo que deseja sair (pesquise pelo nome, emoji ou id do cargo).", true, true),
+                new OptionData(OptionType.STRING, "pi-confirmation", "Insira os 10 primeiros dígitos de PI (sem vírgula e/ou ponto).", true, true)
+                        .setRequiredLength(10, 10),
+                new OptionData(OptionType.BOOLEAN, "silent", "Sair sem avisar no chat (Padrão: false).")
+        );
     }
 
     private boolean isPresent(List<Role> roles, long roleId) {

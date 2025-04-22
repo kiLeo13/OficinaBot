@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.MarriageRequestRepository;
 import ofc.bot.domain.viewmodels.ProposalsView;
@@ -15,6 +16,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class ProposalsListCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User user = ctx.getUser();
         long senderId = user.getIdLong();
         Guild guild = ctx.getGuild();
@@ -47,12 +49,19 @@ public class ProposalsListCommand extends SlashSubcommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Veja as propostas de casamento pendentes.");
+    public String getDescription() {
+        return "Veja as propostas de casamento pendentes.";
+    }
 
-        addOpt(OptionType.STRING, "type", "O tipo de proposta a ser listado.", (it) -> it.setRequired(true)
-                .addChoice("Outgoing", "out")
-                .addChoice("Incoming", "in"));
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "type", "O tipo de proposta a ser listado.", true)
+                        .addChoice("Outgoing", "out")
+                        .addChoice("Incoming", "in")
+        );
     }
 }

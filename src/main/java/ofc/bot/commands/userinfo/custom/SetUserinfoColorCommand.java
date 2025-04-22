@@ -3,6 +3,7 @@ package ofc.bot.commands.userinfo.custom;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.CustomUserinfo;
 import ofc.bot.domain.sqlite.repository.CustomUserinfoRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -11,9 +12,12 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 @DiscordCommand(name = "customize color")
 public class SetUserinfoColorCommand extends SlashSubcommand {
@@ -25,7 +29,7 @@ public class SetUserinfoColorCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         String input = ctx.getOption("color", null, OptionMapping::getAsString);
         User sender = ctx.getUser();
         long userId = sender.getIdLong();
@@ -46,10 +50,18 @@ public class SetUserinfoColorCommand extends SlashSubcommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Define/reseta a cor da barra lateral da embed apresentada no userinfo.");
+    public String getDescription() {
+        return "Define/reseta a cor da barra lateral da embed apresentada no userinfo.";
+    }
 
-        addOpt(OptionType.STRING, "color", "A cor em HEX a reset definida. Ignore para remover.", 6, 6);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "color", "A cor em HEX a reset definida. Ignore para remover.")
+                        .setRequiredLength(6, 6)
+        );
     }
 }

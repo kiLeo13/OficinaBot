@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -14,15 +15,18 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.Channels;
 import ofc.bot.util.content.Roles;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@DiscordCommand(name = "among", permission = Permission.MANAGE_ROLES)
+import java.util.List;
+
+@DiscordCommand(name = "among", permissions = Permission.MANAGE_ROLES)
 public class RoleAmongUsCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleAmongUsCommand.class);
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         ctx.ack();
 
         Member target = ctx.getOption("member", OptionMapping::getAsMember);
@@ -54,10 +58,17 @@ public class RoleAmongUsCommand extends SlashCommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Permite staffs em Ajudantes Superior+ a darem o cargo de Já Participou Among Us.");
+    public String getDescription() {
+        return "Permite staffs em Ajudantes Superior+ a darem o cargo de Já Participou Among Us.";
+    }
 
-        addOpt(OptionType.USER, "member", "O usuário a dar o cargo.", true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "member", "O usuário a dar o cargo.", true)
+        );
     }
 }

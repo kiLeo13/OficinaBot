@@ -1,65 +1,62 @@
 package ofc.bot.handlers.interactions.commands.slash.abstractions;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.build.*;
 import ofc.bot.handlers.interactions.commands.Cooldown;
-import ofc.bot.handlers.interactions.commands.contexts.OptionsContainer;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.interactions.commands.slash.SubcommandGroup;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface ICommand<T extends OptionsContainer> {
-    InteractionResult onSlashCommand(T ctx);
+public interface ICommand<C> {
 
-    /**
-     * Returns the name identifying that command inside the structure,
-     * see examples:
-     * <ul>
-     *   <li>{@code mod ban} will return {@code ban}.</li>
-     *   <li>{@code mod ban add} will return {@code add}.</li>
-     *   <li>{@code mod ban remove} will return {@code remove}.</li>
-     *   <li>{@code mod ban view} will return {@code view}.</li>
-     * </ul>
-     *
-     * @return the last argument of the command's qualified name.
-     * @see #getQualifiedName()
-     */
-    @NotNull
-    default String getName() {
-        String[] args = getQualifiedName().split(" ");
-        return args[args.length - 1];
-    }
+    InteractionResult onCommand(@NotNull C ctx);
 
-    /**
-     * The full command name, that is, if its a subcommand or a subcommand
-     * in a subcommand group, the full qualified name is:
-     * <ul>
-     *   <li>{@code mod ban} not {@code ban}.</li>
-     *   <li>{@code mod ban add} not {@code add}.</li>
-     *   <li>{@code mod ban remove} not {@code remove}.</li>
-     *   <li>{@code mod ban view} not {@code view}.</li>
-     * </ul>
-     *
-     * @return the full qualified name.
-     */
     @NotNull
-    String getQualifiedName();
+    String getName();
 
     @NotNull
     String getDescription();
 
-    @Nullable
-    Permission getPermission();
+    @NotNull
+    List<Permission> getPermissions();
 
     @NotNull
-    List<OptionData> getOptions();
+    default List<OptionData> getOptions() {
+        return List.of();
+    }
 
     @NotNull
-    Cooldown getCooldown();
+    default Cooldown getCooldown() {
+        return Cooldown.ZERO;
+    }
 
-    default boolean hasCooldown() {
-        return getCooldown().isZero();
+    static SlashCommandData buildSlash(SlashCommand cmd) {
+        try {
+            List<SubcommandData> subcommands = cmd.getSubcommands().stream().map(ICommand::buildSubcommand).toList();
+            List<SubcommandGroupData> subgroups = cmd.getGroups().stream().map(ICommand::buildGroup).toList();
+
+            return Commands.slash(cmd.getName(), cmd.getDescription())
+                    .addOptions(cmd.getOptions())
+                    .addSubcommands(subcommands)
+                    .addSubcommandGroups(subgroups)
+                    .setDefaultPermissions(DefaultMemberPermissions.enabledFor(cmd.getPermissions()));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to build slash command \"" + cmd.getName() + "\"", e);
+        }
+    }
+
+    private static SubcommandData buildSubcommand(SlashSubcommand sub) {
+        return new SubcommandData(sub.getSimpleName(), sub.getDescription())
+                .addOptions(sub.getOptions());
+    }
+
+    private static SubcommandGroupData buildGroup(SubcommandGroup group) {
+        List<SubcommandData> subs = group.getSubcommands().stream().map(ICommand::buildSubcommand).toList();
+
+        return new SubcommandGroupData(group.getName(), group.getDescription())
+                .addSubcommands(subs);
     }
 }

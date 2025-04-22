@@ -9,12 +9,13 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 @DiscordCommand(name = "server-icon")
 public class GuildLogoCommand extends SlashCommand {
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Guild guild = ctx.getGuild();
         MessageEmbed embed = embed(guild);
 
@@ -25,7 +26,13 @@ public class GuildLogoCommand extends SlashCommand {
                 .setEmbeds(embed)
                 .send();
     }
-    
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Envia a imagem atual do servidor.";
+    }
+
     private MessageEmbed embed(Guild guild) {
         EmbedBuilder builder = new EmbedBuilder();
     
@@ -44,10 +51,5 @@ public class GuildLogoCommand extends SlashCommand {
                 .setColor(Bot.Colors.DEFAULT)
                 .setFooter(name, icon)
                 .build();
-    }
-
-    @Override
-    protected void init() {
-        setDesc("Envia a imagem atual do servidor.");
     }
 }

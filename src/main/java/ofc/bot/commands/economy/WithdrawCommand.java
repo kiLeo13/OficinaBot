@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.handlers.games.betting.BetManager;
@@ -14,9 +15,12 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 @DiscordCommand(name = "withdraw")
 public class WithdrawCommand extends SlashCommand {
@@ -29,7 +33,7 @@ public class WithdrawCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User user = ctx.getUser();
         long userId = user.getIdLong();
         UserEconomy userEco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId));
@@ -60,11 +64,18 @@ public class WithdrawCommand extends SlashCommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Saque dinheiro da sua conta bancária.");
+    public String getDescription() {
+        return "Saque dinheiro da sua conta bancária.";
+    }
 
-        addOpt(OptionType.STRING, "amount", "A quantia a ser sacada (forneça \"all\" sem aspas para sacar tudo).");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "amount", "A quantia a ser sacada (forneça \"all\" sem aspas para sacar tudo).")
+        );
     }
 
     private MessageEmbed embedInsufficient(User user) {

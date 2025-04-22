@@ -12,24 +12,26 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.Main;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
 
-@DiscordCommand(name = "events", permission = Permission.MANAGE_CHANNEL)
+@DiscordCommand(name = "events", permissions = Permission.MANAGE_CHANNEL)
 public class ToggleEventsCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ToggleEventsCommand.class);
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         boolean isStart = ctx.getSafeOption("action", OptionMapping::getAsString).equals("START");
         EventType scope = ctx.getSafeEnumOption("scope", EventType.class);
         TextChannel chanTxt = scope.getTxtChan();
@@ -58,15 +60,22 @@ public class ToggleEventsCommand extends SlashCommand {
         return Status.CHANNELS_STATE_TOGGLED_SUCCESSFULLY.args(isStart ? "abertos" : "fechados");
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Abra/Feche um evento.");
+    public String getDescription() {
+        return "Abra/Feche um evento.";
+    }
 
-        addOpt(OptionType.STRING, "scope", "Qual área de eventos deve ser aberta?", (it) -> it.setRequired(true)
-                .addChoices(getScopeChoices()));
-        addOpt(OptionType.STRING, "action", "O que deve ser feito no canal de eventos.", (it) -> it.setRequired(true)
-                .addChoice("Start", "START")
-                .addChoice("End", "END"));
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "scope", "Qual área de eventos deve ser aberta?", true)
+                        .addChoices(getScopeChoices()),
+                new OptionData(OptionType.STRING, "action", "O que deve ser feito no canal de eventos.", true)
+                        .addChoice("Start", "START")
+                        .addChoice("End", "END")
+        );
     }
 
     private void end(GuildChannel chan, Role role) {

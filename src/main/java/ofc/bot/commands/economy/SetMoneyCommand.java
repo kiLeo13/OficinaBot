@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.entity.enums.TransactionType;
@@ -17,11 +18,14 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@DiscordCommand(name = "set-money", permission = Permission.MANAGE_SERVER)
+import java.util.List;
+
+@DiscordCommand(name = "set-money", permissions = Permission.MANAGE_SERVER)
 public class SetMoneyCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(SetMoneyCommand.class);
     private final UserEconomyRepository ecoRepo;
@@ -31,7 +35,7 @@ public class SetMoneyCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User issuer = ctx.getUser();
         User target = ctx.getOption("target", issuer, OptionMapping::getAsUser);
         int wallet = ctx.getSafeOption("cash", OptionMapping::getAsInt);
@@ -56,13 +60,24 @@ public class SetMoneyCommand extends SlashCommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("DEFINE um novo saldo para um usuário.");
+    public String getDescription() {
+        return "DEFINE um novo saldo para um usuário.";
+    }
 
-        addOpt(OptionType.INTEGER, "cash", "A quantia a ser definida no cash.", true, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        addOpt(OptionType.INTEGER, "bank", "A quantia a ser definida no bank.", true, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        addOpt(OptionType.USER, "target", "O usuário a definir o saldo.");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.INTEGER, "cash", "A quantia a ser definida no cash.", true)
+                        .setRequiredRange(Integer.MIN_VALUE, Integer.MAX_VALUE),
+
+                new OptionData(OptionType.INTEGER, "bank", "A quantia a ser definida no bank.", true)
+                        .setRequiredRange(Integer.MIN_VALUE, Integer.MAX_VALUE),
+
+                new OptionData(OptionType.USER, "target", "O usuário a definir o saldo.")
+        );
     }
 
     private void dispatchBalanceSetEvent(long userId, long targetId, long amount) {

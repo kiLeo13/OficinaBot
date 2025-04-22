@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.Reminder;
 import ofc.bot.handlers.interactions.EntityContextFactory;
@@ -15,6 +16,7 @@ import ofc.bot.handlers.paginations.PageItem;
 import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -22,7 +24,7 @@ import java.util.List;
 public class ListRemindersCommand extends SlashSubcommand {
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User user = ctx.getUser();
         int pageIndex = ctx.getOption("page", 1, OptionMapping::getAsInt) - 1;
         long userId = user.getIdLong();
@@ -41,10 +43,18 @@ public class ListRemindersCommand extends SlashSubcommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Lista todos os seus lembretes criados.");
+    public String getDescription() {
+        return "Lista todos os seus lembretes criados.";
+    }
 
-        addOpt(OptionType.INTEGER, "page", "Qual página deve ser mostrada.", 1, Integer.MAX_VALUE);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.INTEGER, "page", "Qual página deve ser mostrada.")
+                        .setRequiredRange(1, Integer.MAX_VALUE)
+        );
     }
 }

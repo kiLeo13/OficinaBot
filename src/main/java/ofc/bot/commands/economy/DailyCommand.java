@@ -14,6 +14,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class DailyCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Member sender = ctx.getIssuer();
         long userId = sender.getIdLong();
         boolean hasCollected = hasCollected(userId);
@@ -65,6 +66,12 @@ public class DailyCommand extends SlashCommand {
             LOGGER.error("Could not collect daily prize for user '{}'", userId, e);
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
         }
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Colete a sua recompensa diária.";
     }
 
     private void applyDaily(long userId, int value) {
@@ -98,10 +105,5 @@ public class DailyCommand extends SlashCommand {
     private void dispatchDailyCollectEvent(long userId, int amount) {
         BankTransaction tr = new BankTransaction(userId, amount, CurrencyType.OFICINA, TransactionType.DAILY_COLLECTED);
         EventBus.dispatchEvent(new BankTransactionEvent(tr));
-    }
-
-    @Override
-    protected void init() {
-        setDesc("Colete a sua recompensa diária.");
     }
 }

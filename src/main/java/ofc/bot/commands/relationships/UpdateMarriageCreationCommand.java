@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.Marriage;
 import ofc.bot.domain.sqlite.repository.MarriageRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -11,6 +12,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +22,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
-@DiscordCommand(name = "marriage-date", permission = Permission.MANAGE_SERVER)
+@DiscordCommand(name = "marriage-date", permissions = Permission.MANAGE_SERVER)
 public class UpdateMarriageCreationCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateMarriageCreationCommand.class);
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -32,7 +35,7 @@ public class UpdateMarriageCreationCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User sender = ctx.getUser();
         User spouse = ctx.getSafeOption("spouse", OptionMapping::getAsUser);
         User partner = ctx.getOption("partner", sender, OptionMapping::getAsUser);
@@ -73,14 +76,21 @@ public class UpdateMarriageCreationCommand extends SlashCommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Altere a data de um casamento. Utilize o horário de Brasília (GMT -3).");
+    public String getDescription() {
+        return "Altere a data de um casamento. Utilize o horário de Brasília (GMT -3).";
+    }
 
-        addOpt(OptionType.USER, "spouse", "O \"primeiro\" parceiro do casamento.", true);
-        addOpt(OptionType.STRING, "date", "A data do casamento (Formato: DD/MM/AAAA).", true);
-        addOpt(OptionType.USER, "partner", "O \"segundo\" parceiro do casamento (ignore esta opção se for você mesmo).");
-        addOpt(OptionType.STRING, "time", "O tempo do casamento (Formato: HH:MM:SS).");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "spouse", "O \"primeiro\" parceiro do casamento.", true),
+                new OptionData(OptionType.STRING, "date", "A data do casamento (Formato: DD/MM/AAAA).", true),
+                new OptionData(OptionType.USER, "partner", "O \"segundo\" parceiro do casamento (ignore esta opção se for você mesmo)."),
+                new OptionData(OptionType.STRING, "time", "O tempo do casamento (Formato: HH:MM:SS).")
+        );
     }
 
     private Instant parseDate(String date, String time) {

@@ -10,21 +10,23 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 @DiscordCommand(name = "group help")
 public class HelpGroupCommand extends SlashSubcommand {
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Guild guild = ctx.getGuild();
         MessageEmbed embed = embed(guild);
 
         return ctx.replyEmbeds(true, embed);
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Mostra ajuda/informações sobre os grupos.");
+    public String getDescription() {
+        return "Mostra ajuda/informações sobre os grupos.";
     }
 
     private MessageEmbed embed(Guild guild) {
