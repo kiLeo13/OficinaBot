@@ -240,6 +240,7 @@ public final class EntityInitializerManager {
                 new UserNameUpdateLogger(namesRepo, userRepo),
                 new UsersXPHandler(),
                 new VoiceActivity(),
+                new VoiceDisconnector(),
                 new WorkReminderHandler()
         );
     }
