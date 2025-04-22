@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class is an empty SlashCommand, you should use it when you need
@@ -17,19 +18,25 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
  * all your subcommands and groups to it.
  */
 public final class EmptySlashCommand extends SlashCommand {
-    public EmptySlashCommand(String name, String desc, Permission perm) {
-        super(name, desc, perm);
+    private final String description;
+
+    public EmptySlashCommand(String name, String desc, Permission... perms) {
+        super(name, perms);
+        this.description = desc;
     }
 
     public EmptySlashCommand(String name, String desc) {
-        this(name, desc, null);
+        this(name, desc, new Permission[0]);
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         throw new UnsupportedOperationException("Cannot execute this command");
     }
 
+    @NotNull
     @Override
-    protected void init() {}
+    public String getDescription() {
+        return this.description;
+    }
 }

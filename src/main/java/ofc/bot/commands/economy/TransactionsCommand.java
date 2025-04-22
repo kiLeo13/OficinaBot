@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.enums.TransactionType;
@@ -18,6 +19,7 @@ import ofc.bot.handlers.paginations.PageItem;
 import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -26,7 +28,7 @@ public class TransactionsCommand extends SlashCommand {
     public static final int PAGE_SIZE = 5;
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         long userId = ctx.getUserId();
         int pageIndex = ctx.getOption("page", 1, OptionMapping::getAsInt) - 1;
         boolean hasChatMoney = ctx.getOption("include-chatmoney", false, OptionMapping::getAsBoolean);
@@ -53,13 +55,21 @@ public class TransactionsCommand extends SlashCommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Mostra o histórico de transações.");
+    public String getDescription() {
+        return "Mostra o histórico de transações.";
+    }
 
-        addOpt(OptionType.BOOLEAN, "include-chatmoney", "Se devemos incluir registros de chat-money na lista (padrão: False).");
-        addOpt(OptionType.BOOLEAN, "cross-economy", "Se devemos incluir meros registros de outras economias na lista (padrão: True).");
-        addOpt(OptionType.INTEGER, "page", "A página do histórico de transações.", 1, Integer.MAX_VALUE);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.BOOLEAN, "include-chatmoney", "Se devemos incluir registros de chat-money na lista (padrão: False)."),
+                new OptionData(OptionType.BOOLEAN, "cross-economy", "Se devemos incluir meros registros de outras economias na lista (padrão: True)."),
+                new OptionData(OptionType.INTEGER, "page", "A página do histórico de transações.")
+                        .setRequiredRange(1, Integer.MAX_VALUE)
+        );
     }
 
     private List<TransactionType> getTypes(boolean includesChatMoney) {

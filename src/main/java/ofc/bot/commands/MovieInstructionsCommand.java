@@ -9,20 +9,21 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.internal.data.BotFiles;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.UncheckedIOException;
 
-@DiscordCommand(name = "movie", permission = Permission.MESSAGE_MANAGE)
+@DiscordCommand(name = "movie", permissions = Permission.MESSAGE_MANAGE)
 public class MovieInstructionsCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(MovieInstructionsCommand.class);
     private static final File IMAGE_MOBILE = new File(BotFiles.DIR_ASSETS, "movie_instructions_mobile.png");
     private static final File IMAGE_PC = new File(BotFiles.DIR_ASSETS, "movie_instructions_pc.png");
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         MessageChannel channel = ctx.getChannel();
 
         try {
@@ -48,8 +49,9 @@ public class MovieInstructionsCommand extends SlashCommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Fornece instruções para os usuários sobre como participar do CineMyuu.");
+    public String getDescription() {
+        return "Fornece instruções para os usuários sobre como participar do CineMyuu.";
     }
 }

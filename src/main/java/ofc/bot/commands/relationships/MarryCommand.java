@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.AppUser;
 import ofc.bot.domain.entity.MarriageRequest;
 import ofc.bot.domain.sqlite.repository.*;
@@ -16,6 +17,7 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.Roles;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class MarryCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Member target = ctx.getOption("member", OptionMapping::getAsMember);
         Member sender = ctx.getIssuer();
 
@@ -86,11 +88,18 @@ public class MarryCommand extends SlashCommand {
         return Status.MARRIAGE_PROPOSAL_SENT_SUCCESSFULLY.setEphm(true);
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Se case com outra pessoa.");
+    public String getDescription() {
+        return "Se case com outra pessoa.";
+    }
 
-        addOpt(OptionType.USER, "member", "O usuário com quem você quer se casar.", true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "member", "O usuário com quem você quer se casar.", true)
+        );
     }
 
     private boolean hasEnoughBalance(long userId) {

@@ -6,19 +6,23 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.Reminder;
 import ofc.bot.domain.sqlite.repository.ReminderRepository;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @DiscordCommand(name = "remind cron")
@@ -31,7 +35,7 @@ public class CreateCronReminderCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User user = ctx.getUser();
         MessageChannel chan = ctx.getChannel();
         String expression = ctx.getSafeOption("expression", OptionMapping::getAsString);
@@ -63,13 +67,26 @@ public class CreateCronReminderCommand extends SlashSubcommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Cria um lembrete baseado em um cron expression.");
-        setCooldown(false, 10, TimeUnit.SECONDS);
+    public String getDescription() {
+        return "Cria um lembrete baseado em um cron expression.";
+    }
 
-        addOpt(OptionType.STRING, "expression", "A cron expression.", true);
-        addOpt(OptionType.STRING, "message", "A mensagem do lembrete.", true, 2, 1000);
-        addOpt(OptionType.BOOLEAN, "privately", "Se devemos enviar o lembrete no privado (Padrão: True).");
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(10, TimeUnit.SECONDS);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "expression", "A cron expression.", true),
+                new OptionData(OptionType.STRING, "message", "A mensagem do lembrete.", true)
+                        .setRequiredLength(2, 1000),
+                new OptionData(OptionType.BOOLEAN, "privately", "Se devemos enviar o lembrete no privado (Padrão: True).")
+        );
     }
 }

@@ -4,9 +4,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.RentStatus;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -14,6 +16,7 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.Bot;
 import ofc.bot.util.GroupHelper;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +33,7 @@ public class GroupInfoCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         int groupId = ctx.getOption("group", -1, OptionMapping::getAsInt);
         long userId = ctx.getUserId();
         Guild guild = ctx.getGuild();
@@ -57,12 +60,24 @@ public class GroupInfoCommand extends SlashSubcommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Mostra informações sobre o seu grupo.");
-        setCooldown(30, TimeUnit.SECONDS);
+    public String getDescription() {
+        return "Mostra informações sobre o seu grupo.";
+    }
 
-        addOpt(OptionType.INTEGER, "group", "O grupo que você deseja saber as informações", false, true);
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(30, TimeUnit.SECONDS);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.INTEGER, "group", "O grupo que você deseja saber as informações", false, true)
+        );
     }
 
     private MessageEmbed embed(int color, List<Member> members, Guild guild, OficinaGroup group) {

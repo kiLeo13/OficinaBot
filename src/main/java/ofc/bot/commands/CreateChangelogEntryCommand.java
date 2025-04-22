@@ -9,12 +9,13 @@ import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
-@DiscordCommand(name = "changelog", permission = Permission.ADMINISTRATOR)
+@DiscordCommand(name = "changelog", permissions = Permission.ADMINISTRATOR)
 public class CreateChangelogEntryCommand extends SlashCommand {
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         TextInput content = TextInput.create("content", "Content", TextInputStyle.PARAGRAPH)
                 .setMaxLength(Message.MAX_CONTENT_LENGTH)
                 .build();
@@ -30,8 +31,9 @@ public class CreateChangelogEntryCommand extends SlashCommand {
         return ctx.replyModal(modal);
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Cria um novo registro no changelog.");
+    public String getDescription() {
+        return "Cria um novo registro no changelog.";
     }
 }

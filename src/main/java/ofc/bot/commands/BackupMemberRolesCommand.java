@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.FormerMemberRole;
 import ofc.bot.domain.sqlite.repository.FormerMemberRoleRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -13,13 +14,14 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
-@DiscordCommand(name = "backup", permission = Permission.MANAGE_SERVER)
+@DiscordCommand(name = "backup", permissions = Permission.MANAGE_SERVER)
 public class BackupMemberRolesCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackupMemberRolesCommand.class);
     private final FormerMemberRoleRepository bckpRepo;
@@ -29,7 +31,7 @@ public class BackupMemberRolesCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         ctx.ack();
         Member target = ctx.getOption("user", OptionMapping::getAsMember);
         Guild guild = ctx.getGuild();
@@ -61,12 +63,19 @@ public class BackupMemberRolesCommand extends SlashCommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Recupere todos os cargos de um membro que saiu anteriormente (ou não).");
+    public String getDescription() {
+        return "Recupere todos os cargos de um membro que saiu anteriormente (ou não).";
+    }
 
-        addOpt(OptionType.USER, "user", "O alvo a devolver os cargos.", true);
-        addOpt(OptionType.BOOLEAN, "keep", "Se devemos manter os cargos do backup assim que eles forem devolvidos ao membro (Padrão: False).");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "user", "O alvo a devolver os cargos.", true),
+                new OptionData(OptionType.BOOLEAN, "keep", "Se devemos manter os cargos do backup assim que eles forem devolvidos ao membro (Padrão: False).")
+        );
     }
 
     private List<Role> resolveRoles(Guild guild, List<FormerMemberRole> roles) {

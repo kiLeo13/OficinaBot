@@ -6,14 +6,17 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.Reminder;
 import ofc.bot.domain.sqlite.repository.ReminderRepository;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +26,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @DiscordCommand(name = "remind at")
@@ -37,7 +41,7 @@ public class CreateAtReminderCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         String fmtDate = ctx.getSafeOption("date", OptionMapping::getAsString);
         String message = ctx.getSafeOption("message", OptionMapping::getAsString);
         boolean isDm = ctx.getOption("privately", true, OptionMapping::getAsBoolean);
@@ -78,18 +82,33 @@ public class CreateAtReminderCommand extends SlashSubcommand {
         return ctx.replyEmbeds(embed);
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Cria um lembrete para um momento específico.");
-        setCooldown(false, 10, TimeUnit.SECONDS);
+    public String getDescription() {
+        return "Cria um lembrete para um momento específico.";
+    }
 
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(10, TimeUnit.SECONDS);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
         String format = TIMESTAMP_FORMAT.toUpperCase().replace('Y', 'A');
         int size = format.length();
 
-        addOpt(OptionType.STRING, "date", "Data do lembrete (Formato: " + format + ").", true, size, size);
-        addOpt(OptionType.STRING, "message", "A mensagem do lembrete.", true, 2, 1000);
-        addOpt(OptionType.BOOLEAN, "privately", "Se devemos enviar o lembrete no privado (Padrão: True).");
-        addOpt(OptionType.INTEGER, "utc", "O seu fuso horário (Padrão: Horário de Brasília UTC-3).", -18, 18);
+        return List.of(
+                new OptionData(OptionType.STRING, "date", "Data do lembrete (Formato: " + format + ").", true)
+                        .setRequiredLength(size, size),
+                new OptionData(OptionType.STRING, "message", "A mensagem do lembrete.", true)
+                        .setRequiredLength(2, 1000),
+                new OptionData(OptionType.BOOLEAN, "privately", "Se devemos enviar o lembrete no privado (Padrão: True)."),
+                new OptionData(OptionType.INTEGER, "utc", "O seu fuso horário (Padrão: Horário de Brasília UTC-3).")
+                        .setRequiredRange(-18, 18)
+        );
     }
 
     private boolean isFuture(ZonedDateTime time) {

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.*;
+import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.NumberFormat;
@@ -57,6 +58,34 @@ public final class Bot {
             return Gender.FEMALE;
         }
         return Gender.UNKNOWN;
+    }
+
+    public static <T, A extends Annotation> T getSafeAnnotationValue(
+            @NotNull Object obj, @NotNull Class<A> annotation, @NotNull Function<A, T> mapper) {
+        return getSafeAnnotationValue(obj.getClass(), annotation, mapper);
+    }
+
+    public static <T, A extends Annotation> T getSafeAnnotationValue(
+            @NotNull Class<?> clazz, @NotNull Class<A> annotation, @NotNull Function<A, T> mapper) {
+        T val = getAnnotationValue(clazz, annotation, mapper, null);
+        if (val == null) {
+            throw new IllegalStateException("The class " + clazz.getName() + " has no annotation " +
+                    annotation.getName() + " or mapped to null");
+        }
+        return val;
+    }
+
+    public static <T, A extends Annotation> T getAnnotationValue(
+            @NotNull Object obj, @NotNull Class<A> annotation, @NotNull Function<A, T> mapper, T fallback) {
+        return getAnnotationValue(obj.getClass(), annotation, mapper, fallback);
+    }
+
+    public static <T, A extends Annotation> T getAnnotationValue(
+            @NotNull Class<?> clazz, @NotNull Class<A> annotation, @NotNull Function<A, T> mapper, T fallback) {
+        A ann = clazz.getDeclaredAnnotation(annotation);
+        if (ann == null) return fallback;
+
+        return mapper.apply(ann);
     }
 
     public static String get(String key) {

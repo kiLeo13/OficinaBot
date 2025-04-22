@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.BankTransaction;
 import ofc.bot.domain.entity.UserEconomy;
 import ofc.bot.domain.entity.enums.TransactionType;
@@ -17,11 +18,14 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@DiscordCommand(name = "update-money", permission = Permission.MANAGE_SERVER)
+import java.util.List;
+
+@DiscordCommand(name = "update-money", permissions = Permission.MANAGE_SERVER)
 public class UpdateMoneyCommand extends SlashCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateMoneyCommand.class);
     private final UserEconomyRepository ecoRepo;
@@ -31,7 +35,7 @@ public class UpdateMoneyCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User issuer = ctx.getUser();
         User target = ctx.getOption("target", issuer, OptionMapping::getAsUser);
         int bank = ctx.getSafeOption("bank", OptionMapping::getAsInt);
@@ -65,13 +69,24 @@ public class UpdateMoneyCommand extends SlashCommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("ATUALIZA o saldo do usuário fornecido com a quantia fornecida, valores negativos removerão dinheiro.");
+    public String getDescription() {
+        return "ATUALIZA o saldo do usuário fornecido com a quantia fornecida, valores negativos removerão dinheiro.";
+    }
 
-        addOpt(OptionType.INTEGER, "cash", "A quantia a ser atualizada no cash.", true, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        addOpt(OptionType.INTEGER, "bank", "A quantia a ser atualizada no bank.", true, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        addOpt(OptionType.USER, "target", "O alvo a atualizar o saldo.");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.INTEGER, "cash", "A quantia a ser atualizada no cash.", true)
+                        .setRequiredRange(Integer.MIN_VALUE, Integer.MAX_VALUE),
+
+                new OptionData(OptionType.INTEGER, "bank", "A quantia a ser atualizada no bank.", true)
+                        .setRequiredRange(Integer.MIN_VALUE, Integer.MAX_VALUE),
+
+                new OptionData(OptionType.USER, "target", "O alvo a atualizar o saldo.")
+        );
     }
 
     private void dispatchBalanceUpdateEvent(long userId, long targetId, long amount) {

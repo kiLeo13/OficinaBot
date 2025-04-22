@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
@@ -14,6 +15,7 @@ import ofc.bot.handlers.requests.RequestMapper;
 import ofc.bot.handlers.requests.Route;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.Base64;
@@ -30,7 +32,7 @@ public class LevelsRolesCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         List<LevelRole> roles = lvlRoleRepo.findAll();
         Guild guild = ctx.getGuild();
 
@@ -43,6 +45,18 @@ public class LevelsRolesCommand extends SlashCommand {
             return Status.COULD_NOT_EXECUTE_SUCH_OPERATION;
 
         return ctx.replyFile(img, "levels.png");
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Mostra o cargo para cada nível.";
+    }
+
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(10, TimeUnit.SECONDS);
     }
 
     public static byte[] getRolesImage(Guild guild, List<LevelRole> roles) {
@@ -84,11 +98,5 @@ public class LevelsRolesCommand extends SlashCommand {
                     .add(roleDTO);
         }
         return payload;
-    }
-
-    @Override
-    protected void init() {
-        setDesc("Mostra o cargo para cada nível.");
-        setCooldown(10, TimeUnit.SECONDS);
     }
 }

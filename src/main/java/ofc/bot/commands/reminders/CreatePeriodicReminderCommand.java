@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.Reminder;
 import ofc.bot.domain.sqlite.repository.ReminderRepository;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
@@ -15,9 +16,12 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 import ofc.bot.util.time.OficinaDuration;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 @DiscordCommand(name = "remind periodic")
 public class CreatePeriodicReminderCommand extends SlashSubcommand {
@@ -29,7 +33,7 @@ public class CreatePeriodicReminderCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User user = ctx.getUser();
         String fmtPeriod = ctx.getSafeOption("period", OptionMapping::getAsString);
         String message = ctx.getSafeOption("message", OptionMapping::getAsString);
@@ -64,13 +68,23 @@ public class CreatePeriodicReminderCommand extends SlashSubcommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Cria um lembrete para executar periodicamente.");
+    public String getDescription() {
+        return "Cria um lembrete para executar periodicamente.";
+    }
 
-        addOpt(OptionType.STRING, "period", "O período entre lembretes (Exemplo: 40m), mínimo: 2m.", true, 2, 20);
-        addOpt(OptionType.STRING, "message", "A mensagem do lembrete.", true, 2, 1000);
-        addOpt(OptionType.INTEGER, "repeat", "Quantas vezes devemos repetir este intervalo.", 1, 2000);
-        addOpt(OptionType.BOOLEAN, "privately", "Se devemos enviar o lembrete no privado (Padrão: True).");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "period", "O período entre lembretes (Exemplo: 40m), mínimo: 2m.", true)
+                        .setRequiredLength(2, 20),
+                new OptionData(OptionType.STRING, "message", "A mensagem do lembrete.", true)
+                        .setRequiredLength(2, 1000),
+                new OptionData(OptionType.INTEGER, "repeat", "Quantas vezes devemos repetir este intervalo.")
+                        .setRequiredRange(1, 2000),
+                new OptionData(OptionType.BOOLEAN, "privately", "Se devemos enviar o lembrete no privado (Padrão: True).")
+        );
     }
 }

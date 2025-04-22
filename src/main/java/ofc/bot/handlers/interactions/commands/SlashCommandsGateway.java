@@ -27,6 +27,7 @@ import java.util.concurrent.ForkJoinPool;
 public class SlashCommandsGateway extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(SlashCommandsGateway.class);
     private static final ExecutorService EXECUTOR = ForkJoinPool.commonPool();
+    private static final SlashCommandsRegistryManager registry = SlashCommandsRegistryManager.getManager();
     private final CommandHistoryRepository cmdRepo;
     private final AppUserBanRepository appBanRepo;
 
@@ -39,7 +40,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
         Guild guild = e.getGuild();
         String fullName = e.getFullCommandName();
-        ICommand<SlashCommandContext> cmd = SlashCommandsRegistryManager.getCommand(fullName);
+        ICommand<SlashCommandContext> cmd = registry.getCommand(fullName);
         Member member = e.getMember();
 
         if (guild == null || member == null) return;
@@ -75,7 +76,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
     }
 
     private void handleCommand(SlashCommandContext ctx, ICommand<SlashCommandContext> cmd) {
-        SlashCommandInteraction itr = ctx.getInteraction();
+        SlashCommandInteraction itr = ctx.getSource();
         MessageChannel channel = ctx.getChannel();
         User user = ctx.getUser();
         String userName = user.getName();
@@ -88,7 +89,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
                 // Not the best way of getting the response time,
                 // but it's more about aesthetics than debugging itself :)
                 long start = System.currentTimeMillis();
-                InteractionResult res = cmd.onSlashCommand(ctx);
+                InteractionResult res = cmd.onCommand(ctx);
                 Status status = res.getStatus();
                 long end = System.currentTimeMillis();
                 long duration = end - start;
@@ -117,7 +118,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
         Member issuer = ctx.getIssuer();
         User user = issuer.getUser();
         Cooldown cooldown = cmd.getCooldown();
-        String cmdName = cmd.getQualifiedName();
+        String cmdName = cmd.getName();
         long userId = issuer.getIdLong();
 
         if (cooldown.isZero()) return true;

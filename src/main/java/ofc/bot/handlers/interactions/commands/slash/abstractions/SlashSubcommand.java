@@ -1,32 +1,34 @@
 package ofc.bot.handlers.interactions.commands.slash.abstractions;
 
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import ofc.bot.handlers.interactions.commands.slash.SubcommandGroup;
+import net.dv8tion.jda.api.Permission;
+import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.util.Bot;
+import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class SlashSubcommand extends AbstractSlashCommand {
-    private SlashCommand superCommand;
-    private SubcommandGroup group;
+import java.util.List;
 
-    public SubcommandGroup getGroup() {
-        return this.group;
+public abstract class SlashSubcommand implements ICommand<SlashCommandContext> {
+    private final String name;
+
+    public SlashSubcommand() {
+        this.name = Bot.getSafeAnnotationValue(this, DiscordCommand.class, DiscordCommand::name);
     }
 
-    public SlashSubcommand setGroup(SubcommandGroup group) {
-        this.group = group;
-        return this;
+    @Override
+    @NotNull
+    public final String getName() {
+        return this.name;
     }
 
-    public SlashSubcommand setSuperCommand(SlashCommand superCommand) {
-        this.superCommand = superCommand;
-        return this;
+    public final String getSimpleName() {
+        String[] tokens = this.name.split(" ");
+        return tokens[tokens.length - 1];
     }
 
-    public SlashCommand getSuperCommand() {
-        return this.superCommand;
-    }
-
-    public SubcommandData build() {
-        return new SubcommandData(getName(), getDescription())
-                .addOptions(getOptions());
+    @Override
+    @NotNull
+    public final List<Permission> getPermissions() {
+        return List.of(); // Subcommands cannot have custom permissions
     }
 }

@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.User.Profile;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.Gender;
 import ofc.bot.domain.sqlite.repository.*;
@@ -17,6 +18,7 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.internal.data.BotProperties;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
@@ -44,7 +46,7 @@ public class UserinfoCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Member issuer = ctx.getIssuer();
         Member member = ctx.getOption("member", OptionMapping::getAsMember);
         Member target = member == null ? issuer : member;
@@ -63,11 +65,18 @@ public class UserinfoCommand extends SlashCommand {
         return Status.OK;
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Comando usado para saber informaçõe gerais do membro no servidor e do usuário do Discord.");
+    public String getDescription() {
+        return "Comando usado para saber informaçõe gerais do membro no servidor e do usuário do Discord.";
+    }
 
-        addOpt(OptionType.USER, "member", "O usuário a verificar as informações.");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "member", "O usuário a verificar as informações.")
+        );
     }
 
     private MessageEmbed embed(UserinfoView cs, Member target, Profile profile) {

@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import net.dv8tion.jda.internal.utils.Checks;
-import ofc.bot.handlers.interactions.AcknowledgeableAction;
+import ofc.bot.handlers.interactions.actions.AcknowledgeableAction;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 
 public class InteractionResponseBuilder implements InteractionResponseData {
     private static final Consumer<Throwable> DEFAULT_ERROR_HANDLER = new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE);
-    private final AcknowledgeableAction<?> acknowledgeable;
+    private final AcknowledgeableAction<?, ?> acknowledgeable;
     private final MessageCreateBuilder builder;
     private Consumer<InteractionHook> successSend;
     private Consumer<Message> successHook;
@@ -29,9 +29,8 @@ public class InteractionResponseBuilder implements InteractionResponseData {
     private Consumer<Throwable> failureHook = DEFAULT_ERROR_HANDLER;
     private boolean ephemeral;
 
-    public InteractionResponseBuilder(AcknowledgeableAction<?> acknowledgeable) {
+    public InteractionResponseBuilder(AcknowledgeableAction<?, ?> acknowledgeable) {
         super();
-
         Checks.notNull(acknowledgeable, "Acknowledgeable Interaction");
 
         this.builder = new MessageCreateBuilder();

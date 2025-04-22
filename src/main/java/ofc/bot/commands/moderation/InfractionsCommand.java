@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.MemberPunishment;
 import ofc.bot.handlers.interactions.EntityContextFactory;
@@ -17,15 +18,16 @@ import ofc.bot.handlers.paginations.PageItem;
 import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@DiscordCommand(name = "infractions", permission = Permission.MANAGE_SERVER)
+@DiscordCommand(name = "infractions", permissions = Permission.MANAGE_SERVER)
 public class InfractionsCommand extends SlashCommand {
     public static final int PAGE_SIZE = 1;
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Guild guild = ctx.getGuild();
         User target = ctx.getSafeOption("user", OptionMapping::getAsUser);
         boolean showInactive = ctx.getOption("show-inactive", false, OptionMapping::getAsBoolean);
@@ -49,11 +51,18 @@ public class InfractionsCommand extends SlashCommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Veja as infrações de um usuário.");
+    public String getDescription() {
+        return "Veja as infrações de um usuário.";
+    }
 
-        addOpt(OptionType.USER, "user", "O usuário que deseja ver as infrações.", true);
-        addOpt(OptionType.BOOLEAN, "show-inactive", "Mostrar até infrações já apagadas? (Padrão: False).");
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "user", "O usuário que deseja ver as infrações.", true),
+                new OptionData(OptionType.BOOLEAN, "show-inactive", "Mostrar até infrações já apagadas? (Padrão: False).")
+        );
     }
 }

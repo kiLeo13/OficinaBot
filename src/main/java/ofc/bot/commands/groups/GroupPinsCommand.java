@@ -6,18 +6,22 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.interactions.EntityContextFactory;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @DiscordCommand(name = "group pins")
@@ -29,7 +33,7 @@ public class GroupPinsCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         long userId = ctx.getUserId();
         boolean isPin = ctx.getSafeOption("action", OptionMapping::getAsString).equals("PIN");
         String msgId = ctx.getSafeOption("message-id", OptionMapping::getAsString);
@@ -64,15 +68,29 @@ public class GroupPinsCommand extends SlashSubcommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Fixa/desfixa uma mensagem do chat do seu grupo.");
-        setCooldown(3, TimeUnit.SECONDS);
+    public String getDescription() {
+        return "Fixa/desfixa uma mensagem do chat do seu grupo.";
+    }
 
-        addOpt(OptionType.STRING, "action", "Se a mensagem deve ser fixada ou desfixada.", (it) -> it.setRequired(true)
-                .addChoice("📌 Pin", "PIN")
-                .addChoice("🗑 Unpin", "UNPIN"));
-        addOpt(OptionType.STRING, "message-id", "O ID da mensagem a ser fixada/desfixada.", true, false, 18, 19);
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(3, TimeUnit.SECONDS);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "action", "Se a mensagem deve ser fixada ou desfixada.", true)
+                        .addChoice("📌 Pin", "PIN")
+                        .addChoice("🗑 Unpin", "UNPIN"),
+
+                new OptionData(OptionType.STRING, "message-id", "O ID da mensagem a ser fixada/desfixada.", true)
+                        .setRequiredLength(18, 19)
+        );
     }
 
     private Button getButton(boolean isPin, OficinaGroup group, long msgId, int price) {

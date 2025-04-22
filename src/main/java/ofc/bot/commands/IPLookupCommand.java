@@ -5,14 +5,17 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.handlers.requests.Route;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @DiscordCommand(name = "ip")
@@ -21,7 +24,7 @@ public class IPLookupCommand extends SlashCommand {
     private static final Color EMBED_COLOR = new Color(114, 222, 64);
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         String ipInput = ctx.getSafeOption("ip", OptionMapping::getAsString);
         Guild guild = ctx.getGuild();
 
@@ -38,11 +41,18 @@ public class IPLookupCommand extends SlashCommand {
         return ctx.replyEmbeds(embed);
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Coleta informações aproximadas de um IP.");
+    public String getDescription() {
+        return "Coleta informações aproximadas de um IP.";
+    }
 
-        addOpt(OptionType.STRING, "ip", "O IP a executar o lookup.", true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "ip", "O IP a executar o lookup.", true)
+        );
     }
 
     private MessageEmbed embed(Guild guild, IPData ipData) {

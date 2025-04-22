@@ -8,24 +8,31 @@ import ofc.bot.Main;
 import ofc.bot.commands.*;
 import ofc.bot.commands.additionals.AdditionalRolesCommand;
 import ofc.bot.commands.bets.BetTicTacToeCommand;
-import ofc.bot.commands.birthday.*;
+import ofc.bot.commands.birthday.BirthdayAddCommand;
+import ofc.bot.commands.birthday.BirthdayRemoveCommand;
+import ofc.bot.commands.birthday.BirthdaysCommand;
 import ofc.bot.commands.economy.*;
 import ofc.bot.commands.groups.*;
 import ofc.bot.commands.groups.channel.CreateGroupChannelCommand;
 import ofc.bot.commands.groups.member.AddGroupMemberCommand;
 import ofc.bot.commands.groups.member.RemoveGroupMemberCommand;
-import ofc.bot.commands.levels.*;
+import ofc.bot.commands.levels.LevelsCommand;
+import ofc.bot.commands.levels.LevelsRolesCommand;
+import ofc.bot.commands.levels.RankCommand;
 import ofc.bot.commands.moderation.*;
 import ofc.bot.commands.policies.AddPolicyCommand;
 import ofc.bot.commands.policies.RemovePolicyCommand;
-import ofc.bot.commands.relationships.*;
+import ofc.bot.commands.relationships.DivorceCommand;
+import ofc.bot.commands.relationships.MarryCommand;
+import ofc.bot.commands.relationships.UpdateMarriageCreationCommand;
 import ofc.bot.commands.relationships.marriages.*;
 import ofc.bot.commands.reminders.*;
 import ofc.bot.commands.stafflist.RefreshStaffListMessageCommand;
 import ofc.bot.commands.stafflist.StaffListMessagesRegenerateCommand;
 import ofc.bot.commands.userinfo.UserinfoCommand;
 import ofc.bot.commands.userinfo.custom.*;
-import ofc.bot.domain.sqlite.repository.*;
+import ofc.bot.domain.sqlite.repository.Repositories;
+import ofc.bot.handlers.interactions.commands.slash.abstractions.ICommand;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.handlers.interactions.commands.slash.dummy.EmptySlashCommand;
 import org.slf4j.Logger;
@@ -41,6 +48,7 @@ public final class CommandsInitializer {
      * sends them to Discord.
      */
     public static void initializeSlashCommands() {
+        SlashCommandsRegistryManager registry = SlashCommandsRegistryManager.getManager();
         var modActRepo  = Repositories.getAutomodActionRepository();
         var bdayRepo    = Repositories.getBirthdayRepository();
         var csinfoRepo  = Repositories.getCustomUserinfoRepository();
@@ -119,136 +127,141 @@ public final class CommandsInitializer {
                 .addSubcommand(new CreatePeriodicReminderCommand(remRepo))
                 .addSubcommand(new ListRemindersCommand());
 
-        List<SlashCommand> cmds = List.of(
-                // Compound Commands
-                additionals,
-                bets,
-                birthday,
-                policies,
-                marriage,
-                remind,
-                customizeUserinfo,
-                group,
+        // Administration
+        registry.register(new DisconnectAllCommand());
+        registry.register(new MoveAllCommand());
+        registry.register(new NamesHistoryCommand(namesRepo));
 
-                // Administration
-                new DisconnectAllCommand(),
-                new MoveAllCommand(),
-                new NamesHistoryCommand(namesRepo),
+        // Birthdays
+        registry.register(new BirthdaysCommand(bdayRepo));
 
-                // Birthdays
-                new BirthdaysCommand(bdayRepo),
+        // Economy
+        registry.register(new BalanceCommand(ecoRepo));
+        registry.register(new DailyCommand(ecoRepo));
+        registry.register(new DepositCommand(ecoRepo));
+        registry.register(new LeaderboardCommand(ecoRepo));
+        registry.register(new PayCommand(ecoRepo));
+        registry.register(new RobCommand(ecoRepo));
+        registry.register(new SetMoneyCommand(ecoRepo));
+        registry.register(new TransactionsCommand());
+        registry.register(new UpdateMoneyCommand(ecoRepo));
+        registry.register(new WithdrawCommand(ecoRepo));
+        registry.register(new WorkCommand(ecoRepo));
 
-                // Economy
-                new BalanceCommand(ecoRepo),
-                new DailyCommand(ecoRepo),
-                new DepositCommand(ecoRepo),
-                new LeaderboardCommand(ecoRepo),
-                new PayCommand(ecoRepo),
-                new RobCommand(ecoRepo),
-                new SetMoneyCommand(ecoRepo),
-                new TransactionsCommand(),
-                new UpdateMoneyCommand(ecoRepo),
-                new WithdrawCommand(ecoRepo),
-                new WorkCommand(ecoRepo),
+        // Levels
+        registry.register(new LevelsCommand(xpRepo));
+        registry.register(new LevelsRolesCommand(lvlRoleRepo));
+        registry.register(new RankCommand(xpRepo, lvlRoleRepo));
 
-                // Levels
-                new LevelsCommand(xpRepo),
-                new LevelsRolesCommand(lvlRoleRepo),
-                new RankCommand(xpRepo, lvlRoleRepo),
+        // Moderation
+        registry.register(new BanCommand(tmpBanRepo));
+        registry.register(new InfractionsCommand());
+        registry.register(new KickCommand());
+        registry.register(new MuteCommand());
+        registry.register(new UnbanCommand());
+        registry.register(new UnmuteCommand());
+        registry.register(new WarnCommand(pnshRepo, modActRepo));
 
-                // Moderation
-                new BanCommand(tmpBanRepo),
-                new InfractionsCommand(),
-                new KickCommand(),
-                new MuteCommand(),
-                new UnbanCommand(),
-                new UnmuteCommand(),
-                new WarnCommand(pnshRepo, modActRepo),
+        // Relationships
+        registry.register(new DivorceCommand(marrRepo));
+        registry.register(new MarryCommand(mreqRepo, ecoRepo, marrRepo, userRepo));
+        registry.register(new UpdateMarriageCreationCommand(marrRepo));
 
-                // Relationships
-                new DivorceCommand(marrRepo),
-                new MarryCommand(mreqRepo, ecoRepo, marrRepo, userRepo),
-                new UpdateMarriageCreationCommand(marrRepo),
+        // Staff List
+        registry.register(new StaffListMessagesRegenerateCommand());
+        registry.register(new RefreshStaffListMessageCommand(policyRepo));
 
-                // Staff List
-                new StaffListMessagesRegenerateCommand(),
-                new RefreshStaffListMessageCommand(policyRepo),
+        // Userinfo
+        registry.register(new UserinfoCommand(csinfoRepo, emjRepo, ecoRepo, marrRepo, grpRepo));
 
-                // Userinfo
-                new UserinfoCommand(csinfoRepo, emjRepo, ecoRepo, marrRepo, grpRepo),
+        // Generic
+        registry.register(new AvatarCommand());
+        registry.register(new BackupMemberRolesCommand(bckpRepo));
+        registry.register(new BotStatusCommand(lvlRoleRepo));
+        registry.register(new ClearMessagesCommand());
+        registry.register(new CreateChangelogEntryCommand());
+        registry.register(new GuildInfoCommand());
+        registry.register(new GuildLogoCommand());
+        registry.register(new IPLookupCommand());
+        registry.register(new MovieInstructionsCommand());
+        registry.register(new RoleAmongUsCommand());
+        registry.register(new RoleInfoCommand());
+        registry.register(new RoleMembersCommand());
+        registry.register(new ToggleEventsCommand());
 
-                // Generic
-                new AvatarCommand(),
-                new BackupMemberRolesCommand(bckpRepo),
-                new BotStatusCommand(lvlRoleRepo),
-                new ClearMessagesCommand(),
-                new CreateChangelogEntryCommand(),
-                new GuildInfoCommand(),
-                new GuildLogoCommand(),
-                new IPLookupCommand(),
-                new MovieInstructionsCommand(),
-                new RoleAmongUsCommand(),
-                new RoleInfoCommand(),
-                new RoleMembersCommand(),
-                new ToggleEventsCommand()
-        );
+        // Simple Commands
+        registry.register(additionals);
+        registry.register(bets);
+        registry.register(birthday);
+        registry.register(policies);
+        registry.register(marriage);
+        registry.register(remind);
+        registry.register(customizeUserinfo);
+        registry.register(group);
 
-        SlashCommandsRegistryManager.register(cmds);
-        pushCommands(cmds);
+        // Send them to Discord and clear the temporary cache
+        pushCommands(registry.getAll());
+        registry.clearTemp();
     }
 
     private static void pushCommands(List<SlashCommand> cmds) {
         JDA api = Main.getApi();
         List<SlashCommandData> slashCmds = cmds.stream()
-                .map(SlashCommand::build)
+                .map(ICommand::buildSlash)
                 .toList();
 
-        api.updateCommands()
-                .addCommands(slashCmds)
-                .queue(CommandsInitializer::printTree,
-                        (err) -> LOGGER.error("Failed to create slash commands", err)
-                );
+        api.updateCommands().addCommands(slashCmds).queue(
+                CommandsInitializer::printTree,
+                (err) -> LOGGER.error("Failed to create slash commands", err)
+        );
     }
 
-    public static void printTree(List<Command> commands) {
-        printTree(commands, "", true);
-    }
-
-    private static void printTree(List<Command> commands, String prefix, boolean isLast) {
-        for (int i = 0; i < commands.size(); i++) {
+    private static void printTree(List<Command> commands) {
+        int count = commands.size();
+        for (int i = 0; i < count; i++) {
+            boolean isLast = i == count - 1;
             Command command = commands.get(i);
-            boolean lastCommand = i == commands.size() - 1;
-            String newPrefix = prefix + (isLast ? "└───" : "├───");
-            LOGGER.info("{}{}", newPrefix, command.getName());
+            List<Command.Subcommand> subcommands = command.getSubcommands();
+            List<Command.SubcommandGroup> groups = command.getSubcommandGroups();
+            String prefix = isLast ? "└───" : "├───";
 
-            if (!command.getSubcommands().isEmpty()) {
-                printSubcommands(command.getSubcommands(), prefix + (isLast ? "    " : "│   "), lastCommand);
+            LOGGER.info("{} {}", prefix, command.getName());
+
+            if (!subcommands.isEmpty()) {
+                printSubcommands(subcommands, false);
             }
 
-            if (!command.getSubcommandGroups().isEmpty()) {
-                printSubcommandGroups(command.getSubcommandGroups(), prefix + (isLast ? "    " : "│   "), lastCommand);
+            if (!groups.isEmpty()) {
+                printSubcommandGroups(groups);
             }
 
         }
     }
 
-    private static void printSubcommandGroups(List<Command.SubcommandGroup> subcommandGroups, String prefix, boolean isLast) {
-        for (int i = 0; i < subcommandGroups.size(); i++) {
-            Command.SubcommandGroup group = subcommandGroups.get(i);
-            boolean lastGroup = i == subcommandGroups.size() - 1;
-            String newPrefix = prefix + (isLast ? "└───" : "├───");
-            LOGGER.info("{}{} (group)", newPrefix, group.getName());
+    private static void printSubcommands(List<Command.Subcommand> subcommands, boolean isInGroup) {
+        int count = subcommands.size();
+        for (int i = 0; i < count; i++) {
+            boolean isLast = i == count - 1;
+            Command.Subcommand cmd = subcommands.get(i);
+            String indent = isInGroup ? "   │" : "   ";
+            String prefix = String.format("%s%s", indent, (isLast ? "└───" : "├───"));
+
+            LOGGER.info("│{} {}", prefix, cmd.getName());
+        }
+    }
+
+    private static void printSubcommandGroups(List<Command.SubcommandGroup> groups) {
+        int count = groups.size();
+        for (int i = 0; i < count; i++) {
+            boolean isLast = i == count - 1;
+            Command.SubcommandGroup group = groups.get(i);
+            String prefix = isLast ? "└───" : "├───";
+
+            LOGGER.info("│{}{} (group)", prefix, group.getName());
 
             if (!group.getSubcommands().isEmpty()) {
-                printSubcommands(group.getSubcommands(), prefix + (isLast ? "    " : "│   "), lastGroup);
+                printSubcommands(group.getSubcommands(), true);
             }
-        }
-    }
-
-    private static void printSubcommands(List<Command.Subcommand> subcommands, String prefix, boolean isLast) {
-        for (Command.Subcommand subcommand : subcommands) {
-            String newPrefix = prefix + (isLast ? "└───" : "├───");
-            LOGGER.info("{}{} (subcommand)", newPrefix, subcommand.getName());
         }
     }
 }

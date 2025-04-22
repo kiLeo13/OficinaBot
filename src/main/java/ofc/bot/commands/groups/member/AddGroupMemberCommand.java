@@ -3,6 +3,7 @@ package ofc.bot.commands.groups.member;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
@@ -15,6 +16,9 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand
 import ofc.bot.util.GroupHelper;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 @DiscordCommand(name = "group member add")
 public class AddGroupMemberCommand extends SlashSubcommand {
@@ -25,7 +29,7 @@ public class AddGroupMemberCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         long issuerId = ctx.getUserId();
         Member issuer = ctx.getIssuer();
         Member newMember = ctx.getOption("member", OptionMapping::getAsMember);
@@ -63,10 +67,17 @@ public class AddGroupMemberCommand extends SlashSubcommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Adiciona um membro ao seu grupo.");
+    public String getDescription() {
+        return "Adiciona um membro ao seu grupo.";
+    }
 
-        addOpt(OptionType.USER, "member", "O membro que você deseja adicionar no seu grupo.", true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "member", "O membro que você deseja adicionar no seu grupo.", true)
+        );
     }
 }

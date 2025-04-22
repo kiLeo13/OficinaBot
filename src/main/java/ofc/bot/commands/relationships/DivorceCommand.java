@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import ofc.bot.Main;
 import ofc.bot.domain.entity.Marriage;
@@ -13,9 +14,12 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 @DiscordCommand(name = "divorce")
 public class DivorceCommand extends SlashCommand {
@@ -28,7 +32,7 @@ public class DivorceCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         User sender = ctx.getUser();
         User target = ctx.getSafeOption("user", OptionMapping::getAsUser);
         String requesterName = sender.getEffectiveName();
@@ -56,11 +60,18 @@ public class DivorceCommand extends SlashCommand {
         }
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Divorcie-se de algum usuário.");
+    public String getDescription() {
+        return "Divorcie-se de algum usuário.";
+    }
 
-        addOpt(OptionType.USER, "user", "O usuário a se divorciar.", true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "user", "O usuário a se divorciar.", true)
+        );
     }
 
     private void informTarget(String requesterName, long targetId) {

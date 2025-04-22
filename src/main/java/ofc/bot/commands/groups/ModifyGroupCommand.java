@@ -4,18 +4,22 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.entity.enums.StoreItemType;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
 import ofc.bot.handlers.interactions.EntityContextFactory;
+import ofc.bot.handlers.interactions.commands.Cooldown;
 import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @DiscordCommand(name = "group modify")
@@ -27,7 +31,7 @@ public class ModifyGroupCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Member issuer = ctx.getIssuer();
         String newName = ctx.getOption("new-name", OptionMapping::getAsString);
         String newColorHex = ctx.getOption("new-color", OptionMapping::getAsString);
@@ -66,12 +70,27 @@ public class ModifyGroupCommand extends SlashSubcommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Modifica dados do seu grupo, como nome e cor.");
-        setCooldown(1, TimeUnit.MINUTES);
+    public String getDescription() {
+        return "Modifica dados do seu grupo, como nome e cor.";
+    }
 
-        addOpt(OptionType.STRING, "new-name", "O novo nome do grupo.", OficinaGroup.MIN_NAME_LENGTH, OficinaGroup.MAX_NAME_LENGTH);
-        addOpt(OptionType.STRING, "new-color", "A nova cor do grupo.", 6, 6);
+    @NotNull
+    @Override
+    public Cooldown getCooldown() {
+        return Cooldown.of(1, TimeUnit.MINUTES);
+    }
+
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "new-name", "O novo nome do grupo.")
+                        .setRequiredLength(OficinaGroup.MIN_NAME_LENGTH, OficinaGroup.MAX_NAME_LENGTH),
+
+                new OptionData(OptionType.STRING, "new-color", "A nova cor do grupo.")
+                        .setRequiredLength(6, 6)
+        );
     }
 }

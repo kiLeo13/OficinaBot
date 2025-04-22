@@ -16,6 +16,7 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class WorkCommand extends SlashCommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         Member sender = ctx.getIssuer();
         long userId = sender.getIdLong();
         long nextWorkAt = getNextWork(userId);
@@ -72,6 +73,12 @@ public class WorkCommand extends SlashCommand {
         }
     }
 
+    @NotNull
+    @Override
+    public String getDescription() {
+        return "Trabalhe para ganhar dinheiro.";
+    }
+
     private void applyWork(long userId, int value) {
         UserEconomy eco = ecoRepo.findByUserId(userId, UserEconomy.fromUserId(userId));
         long now = Bot.unixNow();
@@ -95,10 +102,5 @@ public class WorkCommand extends SlashCommand {
     private void dispatchWorkExecutedEvent(long userId, int amount) {
         BankTransaction tr = new BankTransaction(userId, amount, CurrencyType.OFICINA, TransactionType.WORK_EXECUTED);
         EventBus.dispatchEvent(new BankTransactionEvent(tr));
-    }
-
-    @Override
-    protected void init() {
-        setDesc("Trabalhe para ganhar dinheiro.");
     }
 }

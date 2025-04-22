@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.OficinaGroup;
 import ofc.bot.domain.sqlite.repository.OficinaGroupRepository;
@@ -14,6 +15,9 @@ import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 @DiscordCommand(name = "group member remove")
 public class RemoveGroupMemberCommand extends SlashSubcommand {
@@ -24,7 +28,7 @@ public class RemoveGroupMemberCommand extends SlashSubcommand {
     }
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         long ownerId = ctx.getUserId();
         Member issuer = ctx.getIssuer();
         Member member = ctx.getOption("member", OptionMapping::getAsMember);
@@ -50,11 +54,18 @@ public class RemoveGroupMemberCommand extends SlashSubcommand {
                 .send();
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Remove um membro do seu grupo.");
+    public String getDescription() {
+        return "Remove um membro do seu grupo.";
+    }
 
-        addOpt(OptionType.USER, "member", "O membro a ser removido do grupo.", true);
+    @NotNull
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.USER, "member", "O membro a ser removido do grupo.", true)
+        );
     }
 
     private boolean hasRole(Member member, long roleId) {

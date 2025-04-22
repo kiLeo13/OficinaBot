@@ -14,18 +14,19 @@ import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.Channels;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@DiscordCommand(name = "staff-regenerate", permission = Permission.ADMINISTRATOR)
+@DiscordCommand(name = "staff-regenerate", permissions = Permission.ADMINISTRATOR)
 public class StaffListMessagesRegenerateCommand extends SlashCommand {
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
 
     @Override
-    public InteractionResult onSlashCommand(SlashCommandContext ctx) {
+    public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         ctx.ack(true);
 
         Guild guild = ctx.getGuild();
@@ -63,8 +64,9 @@ public class StaffListMessagesRegenerateCommand extends SlashCommand {
         return ctx.reply("Todas as mensagens foram regeneradas! Use `.staffs` para atualizar os dados.");
     }
 
+    @NotNull
     @Override
-    protected void init() {
-        setDesc("Regenere as mensagens do chat staffs-oficina.");
+    public String getDescription() {
+        return "Regenere as mensagens do chat staffs-oficina.";
     }
 }
