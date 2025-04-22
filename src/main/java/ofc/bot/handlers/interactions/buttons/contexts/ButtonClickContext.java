@@ -21,12 +21,12 @@ public class ButtonClickContext extends InteractionSubmitContext<ButtonContext, 
     @Override
     public void ack(boolean ephemeral) {
         if (!isAcknowledged())
-            getInteraction().deferReply(ephemeral).queue();
+            getSource().deferReply(ephemeral).queue();
     }
 
     public void ackEdit() {
         if (!isAcknowledged())
-            getInteraction().deferEdit().queue();
+            getSource().deferEdit().queue();
     }
 
     /**
@@ -56,14 +56,14 @@ public class ButtonClickContext extends InteractionSubmitContext<ButtonContext, 
     }
 
     public Message getMessage() {
-        return getInteraction().getMessage();
+        return getSource().getMessage();
     }
 
     private int findTargetButtonIndex() {
         List<Button> buttons = getMessage().getButtons();
         for (int i = 0; i < buttons.size(); i++) {
             Button current = buttons.get(i);
-            if (getInteraction().getComponentId().equals(current.getId()))
+            if (getSource().getComponentId().equals(current.getId()))
                 return i;
         }
         return -1;
