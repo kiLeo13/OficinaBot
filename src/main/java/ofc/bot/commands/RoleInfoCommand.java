@@ -1,6 +1,5 @@
 package ofc.bot.commands;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -12,10 +11,14 @@ import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult
 import ofc.bot.handlers.interactions.commands.responses.states.Status;
 import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.Bot;
+import ofc.bot.util.OficinaEmbed;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @DiscordCommand(name = "roleinfo")
 public class RoleInfoCommand extends SlashCommand {
@@ -56,61 +59,50 @@ public class RoleInfoCommand extends SlashCommand {
         );
     }
 
+    @SuppressWarnings("ConstantConditions")
     private MessageEmbed embed(List<Member> members, Role role) {
+        OficinaEmbed builder = new OficinaEmbed();
+        int color = role.getColorRaw();
+        long creation = role.getTimeCreated().toEpochSecond();
         List<Member> onlineMembers = members.stream().filter((m) -> m.getOnlineStatus() != OnlineStatus.OFFLINE).toList();
-        EmbedBuilder embedBuilder = new EmbedBuilder();
+        RoleIcon icon = role.getIcon();
         Guild guild = role.getGuild();
         String memberCount = Bot.fmtNum(members.size());
         String onlineCount = Bot.fmtNum(onlineMembers.size());
-        String color = role.getColor() == null ?
-                "`Nenhuma`"
-                : "`#" + Integer.toHexString(role.getColor().getRGB()).substring(2).toUpperCase() + "`";
+        String colorField = getColorField(color);
 
-        int colorRed = role.getColor() == null ? 0 : role.getColor().getRed();
-        int colorGreen = role.getColor() == null ? 0 : role.getColor().getGreen();
-        int colorBlue = role.getColor() == null ? 0 : role.getColor().getBlue();
-        long creation = role.getTimeCreated().toEpochSecond();
-
-        embedBuilder
-                .setTitle(role.getName())
-                .setDescription("Informações do cargo <@&" + role.getIdLong() + ">.")
+        return builder.setTitle(role.getName())
+                .setDesc("Informações do cargo <@&" + role.getIdLong() + ">.")
                 .setColor(role.getColor())
                 .addField("📅 Criação", "<t:" + creation + ">\n<t:" + creation + ":R>", true)
                 .addField("💻 Role ID", "`" + role.getIdLong() + "`", true)
                 .addField("🤖 Integração", role.isManaged() ? "`Sim`" : "`Não`", true)
                 .addField((role.isMentionable() ? "🔔" : "🔕") + " Mencionável", role.isMentionable() ? "`Sim`" : "`Não`", true)
                 .addField("📃 Mostrar Separadamente", role.isHoisted() ? "`Sim`" : "`Não`", true)
-                .addField("🎨 Cor", String.format("HEX: `%s`\nRGB: `%s, %s, %s`",
-                        color,
-                        colorRed < 10 ? "0" + colorRed : String.valueOf(colorRed),
-                        colorGreen < 10 ? "0" + colorGreen : String.valueOf(colorGreen),
-                        colorBlue < 10 ? "0" + colorBlue : String.valueOf(colorBlue)
-                ), true)
+                .addField("🎨 Cor", colorField, true)
                 .addField("👥 Membros", "Total: `" + memberCount + "`\nOnline: `" + onlineCount + "`", true)
-                .addField("🔒 Permissões", permissions(role), role.getPermissions().isEmpty())
-                .setFooter(guild.getName(), guild.getIconUrl());
-
-        RoleIcon icon = role.getIcon();
-
-        if (icon != null)
-            embedBuilder.setThumbnail(icon.getIconUrl());
-        return embedBuilder.build();
+                .addField("🔒 Permissões", stringifyPermissions(role), role.getPermissions().isEmpty())
+                .setFooter(guild.getName(), guild.getIconUrl())
+                .setThumbnailIf(icon != null, icon::getIconUrl)
+                .build();
     }
 
-    private String permissions(Role role) {
-        StringBuilder builder = new StringBuilder().append("```\n");
-        List<Permission> permissions = role.getPermissions().stream().toList();
+    private String getColorField(int rgb) {
+        boolean hasColor = rgb != Role.DEFAULT_COLOR_RAW;
+        String hexColor = String.format("`%s`", hasColor ? Bot.fmtColorHex(rgb) : "Nenhuma");
+        Color color = new Color(hasColor ? rgb : 0);
+        int red = color.getRed();
+        int green = color.getGreen();
+        int blue = color.getBlue();
 
-        if (permissions.isEmpty())
-            return "`Nenhuma`";
+        return String.format("HEX: `%s`\nRGB: `%s, %s, %s`", hexColor, red, green, blue);
+    }
 
-        for (int i = 0; i < permissions.size(); i++) {
-            if (i != 0) builder.append(", ");
+    private String stringifyPermissions(Role role) {
+        EnumSet<Permission> permissions = role.getPermissions();
+        if (permissions.isEmpty()) return "`Nenhuma`";
 
-            builder.append(permissions.get(i).getName());
-        }
-
-        builder.append(".\n```");
-        return builder.toString();
+        String fmtPerms = permissions.stream().map(Permission::getName).collect(Collectors.joining(", "));
+        return String.format("```\n%s.\n```", fmtPerms);
     }
 }
