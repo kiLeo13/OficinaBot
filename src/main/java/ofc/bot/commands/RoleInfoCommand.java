@@ -83,7 +83,7 @@ public class RoleInfoCommand extends SlashCommand {
                 .addField("👥 Membros", "Total: `" + memberCount + "`\nOnline: `" + onlineCount + "`", true)
                 .addField("🔒 Permissões", stringifyPermissions(role), role.getPermissions().isEmpty())
                 .setFooter(guild.getName(), guild.getIconUrl())
-                .setThumbnailIf(icon != null, icon::getIconUrl)
+                .setThumbnailIf(icon != null, () -> icon.getIconUrl())
                 .build();
     }
 
