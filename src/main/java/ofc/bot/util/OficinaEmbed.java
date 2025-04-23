@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.time.temporal.TemporalAccessor;
+import java.util.function.Supplier;
 
 /**
  * A child class of {@link EmbedBuilder} with some utility methods.
@@ -107,6 +108,14 @@ public class OficinaEmbed extends EmbedBuilder {
     @Override
     public OficinaEmbed setThumbnail(@Nullable String url) {
         super.setThumbnail(url);
+        return this;
+    }
+
+    @NotNull
+    public OficinaEmbed setThumbnailIf(boolean expression, Supplier<String> url) {
+        if (expression) {
+            setThumbnail(url.get());
+        }
         return this;
     }
 
