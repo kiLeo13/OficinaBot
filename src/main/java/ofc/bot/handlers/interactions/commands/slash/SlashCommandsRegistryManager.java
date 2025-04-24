@@ -54,14 +54,12 @@ public final class SlashCommandsRegistryManager {
         }
 
         for (SlashSubcommand sub : cmd.getSubcommands()) {
-            String path = String.format("%s %s", cmd.getName(), sub.getName());
-            executables.put(path, sub);
+            executables.put(sub.getName(), sub);
         }
 
         for (SubcommandGroup group : cmd.getGroups()) {
             for (SlashSubcommand sub : group.getSubcommands()) {
-                String path = String.format("%s %s %s", cmd.getName(), group.getName(), sub.getName());
-                executables.put(path, sub);
+                executables.put(sub.getName(), sub);
             }
         }
         return executables;
