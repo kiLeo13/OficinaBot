@@ -12,9 +12,7 @@ import java.lang.reflect.Type;
 public class UnbelievaBoatClient implements PaymentManager {
     private static final UnbelievaBoatRequester REQUESTER = new UnbelievaBoatRequester();
     private static final UnsupportedOperationException NO_GUILD_EXCEPTION;
-    private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(long.class, new LongInfinityDeserializer())
-            .create();
+    private static final Gson GSON;
     private final String token;
 
     public UnbelievaBoatClient(String token) {
@@ -141,5 +139,9 @@ public class UnbelievaBoatClient implements PaymentManager {
         NO_GUILD_EXCEPTION = new UnsupportedOperationException(
                 "UnbelievaBoat is a guild-based economy, all requests require a valid \"guild_id\" to exist"
         );
+
+        GSON = new GsonBuilder()
+                .registerTypeAdapter(long.class, new LongInfinityDeserializer())
+                .create();
     }
 }
