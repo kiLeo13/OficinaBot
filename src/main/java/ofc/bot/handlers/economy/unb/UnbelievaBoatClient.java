@@ -115,7 +115,7 @@ public class UnbelievaBoatClient implements PaymentManager {
         return route.create(path)
                 .addHeader("Authorization", token)
                 .setBody(body)
-                .send(REQUESTER, (map, code) -> code == 200 ? map.asString() : null);
+                .send(REQUESTER, (map, code) -> map.isOk() ? map.asString() : null);
     }
 
     private static class LongInfinityDeserializer implements JsonDeserializer<Long> {
