@@ -52,10 +52,7 @@ public class VoiceChatMoneyHandler implements Job {
                 long cash = isSpecial ? 0 : amount;
                 long bank = isSpecial ? amount : 0;
 
-                BankAccount balance = paymentManager.update(
-                        userId, guildId, cash, bank, "VoiceChat money"
-                );
-
+                BankAccount balance = paymentManager.update(userId, guildId, cash, bank, "VoiceChat money");
                 if (balance == null)
                     LOGGER.warn("Failed to give money to user '{}'", userId);
             });
