@@ -35,6 +35,10 @@ public class UnbelievaBoatRequester implements Requester {
             try (Response resp = client.newCall(req).execute()) {
                 int code = resp.code();
 
+                if (!resp.isSuccessful()) {
+                    LOGGER.warn("We did not receive a successful status code from the server: {}", code);
+                }
+
                 if (code != RATE_LIMIT_CODE) {
                     ResponseBody body = resp.body();
                     byte[] bytes = body == null ? new byte[0] : body.bytes();
