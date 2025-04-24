@@ -185,11 +185,7 @@ public final class Bot {
     }
 
     public static int calcMaxPages(int total, int pageSize) {
-        int maxPages = total / pageSize;
-
-        if (total % pageSize > 0)
-            maxPages++;
-
+        int maxPages = (int) Math.ceil((double) total / pageSize);
         return Math.max(maxPages, 1);
     }
 
