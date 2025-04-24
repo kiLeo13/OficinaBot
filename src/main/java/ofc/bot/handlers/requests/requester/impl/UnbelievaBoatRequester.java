@@ -40,7 +40,7 @@ public class UnbelievaBoatRequester implements Requester {
                     byte[] bytes = body == null ? new byte[0] : body.bytes();
 
                     checkRateLimitHeaders(resp.headers());
-                    return new RequestMapper(bytes, code);
+                    return new RequestMapper(bytes, resp.isSuccessful(), code);
                 }
 
                 // We hit a rate-limit, nooo :/

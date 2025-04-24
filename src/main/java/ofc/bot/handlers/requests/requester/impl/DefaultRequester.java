@@ -35,7 +35,7 @@ public final class DefaultRequester implements Requester {
                 String strBody = new String(bytes);
                 LOGGER.warn("Request to \"{}\" was not successful, code: {}, reason: {}", req.url(), code, strBody);
             }
-            return new RequestMapper(bytes, code);
+            return new RequestMapper(bytes, resp.isSuccessful(), code);
         } catch (IOException e) {
             throw new HttpRequestException(e);
         }

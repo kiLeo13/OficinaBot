@@ -13,10 +13,12 @@ public class RequestMapper {
             .serializeNulls()
             .create();
     private final byte[] bytes;
+    private final boolean isOk;
     private final int statusCode;
 
-    public RequestMapper(byte[] bytes, int code) {
+    public RequestMapper(byte[] bytes, boolean isOk, int code) {
         this.bytes = bytes;
+        this.isOk = isOk;
         this.statusCode = code;
     }
 
@@ -30,6 +32,10 @@ public class RequestMapper {
 
     public InputStream asInputStream() {
         return new ByteArrayInputStream(this.bytes);
+    }
+
+    public boolean isOk() {
+        return this.isOk;
     }
 
     public int getStatusCode() {
