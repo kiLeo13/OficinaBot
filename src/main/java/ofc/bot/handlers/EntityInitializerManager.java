@@ -39,6 +39,7 @@ import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.Del
 import ofc.bot.listeners.discord.interactions.buttons.pagination.infractions.InfractionsPageUpdate;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.reminders.DeleteReminder;
 import ofc.bot.listeners.discord.interactions.buttons.pagination.reminders.RemindersPageUpdate;
+import ofc.bot.listeners.discord.interactions.buttons.pagination.twitch.PaginateTwitchUsers;
 import ofc.bot.listeners.discord.interactions.dm.DirectMessageReceived;
 import ofc.bot.listeners.discord.interactions.menus.ChoosableRolesListener;
 import ofc.bot.listeners.discord.interactions.modals.ChangelogCreationHandler;
@@ -145,6 +146,9 @@ public final class EntityInitializerManager {
                 new NamesPageUpdate(namesRepo),
                 new ProposalListPagination(mreqRepo),
                 new TransactionsPagination(),
+
+                // Twitch
+                new PaginateTwitchUsers(),
 
                 // Groups' commands confirmation handlers
                 new GroupBotAddHandler(),

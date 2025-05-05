@@ -3,6 +3,7 @@ package ofc.bot.domain.sqlite;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import ofc.bot.domain.abstractions.InitializableTable;
+import ofc.bot.domain.sqlite.repository.TwitchSubscriptionRepository;
 import ofc.bot.domain.tables.*;
 import ofc.bot.internal.data.BotFiles;
 import ofc.bot.listeners.console.QueryCounter;
@@ -68,6 +69,7 @@ public final class DB {
                 OficinaGroupsTable.OFICINA_GROUPS,
                 RemindersTable.REMINDERS,
                 TempBansTable.TEMP_BANS,
+                TwitchSubscriptionsTable.TWITCH_SUBSCRIPTIONS,
                 UserNamesUpdatesTable.USERNAMES_UPDATES,
                 UsersEconomyTable.USERS_ECONOMY,
                 UsersPreferencesTable.USERS_PREFERENCES,

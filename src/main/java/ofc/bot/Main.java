@@ -21,6 +21,7 @@ public final class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static long initTime;
     private static JDA api;
+    private static TwitchService twitchService;
 
     public static void main(String[] args) {
         try {
@@ -56,11 +57,15 @@ public final class Main {
         EntityInitializerManager.registerComposedInteractions();
 
         // Twitch
-        TwitchService.init();
+        twitchService = TwitchService.init();
     }
 
     public static JDA getApi() {
         return api;
+    }
+
+    public static TwitchService getTwitch() {
+        return twitchService;
     }
 
     public static long getInitTime() {

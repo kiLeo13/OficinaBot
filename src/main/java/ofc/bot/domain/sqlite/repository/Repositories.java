@@ -28,6 +28,7 @@ public final class Repositories {
     private static OficinaGroupRepository oficinaGroupRepository;
     private static ReminderRepository reminderRepository;
     private static TempBanRepository tempBanRepository;
+    private static TwitchSubscriptionRepository twitchSubscriptionRepository;
     private static UserEconomyRepository userEconomyRepository;
     private static UserNameUpdateRepository userNameUpdateRepository;
     private static UserPreferenceRepository userPreferenceRepository;
@@ -154,6 +155,11 @@ public final class Repositories {
     public static TempBanRepository getTempBanRepository() {
         if (tempBanRepository == null) tempBanRepository = new TempBanRepository(getDSLContext());
         return tempBanRepository;
+    }
+
+    public static TwitchSubscriptionRepository getTwitchSubscriptionRepository() {
+        if (twitchSubscriptionRepository == null) twitchSubscriptionRepository = new TwitchSubscriptionRepository(getDSLContext());
+        return twitchSubscriptionRepository;
     }
 
     public static UserEconomyRepository getUserEconomyRepository() {

@@ -29,6 +29,9 @@ import ofc.bot.commands.relationships.marriages.*;
 import ofc.bot.commands.reminders.*;
 import ofc.bot.commands.stafflist.RefreshStaffListMessageCommand;
 import ofc.bot.commands.stafflist.StaffListMessagesRegenerateCommand;
+import ofc.bot.commands.twitch.ListTwitchChannelsCommand;
+import ofc.bot.commands.twitch.SubscribeTwitchCommand;
+import ofc.bot.commands.twitch.UnsubscribeTwitchCommand;
 import ofc.bot.commands.userinfo.UserinfoCommand;
 import ofc.bot.commands.userinfo.custom.*;
 import ofc.bot.domain.sqlite.repository.Repositories;
@@ -49,24 +52,25 @@ public final class CommandsInitializer {
      */
     public static void initializeSlashCommands() {
         SlashCommandsRegistryManager registry = SlashCommandsRegistryManager.getManager();
-        var modActRepo  = Repositories.getAutomodActionRepository();
-        var bdayRepo    = Repositories.getBirthdayRepository();
-        var csinfoRepo  = Repositories.getCustomUserinfoRepository();
-        var policyRepo  = Repositories.getEntityPolicyRepository();
-        var bckpRepo    = Repositories.getFormerMemberRoleRepository();
-        var grpBotRepo  = Repositories.getGroupBotRepository();
-        var lvlRoleRepo = Repositories.getLevelRoleRepository();
-        var marrRepo    = Repositories.getMarriageRepository();
-        var mreqRepo    = Repositories.getMarriageRequestRepository();
-        var emjRepo     = Repositories.getMemberEmojiRepository();
-        var pnshRepo    = Repositories.getMemberPunishmentRepository();
-        var grpRepo     = Repositories.getOficinaGroupRepository();
-        var tmpBanRepo  = Repositories.getTempBanRepository();
-        var ecoRepo     = Repositories.getUserEconomyRepository();
-        var namesRepo   = Repositories.getUserNameUpdateRepository();
-        var userRepo    = Repositories.getUserRepository();
-        var xpRepo      = Repositories.getUserXPRepository();
-        var remRepo     = Repositories.getReminderRepository();
+        var twitchSubRepo = Repositories.getTwitchSubscriptionRepository();
+        var bckpRepo      = Repositories.getFormerMemberRoleRepository();
+        var pnshRepo      = Repositories.getMemberPunishmentRepository();
+        var mreqRepo      = Repositories.getMarriageRequestRepository();
+        var csinfoRepo    = Repositories.getCustomUserinfoRepository();
+        var namesRepo     = Repositories.getUserNameUpdateRepository();
+        var modActRepo    = Repositories.getAutomodActionRepository();
+        var policyRepo    = Repositories.getEntityPolicyRepository();
+        var grpRepo       = Repositories.getOficinaGroupRepository();
+        var emjRepo       = Repositories.getMemberEmojiRepository();
+        var ecoRepo       = Repositories.getUserEconomyRepository();
+        var lvlRoleRepo   = Repositories.getLevelRoleRepository();
+        var bdayRepo      = Repositories.getBirthdayRepository();
+        var grpBotRepo    = Repositories.getGroupBotRepository();
+        var marrRepo      = Repositories.getMarriageRepository();
+        var remRepo       = Repositories.getReminderRepository();
+        var tmpBanRepo    = Repositories.getTempBanRepository();
+        var xpRepo        = Repositories.getUserXPRepository();
+        var userRepo      = Repositories.getUserRepository();
 
         // Additionals
         SlashCommand additionals = new EmptySlashCommand("additionals", "Gerencia recursos adicionais/misc do bot.", Permission.MANAGE_SERVER)
@@ -91,6 +95,12 @@ public final class CommandsInitializer {
                 .addSubcommand(new CancelProposalCommand(mreqRepo))
                 .addSubcommand(new ProposalsListCommand(mreqRepo))
                 .addSubcommand(new MarriageRejectCommand(mreqRepo));
+
+        // Twitch
+        SlashCommand twitch = new EmptySlashCommand("twitch", "Gerencia as atividades da Twitch.")
+                .addSubcommand(new ListTwitchChannelsCommand())
+                .addSubcommand(new SubscribeTwitchCommand(twitchSubRepo))
+                .addSubcommand(new UnsubscribeTwitchCommand(twitchSubRepo));
 
         // Custom Userinfo
         SlashCommand customizeUserinfo = new EmptySlashCommand("customize", "Customize o seu userinfo.", Permission.MANAGE_SERVER)
@@ -189,15 +199,16 @@ public final class CommandsInitializer {
         registry.register(new RoleMembersCommand());
         registry.register(new ToggleEventsCommand());
 
-        // Simple Commands
+        // Compound Commands
         registry.register(additionals);
         registry.register(bets);
         registry.register(birthday);
         registry.register(policies);
         registry.register(marriage);
         registry.register(remind);
-        registry.register(customizeUserinfo);
         registry.register(group);
+        registry.register(twitch);
+        registry.register(customizeUserinfo);
 
         // Send them to Discord and clear the temporary cache
         pushCommands(registry.getAll());

@@ -33,6 +33,10 @@ public final class Scopes {
         public static final String CREATE_TICTACTOE = "CREATE_TICTACTOE";
     }
 
+    public static class Twitch {
+        public static final String PAGINATE_USERS = "VIEW_USERS";
+    }
+
     public static class Misc {
         public static final String CHOOSABLE_ROLES            = "CHOOSABLE_ROLES";
         public static final String PAGINATE_BIRTHDAYS         = "VIEW_BIRTHDAYS";

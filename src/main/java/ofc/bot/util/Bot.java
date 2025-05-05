@@ -11,6 +11,7 @@ import ofc.bot.Main;
 import ofc.bot.domain.entity.enums.Gender;
 import ofc.bot.internal.data.BotProperties;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +89,7 @@ public final class Bot {
         return mapper.apply(ann);
     }
 
+    @Nullable
     public static String get(String key) {
         try {
             return BotProperties.find(key);
@@ -349,6 +351,7 @@ public final class Bot {
 
     public static final class Colors {
         public static final Color DISCORD = new Color(88, 101, 242);
+        public static final Color TWITCH = new Color(144, 70, 254);
         public static final Color DEFAULT = new Color(170, 67, 254);
     }
 
