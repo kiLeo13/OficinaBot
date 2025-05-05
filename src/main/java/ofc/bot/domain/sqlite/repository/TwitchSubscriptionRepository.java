@@ -7,6 +7,8 @@ import ofc.bot.domain.tables.TwitchSubscriptionsTable;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
+import java.util.List;
+
 /**
  * Repository for {@link TwitchSubscription} entity.
  */
@@ -30,6 +32,13 @@ public class TwitchSubscriptionRepository extends Repository<TwitchSubscription>
                 .where(TWITCH_SUBSCRIPTIONS.CHANNEL_ID.eq(channelId))
                 .and(TWITCH_SUBSCRIPTIONS.DESTINATION.eq(destination))
                 .fetchOne();
+    }
+
+    public List<TwitchSubscription> findByChannelId(@NotNull String channelId) {
+        Checks.notNull(channelId, "Channel ID");
+        return ctx.selectFrom(TWITCH_SUBSCRIPTIONS)
+                .where(TWITCH_SUBSCRIPTIONS.CHANNEL_ID.eq(channelId))
+                .fetch();
     }
 
     public TwitchSubscription findAnyByChannelId(@NotNull String chanId) {

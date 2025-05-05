@@ -90,7 +90,7 @@ public class TwitchService {
 
             // Registering application-level listeners
             EventManager eventManager = service.socketPool.getEventManager();
-            eventManager.onEvent(StreamOnlineEvent.class, new StreamOnlineListener());
+            eventManager.onEvent(StreamOnlineEvent.class, new StreamOnlineListener(twitchSubRepo));
         } catch (Exception e) {
             throw new RuntimeException("Failed to create TwitchConduitSocketPool", e);
         }
