@@ -703,8 +703,8 @@ public final class EmbedFactory {
         String displayName = user.getDisplayName();
         String login = user.getLogin();
         String description = user.getDescription();
-        String offlineImageUrl = user.getOfflineImageUrl();
-        String profileUrl = user.getProfileImageUrl();
+        String offlineImageUrl = nullIfBlank(user.getOfflineImageUrl());
+        String profileUrl = nullIfBlank(user.getProfileImageUrl());
         String type = String.format("%s / %s", broadcasterType.toHyperlink(), userType.display);
         String id = user.getId();
         String createdAt = String.format("<t:%d>", user.getCreatedAt().getEpochSecond());
@@ -722,6 +722,10 @@ public final class EmbedFactory {
                 .addField("🔗 Url", url, true)
                 .setFooter(guild.getName(), guild.getIconUrl())
                 .build();
+    }
+
+    private static String nullIfBlank(String str) {
+        return str == null || str.isBlank() ? null : str;
     }
 
     private static BroadcasterType getBroadcasterType(com.github.twitch4j.helix.domain.User user) {
