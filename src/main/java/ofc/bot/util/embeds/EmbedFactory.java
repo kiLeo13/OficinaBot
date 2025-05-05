@@ -774,7 +774,7 @@ public final class EmbedFactory {
 
         static BroadcasterType fromName(String name) {
             for (BroadcasterType bt : BroadcasterType.values()) {
-                if (bt.display.equals(name)) {
+                if (bt.name().equals(name)) {
                     return bt;
                 }
             }
@@ -802,7 +802,7 @@ public final class EmbedFactory {
 
         static TwitchUserType fromName(String name) {
             for (TwitchUserType bt : TwitchUserType.values()) {
-                if (bt.display.equals(name)) {
+                if (bt.name().equals(name)) {
                     return bt;
                 }
             }
