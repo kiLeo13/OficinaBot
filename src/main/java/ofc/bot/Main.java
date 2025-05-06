@@ -11,11 +11,8 @@ import ofc.bot.handlers.EntityInitializerManager;
 import ofc.bot.internal.data.BotFiles;
 import ofc.bot.twitch.TwitchService;
 import ofc.bot.util.Bot;
-import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public final class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
@@ -41,12 +38,8 @@ public final class Main {
 
             ConsoleQueryHandler.init();
             EntityInitializerManager.initializeCronJobs();
-        } catch (DataAccessException e) {
-            LOGGER.error("Could not perform database operation", e);
-        } catch (IOException e) {
-            LOGGER.error("Could not load bot files", e);
-        } catch (InterruptedException e) {
-            LOGGER.error("Failed to login", e);
+        } catch (Exception e) {
+            LOGGER.error("Failed to initialize some essential bot services", e);
             return;
         }
 
