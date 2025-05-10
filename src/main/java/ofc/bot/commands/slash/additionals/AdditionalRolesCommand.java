@@ -1,4 +1,4 @@
-package ofc.bot.commands.additionals;
+package ofc.bot.commands.slash.additionals;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;

@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import ofc.bot.Main;
-import ofc.bot.commands.levels.LevelsRolesCommand;
+import ofc.bot.commands.slash.levels.LevelsRolesCommand;
 import ofc.bot.domain.entity.LevelRole;
 import ofc.bot.domain.sqlite.repository.LevelRoleRepository;
 import ofc.bot.handlers.economy.PaymentManagerProvider;

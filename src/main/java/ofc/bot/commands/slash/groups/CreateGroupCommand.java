@@ -1,4 +1,4 @@
-package ofc.bot.commands.groups;
+package ofc.bot.commands.slash.groups;
 
 import com.vdurmont.emoji.EmojiManager;
 import net.dv8tion.jda.api.entities.*;

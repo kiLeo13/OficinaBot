@@ -2,7 +2,7 @@ package ofc.bot.handlers;
 
 import net.dv8tion.jda.api.JDA;
 import ofc.bot.Main;
-import ofc.bot.commands.groups.LeaveGroupCommand;
+import ofc.bot.commands.slash.groups.LeaveGroupCommand;
 import ofc.bot.domain.sqlite.repository.*;
 import ofc.bot.events.eventbus.EventBus;
 import ofc.bot.handlers.cache.PolicyService;
@@ -194,7 +194,6 @@ public final class EntityInitializerManager {
         var namesRepo     = Repositories.getUserNameUpdateRepository();
         var usprefRepo    = Repositories.getUserPreferenceRepository();
         var modActRepo    = Repositories.getAutomodActionRepository();
-        var policyRepo    = Repositories.getEntityPolicyRepository();
         var grpRepo       = Repositories.getOficinaGroupRepository();
         var blckWordsRepo = Repositories.getBlockedWordRepository();
         var ecoRepo       = Repositories.getUserEconomyRepository();

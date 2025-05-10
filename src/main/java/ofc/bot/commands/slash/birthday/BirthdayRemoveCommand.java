@@ -1,4 +1,4 @@
-package ofc.bot.commands.birthday;
+package ofc.bot.commands.slash.birthday;
 
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;

@@ -1,4 +1,4 @@
-package ofc.bot.commands.stafflist;
+package ofc.bot.commands.slash.stafflist;
 
 record StaffMessageBody(
         String title,

@@ -1,4 +1,4 @@
-package ofc.bot.commands.relationships;
+package ofc.bot.commands.slash.relationships;
 
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;

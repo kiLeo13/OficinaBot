@@ -1,4 +1,4 @@
-package ofc.bot.commands.twitch;
+package ofc.bot.commands.slash.twitch;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;

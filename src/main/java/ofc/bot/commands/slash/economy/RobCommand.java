@@ -1,4 +1,4 @@
-package ofc.bot.commands.economy;
+package ofc.bot.commands.slash.economy;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;

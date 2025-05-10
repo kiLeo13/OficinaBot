@@ -1,4 +1,4 @@
-package ofc.bot.commands.groups.channel;
+package ofc.bot.commands.slash.groups.channel;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

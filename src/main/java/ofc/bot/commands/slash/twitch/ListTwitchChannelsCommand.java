@@ -1,4 +1,4 @@
-package ofc.bot.commands.twitch;
+package ofc.bot.commands.slash.twitch;
 
 import com.github.twitch4j.helix.domain.User;
 import net.dv8tion.jda.api.entities.Guild;

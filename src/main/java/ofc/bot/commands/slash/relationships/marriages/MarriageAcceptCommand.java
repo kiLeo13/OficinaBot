@@ -1,4 +1,4 @@
-package ofc.bot.commands.relationships.marriages;
+package ofc.bot.commands.slash.relationships.marriages;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import ofc.bot.commands.relationships.MarryCommand;
+import ofc.bot.commands.slash.relationships.MarryCommand;
 import ofc.bot.domain.entity.*;
 import ofc.bot.domain.entity.enums.TransactionType;
 import ofc.bot.domain.sqlite.repository.MarriageRepository;
@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @DiscordCommand(name = "marriage accept")
-public class MarriageAcceptCommanad extends SlashSubcommand {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarriageAcceptCommanad.class);
+public class MarriageAcceptCommand extends SlashSubcommand {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MarriageAcceptCommand.class);
     private final MarriageRequestRepository mreqRepo;
     private final MarriageRepository marrRepo;
     private final UserEconomyRepository ecoRepo;
 
-    public MarriageAcceptCommanad(MarriageRequestRepository mreqRepo, MarriageRepository marrRepo, UserEconomyRepository ecoRepo) {
+    public MarriageAcceptCommand(MarriageRequestRepository mreqRepo, MarriageRepository marrRepo, UserEconomyRepository ecoRepo) {
         this.mreqRepo = mreqRepo;
         this.marrRepo = marrRepo;
         this.ecoRepo = ecoRepo;

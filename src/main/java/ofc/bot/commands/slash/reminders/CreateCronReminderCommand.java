@@ -1,4 +1,4 @@
-package ofc.bot.commands.reminders;
+package ofc.bot.commands.slash.reminders;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;

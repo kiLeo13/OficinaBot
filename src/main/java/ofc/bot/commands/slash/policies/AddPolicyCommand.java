@@ -1,4 +1,4 @@
-package ofc.bot.commands.policies;
+package ofc.bot.commands.slash.policies;
 
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;

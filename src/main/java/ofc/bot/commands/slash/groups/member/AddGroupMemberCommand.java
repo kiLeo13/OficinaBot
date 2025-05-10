@@ -1,4 +1,4 @@
-package ofc.bot.commands.groups.member;
+package ofc.bot.commands.slash.groups.member;
 
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;

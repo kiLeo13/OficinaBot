@@ -1,4 +1,4 @@
-package ofc.bot.commands.moderation;
+package ofc.bot.commands.slash.moderation;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;

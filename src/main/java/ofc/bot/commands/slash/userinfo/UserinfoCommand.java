@@ -1,4 +1,4 @@
-package ofc.bot.commands.userinfo;
+package ofc.bot.commands.slash.userinfo;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;

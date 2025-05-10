@@ -1,4 +1,4 @@
-package ofc.bot.commands.stafflist;
+package ofc.bot.commands.slash.stafflist;
 
 import java.util.List;
 

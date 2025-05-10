@@ -1,4 +1,4 @@
-package ofc.bot.commands.bets;
+package ofc.bot.commands.slash.bets;
 
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;

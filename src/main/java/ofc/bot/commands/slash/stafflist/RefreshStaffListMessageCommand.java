@@ -1,4 +1,4 @@
-package ofc.bot.commands.stafflist;
+package ofc.bot.commands.slash.stafflist;
 
 import com.google.gson.Gson;
 import net.dv8tion.jda.api.Permission;

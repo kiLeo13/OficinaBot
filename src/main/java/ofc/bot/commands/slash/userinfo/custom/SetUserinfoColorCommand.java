@@ -1,4 +1,4 @@
-package ofc.bot.commands.userinfo.custom;
+package ofc.bot.commands.slash.userinfo.custom;
 
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;

@@ -1,4 +1,4 @@
-package ofc.bot.commands.levels;
+package ofc.bot.commands.slash.levels;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;

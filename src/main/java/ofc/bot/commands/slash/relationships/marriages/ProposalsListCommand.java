@@ -1,4 +1,4 @@
-package ofc.bot.commands.relationships.marriages;
+package ofc.bot.commands.slash.relationships.marriages;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
