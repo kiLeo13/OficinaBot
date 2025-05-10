@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.jooq.impl.DSL.noCondition;
 
@@ -67,9 +66,9 @@ public class MemberPunishmentRepository extends Repository<MemberPunishment> {
         );
     }
 
-    public int countByUserIdAfter(long userId, long period, TimeUnit unit) {
+    public int countByUserIdAfter(long userId, long periodSeconds) {
         long now = Bot.unixNow();
-        long startPoint = now - unit.toSeconds(period);
+        long startPoint = now - periodSeconds;
 
         return ctx.fetchCount(MEMBERS_PUNISHMENTS,
                 MEMBERS_PUNISHMENTS.USER_ID.eq(userId)

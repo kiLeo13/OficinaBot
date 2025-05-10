@@ -17,6 +17,7 @@ import org.jooq.exception.DataAccessException;
 import java.util.concurrent.TimeUnit;
 
 public final class PunishmentManager {
+    private static final long PUNISHMENT_EXPIRY_SECONDS = TimeUnit.DAYS.toSeconds(180); // 6 months
     private final MemberPunishmentRepository pnshRepo;
     private final AutomodActionRepository modActRepo;
 
@@ -35,7 +36,7 @@ public final class PunishmentManager {
 
         try {
             pnshRepo.upsert(punishment);
-            int warnCount = pnshRepo.countByUserIdAfter(target.getIdLong(), 30, TimeUnit.DAYS);
+            int warnCount = pnshRepo.countByUserIdAfter(target.getIdLong(), PUNISHMENT_EXPIRY_SECONDS);
             AutomodAction automodAction = modActRepo.findLastByThreshold(warnCount);
 
             if (automodAction == null)
