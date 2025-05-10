@@ -1,11 +1,10 @@
-package ofc.bot.handlers.interactions.commands.slash;
+package ofc.bot.handlers.commands.slash;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import ofc.bot.Main;
-import ofc.bot.commands.*;
 import ofc.bot.commands.additionals.AdditionalRolesCommand;
 import ofc.bot.commands.bets.BetTicTacToeCommand;
 import ofc.bot.commands.birthday.BirthdayAddCommand;
@@ -35,9 +34,9 @@ import ofc.bot.commands.twitch.UnsubscribeTwitchCommand;
 import ofc.bot.commands.userinfo.UserinfoCommand;
 import ofc.bot.commands.userinfo.custom.*;
 import ofc.bot.domain.sqlite.repository.Repositories;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.ICommand;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
-import ofc.bot.handlers.interactions.commands.slash.dummy.EmptySlashCommand;
+import ofc.bot.handlers.commands.slash.abstractions.ICommand;
+import ofc.bot.handlers.commands.slash.abstractions.SlashCommand;
+import ofc.bot.handlers.commands.slash.dummy.EmptySlashCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,11 +10,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ofc.bot.domain.entity.Reminder;
 import ofc.bot.domain.sqlite.repository.ReminderRepository;
-import ofc.bot.handlers.interactions.commands.Cooldown;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.responses.states.Status;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
+import ofc.bot.handlers.commands.Cooldown;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.responses.states.Status;
+import ofc.bot.handlers.commands.slash.abstractions.SlashSubcommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ public class CreateFixedReminderCommand extends SlashSubcommand {
     @Override
     public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         String message = ctx.getSafeOption("message", OptionMapping::getAsString);
-        Month month = ctx.getEnumOption("month", null, Month.class);
+        Month month = ctx.getEnumOption("month", null, Month::valueOf);
         int day = ctx.getOption("day", -1, OptionMapping::getAsInt);
         int hour = ctx.getOption("hour", -1, OptionMapping::getAsInt);
         int minute = ctx.getOption("minute", -1, OptionMapping::getAsInt);

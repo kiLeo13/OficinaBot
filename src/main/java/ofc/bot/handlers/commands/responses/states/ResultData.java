@@ -1,4 +1,4 @@
-package ofc.bot.handlers.interactions.commands.responses.states;
+package ofc.bot.handlers.commands.responses.states;
 
 public class ResultData implements InteractionResult {
     public static final Object[] EMPTY_ARGS = new Object[0];

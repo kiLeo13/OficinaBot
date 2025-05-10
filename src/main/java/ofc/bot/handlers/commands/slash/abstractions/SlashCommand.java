@@ -1,9 +1,10 @@
-package ofc.bot.handlers.interactions.commands.slash.abstractions;
+package ofc.bot.handlers.commands.slash.abstractions;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.utils.Checks;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
-import ofc.bot.handlers.interactions.commands.slash.SubcommandGroup;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.slash.SubcommandGroup;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SlashCommand implements SubcommandContainer, ICommand<SlashCommandContext> {
+public abstract class SlashCommand implements SubcommandContainer, ICommand<SlashCommandContext, OptionData> {
     private final String name;
     private final List<Permission> permissions;
     private final List<SlashSubcommand> subCmds;

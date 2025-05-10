@@ -5,14 +5,14 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.FileUpload;
-import ofc.bot.handlers.interactions.commands.responses.InteractionResponseBuilder;
-import ofc.bot.handlers.interactions.commands.responses.InteractionResponseData;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.responses.InteractionResponseBuilder;
+import ofc.bot.handlers.commands.responses.ResponseData;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
 
-public interface AcknowledgeableAction<T, B> {
+public interface AcknowledgeableAction<H, T, B extends ResponseData<H>> {
 
     /**
      * The id of the entity, usually an {@link Interaction}.
@@ -154,8 +154,8 @@ public interface AcknowledgeableAction<T, B> {
     InteractionResult replyModal(@NotNull Modal modal);
 
     @NotNull
-    InteractionResult edit(InteractionResponseData data);
+    InteractionResult edit(ResponseData<H> data);
 
     @NotNull
-    InteractionResult reply(InteractionResponseData data);
+    InteractionResult reply(ResponseData<H> data);
 }

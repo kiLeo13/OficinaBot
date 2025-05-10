@@ -1,9 +1,9 @@
-package ofc.bot.handlers.interactions.commands.slash;
+package ofc.bot.handlers.commands.slash;
 
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.internal.utils.Checks;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SubcommandContainer;
+import ofc.bot.handlers.commands.slash.abstractions.SlashSubcommand;
+import ofc.bot.handlers.commands.slash.abstractions.SubcommandContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

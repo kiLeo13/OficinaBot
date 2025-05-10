@@ -1,7 +1,7 @@
-package ofc.bot.handlers.interactions.commands.slash.abstractions;
+package ofc.bot.handlers.commands.slash.abstractions;
 
 import net.dv8tion.jda.api.Permission;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import org.jetbrains.annotations.NotNull;

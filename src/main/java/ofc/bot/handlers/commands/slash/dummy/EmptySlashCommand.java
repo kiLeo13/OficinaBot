@@ -1,9 +1,9 @@
-package ofc.bot.handlers.interactions.commands.slash.dummy;
+package ofc.bot.handlers.commands.slash.dummy;
 
 import net.dv8tion.jda.api.Permission;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.slash.abstractions.SlashCommand;
 import org.jetbrains.annotations.NotNull;
 
 /**

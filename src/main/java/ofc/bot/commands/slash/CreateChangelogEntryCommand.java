@@ -5,9 +5,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import org.jetbrains.annotations.NotNull;
 

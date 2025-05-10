@@ -9,8 +9,8 @@ import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.InteractionMemoryManager;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonClickContext;
 import ofc.bot.handlers.interactions.buttons.contexts.ButtonContext;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.responses.states.Status;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 
 import java.util.List;

@@ -10,10 +10,10 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.sqlite.repository.UserEconomyRepository;
 import ofc.bot.domain.viewmodels.LeaderboardUser;
 import ofc.bot.handlers.interactions.EntityContextFactory;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.responses.states.Status;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.responses.states.Status;
+import ofc.bot.handlers.commands.slash.abstractions.SlashCommand;
 import ofc.bot.handlers.paginations.PageItem;
 import ofc.bot.handlers.paginations.Paginator;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
@@ -34,7 +34,7 @@ public class LeaderboardCommand extends SlashCommand {
     @Override
     public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
         int pageIndex = ctx.getOption("page", 1, OptionMapping::getAsInt) - 1;
-        Scope scope = ctx.getEnumOption("scope", Scope.ALL, Scope.class);
+        Scope scope = ctx.getEnumOption("scope", Scope.ALL, Scope::valueOf);
         Guild guild = ctx.getGuild();
         Paginator<LeaderboardUser> paginator = Paginator.of((o) -> ecoRepo.viewLeaderboard(scope, o, PAGE_SIZE), ecoRepo::countAll, PAGE_SIZE);
         PageItem<LeaderboardUser> lb = paginator.next(pageIndex);

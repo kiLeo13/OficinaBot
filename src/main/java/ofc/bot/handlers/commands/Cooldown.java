@@ -1,4 +1,4 @@
-package ofc.bot.handlers.interactions.commands;
+package ofc.bot.handlers.commands;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;

@@ -1,4 +1,4 @@
-package ofc.bot.handlers.interactions.commands;
+package ofc.bot.handlers.commands;
 
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -8,11 +8,11 @@ import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import ofc.bot.domain.entity.CommandHistory;
 import ofc.bot.domain.sqlite.repository.AppUserBanRepository;
 import ofc.bot.domain.sqlite.repository.CommandHistoryRepository;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.responses.states.Status;
-import ofc.bot.handlers.interactions.commands.slash.SlashCommandsRegistryManager;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.ICommand;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.responses.states.Status;
+import ofc.bot.handlers.commands.slash.SlashCommandsRegistryManager;
+import ofc.bot.handlers.commands.slash.abstractions.ICommand;
 import ofc.bot.util.Bot;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;
 import ofc.bot.util.embeds.EmbedFactory;
@@ -40,7 +40,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
         Guild guild = e.getGuild();
         String fullName = e.getFullCommandName();
-        ICommand<SlashCommandContext> cmd = registry.getCommand(fullName);
+        ICommand<SlashCommandContext, ?> cmd = registry.getCommand(fullName);
         Member member = e.getMember();
 
         if (guild == null || member == null) return;
@@ -75,7 +75,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
         }
     }
 
-    private void handleCommand(SlashCommandContext ctx, ICommand<SlashCommandContext> cmd) {
+    private void handleCommand(SlashCommandContext ctx, ICommand<SlashCommandContext, ?> cmd) {
         SlashCommandInteraction itr = ctx.getSource();
         MessageChannel channel = ctx.getChannel();
         User user = ctx.getUser();
@@ -114,7 +114,7 @@ public class SlashCommandsGateway extends ListenerAdapter {
         });
     }
 
-    private boolean handleCooldown(SlashCommandContext ctx, ICommand<?> cmd) {
+    private boolean handleCooldown(SlashCommandContext ctx, ICommand<?, ?> cmd) {
         Member issuer = ctx.getIssuer();
         User user = issuer.getUser();
         Cooldown cooldown = cmd.getCooldown();

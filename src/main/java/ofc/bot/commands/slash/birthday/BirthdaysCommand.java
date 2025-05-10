@@ -1,4 +1,4 @@
-package ofc.bot.commands.birthday;
+package ofc.bot.commands.slash.birthday;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -10,9 +10,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import ofc.bot.domain.entity.Birthday;
 import ofc.bot.domain.sqlite.repository.BirthdayRepository;
 import ofc.bot.handlers.interactions.EntityContextFactory;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.slash.abstractions.SlashCommand;
 import ofc.bot.util.content.annotations.commands.DiscordCommand;
 import ofc.bot.util.embeds.EmbedFactory;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +34,7 @@ public class BirthdaysCommand extends SlashCommand {
 
     @Override
     public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
-        Month month = ctx.getEnumOption("month", LocalDate.now().getMonth(), Month.class);
+        Month month = ctx.getEnumOption("month", LocalDate.now().getMonth(), Month::valueOf);
         Guild guild = ctx.getGuild();
         List<Birthday> birthdays = bdayRepo.findByMonth(month);
         MessageEmbed embed = EmbedFactory.embedBirthdayList(birthdays, guild, month);

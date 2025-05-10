@@ -3,22 +3,23 @@ package ofc.bot.handlers.interactions.actions.impl;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.Interaction;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.handlers.interactions.actions.AcknowledgeableAction;
-import ofc.bot.handlers.interactions.commands.responses.InteractionResponseBuilder;
-import ofc.bot.handlers.interactions.commands.responses.InteractionResponseData;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.handlers.commands.responses.InteractionResponseBuilder;
+import ofc.bot.handlers.commands.responses.ResponseData;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.responses.states.Status;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
 
 public abstract class GenericInteractionRepliableAction<T extends Interaction & IReplyCallback>
-        implements AcknowledgeableAction<T, InteractionResponseBuilder> {
+        implements AcknowledgeableAction<InteractionHook, T, InteractionResponseBuilder> {
     private final T itr;
     private final Member member;
     private final Guild guild;
@@ -172,7 +173,7 @@ public abstract class GenericInteractionRepliableAction<T extends Interaction & 
 
     @Override
     @NotNull
-    public final InteractionResult edit(InteractionResponseData data) {
+    public final InteractionResult edit(ResponseData<InteractionHook> data) {
         this.itr.getHook()
                 .editOriginal(data.toEditData())
                 .queue(data.getSuccessHook(), data.getFailureHook());
@@ -182,7 +183,7 @@ public abstract class GenericInteractionRepliableAction<T extends Interaction & 
 
     @Override
     @NotNull
-    public final InteractionResult reply(InteractionResponseData data) {
+    public final InteractionResult reply(ResponseData<InteractionHook> data) {
         if (!isAcknowledged()) {
             this.itr.reply(data.toCreateData())
                     .setEphemeral(data.isEphemeral())

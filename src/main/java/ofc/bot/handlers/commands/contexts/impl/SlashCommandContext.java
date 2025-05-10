@@ -1,10 +1,9 @@
-package ofc.bot.handlers.interactions.commands.contexts.impl;
+package ofc.bot.handlers.commands.contexts.impl;
 
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
-import net.dv8tion.jda.internal.utils.Checks;
+import ofc.bot.handlers.commands.contexts.OptionsContainer;
 import ofc.bot.handlers.interactions.actions.impl.SlashRepliableAction;
-import ofc.bot.handlers.interactions.commands.contexts.OptionsContainer;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -12,11 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Function;
 
-public class SlashCommandContext extends SlashRepliableAction implements OptionsContainer {
+public class SlashCommandContext extends SlashRepliableAction implements OptionsContainer<OptionMapping> {
 
     public SlashCommandContext(SlashCommandInteraction itr) {
         super(itr);
-        Checks.notNull(itr, "SlashCommand Interaction");
     }
 
     @Override
@@ -42,6 +40,12 @@ public class SlashCommandContext extends SlashRepliableAction implements Options
         return option == null
                 ? fallback
                 : option;
+    }
+
+    @Override
+    public <T extends Enum<T>> T getEnumOption(@NotNull String name, @NotNull Function<String, T> resolver) {
+        String val = getOption(name, OptionMapping::getAsString);
+        return val == null ? null : resolver.apply(val);
     }
 
     @Override

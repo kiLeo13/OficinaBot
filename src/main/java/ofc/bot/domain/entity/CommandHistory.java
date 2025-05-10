@@ -2,7 +2,7 @@ package ofc.bot.domain.entity;
 
 import net.dv8tion.jda.internal.utils.Checks;
 import ofc.bot.domain.tables.CommandsHistoryTable;
-import ofc.bot.handlers.interactions.commands.responses.states.Status;
+import ofc.bot.handlers.commands.responses.states.Status;
 import ofc.bot.util.Bot;
 import org.jetbrains.annotations.NotNull;
 

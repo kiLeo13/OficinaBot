@@ -1,11 +1,11 @@
-package ofc.bot.handlers.interactions.commands.slash;
+package ofc.bot.handlers.commands.slash;
 
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.internal.utils.Checks;
-import ofc.bot.handlers.interactions.commands.contexts.impl.SlashCommandContext;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.ICommand;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashCommand;
-import ofc.bot.handlers.interactions.commands.slash.abstractions.SlashSubcommand;
+import ofc.bot.handlers.commands.contexts.impl.SlashCommandContext;
+import ofc.bot.handlers.commands.slash.abstractions.ICommand;
+import ofc.bot.handlers.commands.slash.abstractions.SlashCommand;
+import ofc.bot.handlers.commands.slash.abstractions.SlashSubcommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

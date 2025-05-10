@@ -1,6 +1,6 @@
 package ofc.bot.handlers.interactions;
 
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
 import ofc.bot.util.content.annotations.listeners.InteractionHandler;
 
 public interface InteractionListener<T extends InteractionSubmitContext<?, ?>> {

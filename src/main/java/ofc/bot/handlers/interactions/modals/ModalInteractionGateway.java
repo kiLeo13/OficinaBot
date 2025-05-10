@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import ofc.bot.handlers.interactions.AutoResponseType;
 import ofc.bot.handlers.interactions.InteractionListener;
 import ofc.bot.handlers.interactions.InteractionMemoryManager;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
 import ofc.bot.handlers.interactions.modals.contexts.ModalContext;
 import ofc.bot.handlers.interactions.modals.contexts.ModalSubmitContext;
 import ofc.bot.util.content.annotations.listeners.DiscordEventHandler;

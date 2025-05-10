@@ -1,4 +1,4 @@
-package ofc.bot.handlers.interactions.commands.slash.abstractions;
+package ofc.bot.handlers.commands.slash.abstractions;
 
 import org.jetbrains.annotations.NotNull;
 

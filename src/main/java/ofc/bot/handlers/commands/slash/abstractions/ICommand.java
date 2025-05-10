@@ -1,16 +1,16 @@
-package ofc.bot.handlers.interactions.commands.slash.abstractions;
+package ofc.bot.handlers.commands.slash.abstractions;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
-import ofc.bot.handlers.interactions.commands.Cooldown;
-import ofc.bot.handlers.interactions.commands.responses.states.InteractionResult;
-import ofc.bot.handlers.interactions.commands.slash.SubcommandGroup;
+import ofc.bot.handlers.commands.Cooldown;
+import ofc.bot.handlers.commands.responses.states.InteractionResult;
+import ofc.bot.handlers.commands.slash.SubcommandGroup;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface ICommand<C> {
+public interface ICommand<C, O> {
 
     InteractionResult onCommand(@NotNull C ctx);
 
@@ -24,7 +24,7 @@ public interface ICommand<C> {
     List<Permission> getPermissions();
 
     @NotNull
-    default List<OptionData> getOptions() {
+    default List<O> getOptions() {
         return List.of();
     }
 

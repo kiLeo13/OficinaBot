@@ -1,4 +1,4 @@
-package ofc.bot.handlers.interactions.commands.responses.states;
+package ofc.bot.handlers.commands.responses.states;
 
 public interface InteractionResult {
     String getContent();
