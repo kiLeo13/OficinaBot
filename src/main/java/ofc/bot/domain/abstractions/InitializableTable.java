@@ -39,4 +39,7 @@ public abstract class InitializableTable<R extends OficinaRecord<?>> extends Tab
     protected <T> ConstraintForeignKeyReferencesStep1<T> foreignKey(Field<T> key) {
          return DSL.foreignKey(key);
     }
+
+    @NotNull
+    public abstract Class<R> getRecordType();
 }

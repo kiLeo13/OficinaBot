@@ -33,4 +33,10 @@ public class TwitchSubscriptionsTable extends InitializableTable<TwitchSubscript
                 .unique(CHANNEL_ID, DESTINATION)
                 .constraint(foreignKey(ADDED_BY).references(USERS, USERS.ID));
     }
+
+    @NotNull
+    @Override
+    public Class<TwitchSubscription> getRecordType() {
+        return TwitchSubscription.class;
+    }
 }
