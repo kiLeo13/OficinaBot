@@ -10,6 +10,7 @@ public final class Repositories {
     private static BetGameRepository gameRepository;
     private static BirthdayRepository birthdayRepository;
     private static BlockedWordRepository blockedWordRepository;
+    private static CalendarEventRepository calendarEventRepository;
     private static ColorRoleStateRepository colorRoleStateRepository;
     private static CommandHistoryRepository commandHistoryRepository;
     private static CustomUserinfoRepository customUserinfoRepository;
@@ -65,6 +66,11 @@ public final class Repositories {
     public static BlockedWordRepository getBlockedWordRepository() {
         if (blockedWordRepository == null) blockedWordRepository = new BlockedWordRepository(getDSLContext());
         return blockedWordRepository;
+    }
+
+    public static CalendarEventRepository getCalendarEventRepository() {
+        if (calendarEventRepository == null) calendarEventRepository = new CalendarEventRepository(getDSLContext());
+        return calendarEventRepository;
     }
 
     public static ColorRoleStateRepository getColorRoleStateRepository() {

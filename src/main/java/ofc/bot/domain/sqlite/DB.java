@@ -3,7 +3,6 @@ package ofc.bot.domain.sqlite;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import ofc.bot.domain.abstractions.InitializableTable;
-import ofc.bot.domain.sqlite.repository.TwitchSubscriptionRepository;
 import ofc.bot.domain.tables.*;
 import ofc.bot.internal.data.BotFiles;
 import ofc.bot.listeners.console.QueryCounter;
@@ -53,6 +52,7 @@ public final class DB {
                 BlockedWordsTable.BLOCKED_WORDS,
                 ColorRolesStateTable.COLOR_ROLES_STATES,
                 CommandsHistoryTable.COMMANDS_HISTORY,
+                CalendarEventsTable.CALENDAR_EVENTS,
                 CustomUserinfoTable.CUSTOM_USERINFO,
                 DiscordMessagesTable.DISCORD_MESSAGES,
                 DiscordMessageUpdatesTable.DISCORD_MESSAGE_UPDATES,
