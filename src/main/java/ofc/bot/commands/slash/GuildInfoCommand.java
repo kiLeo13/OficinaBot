@@ -41,7 +41,7 @@ public class GuildInfoCommand extends SlashCommand {
         Member owner = guild.retrieveOwner().complete();
         String creation = String.format("<t:%d>\n<t:%1$d:R>", timeCreated);
         String ownerName = owner == null ? "Not found" : owner.getEffectiveName();
-        String banner = guild.getBannerUrl() == null ? "" : guild.getBannerUrl() + "?size=2048";
+        String banner = guild.getBannerUrl() == null ? "" : guild.getBannerUrl() + "?size=1024";
         String fmtMembers = String.format("👥 Membros (%d/%d)", guild.getMemberCount(), guild.getMaxMembers());
 
         List<GuildChannel> channels = guild.getChannels(true);
