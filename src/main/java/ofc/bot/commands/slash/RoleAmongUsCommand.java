@@ -27,14 +27,12 @@ public class RoleAmongUsCommand extends SlashCommand {
 
     @Override
     public InteractionResult onCommand(@NotNull SlashCommandContext ctx) {
-        ctx.ack();
-
         Member target = ctx.getOption("member", OptionMapping::getAsMember);
         Guild guild = ctx.getGuild();
         MessageChannel channel = ctx.getChannel();
         Role roleAmongUs = guild.getRoleById(Roles.AMONG_US.id());
 
-        if (Channels.AMONG_US_ROLE.isSame(channel.getId()))
+        if (!Channels.AMONG_US_ROLE.isSame(channel.getId()))
             return Status.INCORRECT_CHANNEL_OF_USAGE;
 
         if (target == null)
@@ -49,6 +47,7 @@ public class RoleAmongUsCommand extends SlashCommand {
         if (target.getRoles().contains(roleAmongUs))
             return Status.MEMBER_ALREADY_HAS_ROLE.args(roleAmongUs.getName());
 
+        ctx.ack();
         guild.addRoleToMember(target, roleAmongUs).queue((s) -> {
             ctx.reply(Status.ROLE_SUCCESSFULLY_ADDED_TO_MEMBER.args(roleAmongUs.getName(), target.getAsMention()));
         }, (e) -> {
