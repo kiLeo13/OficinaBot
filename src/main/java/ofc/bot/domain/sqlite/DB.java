@@ -52,7 +52,6 @@ public final class DB {
                 BlockedWordsTable.BLOCKED_WORDS,
                 ColorRolesStateTable.COLOR_ROLES_STATES,
                 CommandsHistoryTable.COMMANDS_HISTORY,
-                CalendarEventsTable.CALENDAR_EVENTS,
                 CustomUserinfoTable.CUSTOM_USERINFO,
                 DiscordMessagesTable.DISCORD_MESSAGES,
                 DiscordMessageUpdatesTable.DISCORD_MESSAGE_UPDATES,
@@ -74,6 +73,7 @@ public final class DB {
                 UsersEconomyTable.USERS_ECONOMY,
                 UsersPreferencesTable.USERS_PREFERENCES,
                 UsersTable.USERS,
+                UsersSubscriptionsTable.USERS_SUBSCRIPTIONS,
                 UsersXPTable.USERS_XP
         );
     }
